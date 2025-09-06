@@ -1,4 +1,4 @@
-# Tomo - android
+# Tomo - Android
 친구들과의 우정을 확인하고 싶을 때 사용하면 좋은 서비스입니다.
 
 

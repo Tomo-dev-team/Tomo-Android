@@ -1,4 +1,4 @@
-package com.markoala.tomo
+package com.markoala.tomoandroid
 
 import org.junit.Test
 

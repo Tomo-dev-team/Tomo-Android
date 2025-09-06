@@ -1,8 +1,3 @@
-repositories {
-    google()
-    mavenCentral()
-}
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -10,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.markoala.tomo"
+    namespace = "com.markoala.tomoandroid"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.markoala.tomo"
+        applicationId = "com.markoala.tomoandroid"
         minSdk = 33
         targetSdk = 36
         versionCode = 1
@@ -54,7 +49,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.navigation.compose)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

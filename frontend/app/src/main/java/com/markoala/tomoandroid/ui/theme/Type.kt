@@ -1,4 +1,4 @@
-package com.markoala.tomo.ui.theme
+package com.markoala.tomoandroid.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
