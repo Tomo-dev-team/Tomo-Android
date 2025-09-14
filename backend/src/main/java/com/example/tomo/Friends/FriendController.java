@@ -1,6 +1,8 @@
 package com.example.tomo.Friends;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -15,7 +17,7 @@ public class FriendController {
     }
 
     @GetMapping("/friends")
-    public List<Long> getMyFriends(Long user_id){
+    public List<Long> getMyFriends(@RequestParam Long user_id){
         return friendService.getFriends(user_id);
 
     }

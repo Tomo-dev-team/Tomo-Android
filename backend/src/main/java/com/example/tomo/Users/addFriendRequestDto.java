@@ -1,6 +1,11 @@
 package com.example.tomo.Users;
 
-public class addFriendRequsetDto {
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class addFriendRequestDto {
     private Long FriendRequestUserId;
     private String phone;
 }

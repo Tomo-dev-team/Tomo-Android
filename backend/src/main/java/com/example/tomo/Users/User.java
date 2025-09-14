@@ -41,8 +41,7 @@ public class User {
         moimPeople.setUser(this);
     }
 
-    //**친구 추가**//
-    //**친구 목록 조회는 그냥 jpa 메소드로 처리**//
+
 
 
 
