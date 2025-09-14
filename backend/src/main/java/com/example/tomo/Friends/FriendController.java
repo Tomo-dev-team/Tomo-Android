@@ -10,7 +10,6 @@ import java.util.List;
 @RestController
 public class FriendController {
 
-
     private final FriendService friendService;
     public FriendController(FriendService friendService) {
         this.friendService = friendService;
@@ -20,4 +19,10 @@ public class FriendController {
     public List<Long> getMyFriends(@RequestParam("id") Long user_id){
         return friendService.getFriends(user_id);
     }
+
+    @GetMapping("/friends/{id}")
+    public List<ResponseFriendDetailDto> getFriendDetails(@PathVariable("id") Long user_id){
+        return friendService.getDetailFriends(user_id);
+    }
+
 }

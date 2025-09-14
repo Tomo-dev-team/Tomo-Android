@@ -41,9 +41,11 @@ public class UserService {
         }
 
         Friend friends = new Friend(user, friend);
+        Friend reverseFriend = new Friend(friend, user);
 
         user.addFriend(friends);
         friendRepository.save(friends);
+        friendRepository.save(reverseFriend);
         return friend.getUsername();
 
     }

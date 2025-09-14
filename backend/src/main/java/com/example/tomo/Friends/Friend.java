@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 
 @Entity
 @Getter
@@ -32,4 +35,10 @@ public class Friend {
         this.user = user;
         this.friend = friend;
     }
+
+    private Integer m_score = 0;
+    private Integer b_score = 0;
+
+    private LocalDate created_at;
+
 }
