@@ -4,17 +4,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.navigation.compose.rememberNavController
 import com.markoala.tomoandroid.auth.AuthManager
-import com.markoala.tomoandroid.auth.CredentialSignInScreen
+import com.markoala.tomoandroid.navigation.AppNavHost
 import com.markoala.tomoandroid.ui.theme.TomoAndroidTheme
 import kotlinx.coroutines.launch
 
@@ -38,24 +32,10 @@ fun MainScreen() {
     var signedIn by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val navController = rememberNavController()
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (!signedIn) {
-            CredentialSignInScreen { signedIn = true }
-        } else {
-            Text(text = "Signed in!")
-            Button(onClick = {
-                scope.launch {
-                    val (success, _) = AuthManager.signOutSuspend(context)
-                    if (success) signedIn = false
-                }
-            }) {
-                Text(text = "Sign out")
-            }
-        }
-    }
+    // 로그인/로그아웃 시 signedIn 상태 변경
+    AppNavHost(navController = navController, isSignedIn = signedIn)
+
+    // 로그인 성공/실패 콜백을 NavHost에서 처리하므로 아래 기존 UI는 제거
 }
