@@ -60,7 +60,7 @@ dependencies {
 
     // Firebase Authentication (버전 명시 X → BoM이 관리)
     implementation(libs.firebase.auth)
-    implementation("com.google.android.gms:play-services-auth:21.4.0")
+    implementation(libs.play.services.auth)
 
     // Android Credential Manager
     implementation(libs.androidx.credentials)

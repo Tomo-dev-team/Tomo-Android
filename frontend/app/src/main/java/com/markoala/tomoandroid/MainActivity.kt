@@ -10,7 +10,6 @@ import androidx.navigation.compose.rememberNavController
 import com.markoala.tomoandroid.auth.AuthManager
 import com.markoala.tomoandroid.navigation.AppNavHost
 import com.markoala.tomoandroid.ui.theme.TomoAndroidTheme
-import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

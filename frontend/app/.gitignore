@@ -105,7 +105,6 @@ obj/
 .idea/.name
 .idea/compiler.xml
 .idea/gradle.xml
-.idea/workspace.xml
 .idea/copyright/profiles_settings.xml
 .idea/encodings.xml
 .idea/misc.xml
