@@ -24,4 +24,17 @@ public class Moim {
     // 모임 사람
     @OneToMany(mappedBy = "moim")
     private List<Moim_people> moimPeopleList = new ArrayList<>();
+
+    private String moimName;
+
+    @Lob
+    private String description;
+
+    public Moim() {
+    }
+
+    public Moim(String moimName, String description) {
+        this.moimName = moimName;
+        this.description = description;
+    }
 }

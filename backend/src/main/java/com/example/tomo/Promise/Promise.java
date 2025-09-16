@@ -4,6 +4,8 @@ import com.example.tomo.Moim.Moim;
 import jakarta.persistence.*;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 public class Promise {
@@ -16,5 +18,9 @@ public class Promise {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name ="moim_id")
     private Moim moim;
+
+    private String place;
+
+    private LocalDateTime time;
 
 }

@@ -23,4 +23,11 @@ public class Moim_people {
     @JoinColumn(name ="user_id")
     private User user;
 
+    public Moim_people() {}
+
+    public Moim_people(Moim moim, User user) {
+        this.moim = moim;
+        this.user = user;
+    }
+
 }
