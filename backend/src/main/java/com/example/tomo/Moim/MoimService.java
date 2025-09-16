@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -43,5 +44,29 @@ public class MoimService {
 
         return moim.getId();
     }
+
+    // 모임 단일 조회
+    @Transactional
+    public getMoimResponseDTO getMoim(Long moim_id){
+         Moim moim= moimRepository.findById(moim_id).orElseThrow(
+                 () -> new IllegalArgumentException("moim not found")
+         );
+
+        return new getMoimResponseDTO(moim.getMoimName(), moim.getDescription(), moim.getMoimPeopleList().size());
+    }
+    // 모임 상세 조회
+
+    @Transactional
+    public List<getMoimResponseDTO> getMoimList(Long user_id){
+        List<Moim_people> moims = moimPeopleRepository.findByUserId(user_id);
+
+        List<getMoimResponseDTO> moimResponseDTOList = new ArrayList<>();
+        for(Moim_people moim_people : moims){
+            moimResponseDTOList.add(this.getMoim(moim_people.getMoim().getId()));
+        }
+
+        return moimResponseDTOList;
+    }
+
 }
 

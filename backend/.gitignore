@@ -35,3 +35,11 @@ out/
 
 ### VS Code ###
 .vscode/
+
+
+# Gradle locks
+*.lock
+*.bin
+*.properties
+
+# Compiled binaries
