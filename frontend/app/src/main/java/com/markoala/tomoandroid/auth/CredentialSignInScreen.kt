@@ -117,14 +117,13 @@ fun CredentialSignInScreen(onSignedIn: () -> Unit) {
                             activity, // Activity
                             { future ->
                                 // 계정 추가 후 콜백 (필요시 처리)
-                                // 보통은 계정 추가 후 사용자가 다시 버튼을 누르게 안내
+                                // 계정 추가가 완료되면 onSignedIn() 호출
+                                onSignedIn()
                             },
                             null // Handler
                         )
                     }
 
-                    android.util.Log.e("CredentialSignIn", "알 수 없는 오류", e)
-                    Toast.makeText(activity, "알 수 없는 오류: ${e.localizedMessage}", Toast.LENGTH_LONG).show()
                 }
             }
         }) {
