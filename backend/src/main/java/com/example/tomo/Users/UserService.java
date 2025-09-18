@@ -2,6 +2,7 @@ package com.example.tomo.Users;
 
 import com.example.tomo.Friends.Friend;
 import com.example.tomo.Friends.FriendRepository;
+import com.example.tomo.global.IdConverter;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -47,6 +48,26 @@ public class UserService {
         friendRepository.save(friends);
         friendRepository.save(reverseFriend);
         return friend.getUsername();
+
+    }
+
+
+
+
+
+
+
+    public String signUser(RequestUserSignDto dto){
+
+        Long id = IdConverter.stringToLong(dto.getUUID());
+
+        if(userRepository.findById(id).isPresent()){
+            throw new RuntimeException("이미 가입된 사용자입니다");
+        }
+
+        User user = new User(id,dto.getEmail(),dto.getUsername());
+        userRepository.save(user);
+        return "가입 완료";
 
     }
 

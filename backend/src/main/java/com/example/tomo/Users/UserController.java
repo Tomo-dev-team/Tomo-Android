@@ -21,6 +21,11 @@ public class UserController {
         return userService.addFriends(dto);
     }
 
+    @PostMapping("/sign")
+    public String signUser(@RequestBody RequestUserSignDto dto) {
+        return userService.signUser(dto);
+    }
+
 
 
 }
