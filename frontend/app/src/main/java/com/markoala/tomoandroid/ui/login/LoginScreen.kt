@@ -20,9 +20,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.markoala.tomoandroid.auth.CredentialSignInScreen
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
+import com.markoala.tomoandroid.ui.components.auth.GoogleSignUpButton
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
 @Composable
@@ -75,7 +75,7 @@ fun LoginScreen(navController: NavController) {
                     textAlign = androidx.compose.ui.text.style.TextAlign.Center
                 )
 
-                CredentialSignInScreen(
+                GoogleSignUpButton(
                     onSignedIn = {
                         navController.navigate("profile") {
                             popUpTo("login") { inclusive = true }

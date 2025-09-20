@@ -1,8 +1,9 @@
 // 파일: CredentialSignInScreen.kt
-package com.markoala.tomoandroid.auth
+package com.markoala.tomoandroid.ui.components.auth
 
 import android.accounts.AccountManager
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.border
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,15 +37,19 @@ import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.gson.Gson
+import com.markoala.tomoandroid.R
+import com.markoala.tomoandroid.auth.AuthManager
+import com.markoala.tomoandroid.data.api.apiService
 import com.markoala.tomoandroid.data.model.UserData
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 
 @OptIn(DelicateCoroutinesApi::class)
 @Composable
-fun CredentialSignInScreen(onSignedIn: () -> Unit) {
+fun GoogleSignUpButton(onSignedIn: () -> Unit) {
     val context = LocalContext.current
     // Compose에서 Activity 필요(credentialManager.getCredential에 activity 기반 context 권장)
     val activity = context as? ComponentActivity ?: (context as? Activity)
@@ -77,7 +83,7 @@ fun CredentialSignInScreen(onSignedIn: () -> Unit) {
                     try {
                         // 1) Google ID option 구성 (서버용 web client id 사용)
                         val googleIdOption = GetGoogleIdOption.Builder()
-                            .setServerClientId(context.getString(com.markoala.tomoandroid.R.string.default_web_client_id))
+                            .setServerClientId(context.getString(R.string.default_web_client_id))
                             // 이미 허용된 계정만 표시하려면 true (원하면 false)
                             .setFilterByAuthorizedAccounts(false)
                             .setAutoSelectEnabled(false) // 자동 선택 방지
@@ -119,32 +125,32 @@ fun CredentialSignInScreen(onSignedIn: () -> Unit) {
                                                 )
                                             val gson = Gson()
                                             val userDataJson = gson.toJson(userData)
-                                            android.util.Log.d(
+                                            Log.d(
                                                 "CredentialSignIn",
                                                 "요청 JSON: $userDataJson"
                                             )
                                             // HTTP POST 요청
-                                            kotlinx.coroutines.GlobalScope.launch {
+                                            GlobalScope.launch {
                                                 try {
                                                     val response =
-                                                        com.markoala.tomoandroid.data.api.apiService.signIn(
+                                                        apiService.signIn(
                                                             userData
                                                         ).execute() // 요청
                                                     val responseBody = response.body()
                                                     val errorBody = response.errorBody()?.string()
-                                                    android.util.Log.d(
+                                                    Log.d(
                                                         "CredentialSignIn",
                                                         "서버 원본 응답: ${responseBody?.message}"
                                                     )
                                                     if (errorBody != null) {
-                                                        android.util.Log.e(
+                                                        Log.e(
                                                             "CredentialSignIn",
                                                             "서버 에러 응답: $errorBody"
                                                         )
                                                     }
                                                     if (response.isSuccessful) {
                                                         try {
-                                                            android.util.Log.d(
+                                                            Log.d(
                                                                 "CredentialSignIn",
                                                                 "POST 성공(JSON): ${responseBody?.message}"
                                                             )
@@ -156,23 +162,23 @@ fun CredentialSignInScreen(onSignedIn: () -> Unit) {
                                                                 ).show()
                                                             }
                                                         } catch (e: Exception) {
-                                                            android.util.Log.e(
+                                                            Log.e(
                                                                 "CredentialSignIn",
                                                                 "JSON 파싱 오류",
                                                                 e
                                                             )
-                                                            android.util.Log.e(
+                                                            Log.e(
                                                                 "CredentialSignIn",
                                                                 "서버 원본 응답(파싱 오류): ${responseBody?.message}"
                                                             )
                                                         }
                                                     } else {
                                                         val errorMsg = errorBody ?: "알 수 없는 오류"
-                                                        android.util.Log.e(
+                                                        Log.e(
                                                             "CredentialSignIn",
                                                             "POST 실패: $errorMsg, 상태코드: ${response.code()}"
                                                         )
-                                                        android.util.Log.e(
+                                                        Log.e(
                                                             "CredentialSignIn",
                                                             "요청 JSON(실패): $userDataJson"
                                                         )
@@ -185,12 +191,12 @@ fun CredentialSignInScreen(onSignedIn: () -> Unit) {
                                                         }
                                                     }
                                                 } catch (e: Exception) {
-                                                    android.util.Log.e(
+                                                    Log.e(
                                                         "CredentialSignIn",
                                                         "POST 예외",
                                                         e
                                                     )
-                                                    android.util.Log.e(
+                                                    Log.e(
                                                         "CredentialSignIn",
                                                         "요청 JSON(예외): $userDataJson"
                                                     )
@@ -224,7 +230,7 @@ fun CredentialSignInScreen(onSignedIn: () -> Unit) {
                             }
                         }
                     } catch (e: Exception) {
-                        android.util.Log.e("CredentialSignIn", "로그인 중 예외 발생", e)
+                        Log.e("CredentialSignIn", "로그인 중 예외 발생", e)
                         if (e is GetCredentialException && e.errorMessage?.contains("No credentials available") == true) {
                             val accountManager = AccountManager.get(activity)
                             accountManager.addAccount(
@@ -245,14 +251,14 @@ fun CredentialSignInScreen(onSignedIn: () -> Unit) {
                     }
                 }
             },
-            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+            colors = ButtonDefaults.buttonColors(
                 containerColor = Color.White
             )
 
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    painter = painterResource(id = com.markoala.tomoandroid.R.drawable.ic_google_logo),
+                    painter = painterResource(id = R.drawable.ic_google_logo),
                     contentDescription = "Google Logo",
                     tint = Color.Unspecified,
                     modifier = Modifier.size(24.dp)
