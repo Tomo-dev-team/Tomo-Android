@@ -3,7 +3,7 @@ package com.markoala.tomoandroid.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.markoala.tomoandroid.auth.AuthManager
 import com.markoala.tomoandroid.data.api.apiService
-import com.markoala.tomoandroid.data.model.PostExampleResponse
+import com.markoala.tomoandroid.data.model.PostResponse
 import com.markoala.tomoandroid.data.model.UserData
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -42,7 +42,7 @@ object AuthRepository {
     /**
      * 서버에 사용자 정보 전송 (Retrofit 동기 호출을 IO 스레드에서 수행)
      */
-    suspend fun signUp(userData: UserData): Response<PostExampleResponse> =
+    suspend fun signUp(userData: UserData): Response<PostResponse> =
         withContext(kotlinx.coroutines.Dispatchers.IO) {
             try {
                 apiService.signup(userData).execute()
