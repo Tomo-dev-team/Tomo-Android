@@ -13,12 +13,15 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@Table(name ="users")
 public class User {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name ="user_id")
     private Long id;
 
+    private String firebaseId;
     private String username;
     private String email;
     private String phone;
@@ -31,18 +34,8 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Moim_people> moimPeopleList= new ArrayList<>();
 
-    public void addFriend(Friend friend) {
-        friends.add(friend);
-        friend.setUser(this);
-    }
-
-    public void addMoimPeople(Moim_people moimPeople) {
-        moimPeopleList.add(moimPeople);
-        moimPeople.setUser(this);
-    }
-
-    public User(Long id, String email, String username) {
-        this.id = id;
+    public User(String id, String username, String email) {
+        this.firebaseId = id;
         this.username = username;
         this.email = email;
     }
