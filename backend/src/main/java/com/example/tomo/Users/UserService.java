@@ -2,7 +2,6 @@ package com.example.tomo.Users;
 
 import com.example.tomo.Friends.Friend;
 import com.example.tomo.Friends.FriendRepository;
-import com.example.tomo.global.IdConverter;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -49,7 +48,7 @@ public class UserService {
     // 친구 추가하기
     // DTO  변환하기
     @Transactional
-    public String addFriends(addFriendRequestDto dto) {
+    public ResponseUniformDto addFriends(addFriendRequestDto dto) {
 
         // 액세스 토큰으로 사용자 인증하기
         // 현재는 ID 가 1인 유저 꺼내기
@@ -66,32 +65,31 @@ public class UserService {
 
         friendRepository.save(friends);
         friendRepository.save(reverseFriend);
-        return friend.getUsername();
+        return new ResponseUniformDto(true , "success");
 
     }
-
+    /// 여기 부터
     public boolean validateUser(RequestUserSignDto dto) {
         // 중복 사용자 가입 로직이 제대로 동작하지 않음
-        if(userRepository.findById(IdConverter.stringToLong(dto.getUuid())).isPresent()){
-            return true;
+        return userRepository.findByFirebaseId(dto.getUuid()).isEmpty();
+    }
+
+
+    public ResponseUniformDto signUser(RequestUserSignDto dto){
+
+
+        if(!validateUser(dto)){
+           throw new EntityExistsException("요청이 타당하지 않습니다. 이미 가입된 회원입니다");
         }
-        return false;
-    }
 
+        User newUser = new User(dto.getUuid(),dto.getEmail(),dto.getEmail());
+        userRepository.save(newUser);
 
-    public ResponseSignSuccessDto signUser(RequestUserSignDto dto){
-
-        System.out.println("dto.getUuid() = " + dto.getUuid());
-        Long id = IdConverter.stringToLong(dto.getUuid());
-
-        User user = new User(id,dto.getEmail(),dto.getUsername());
-        userRepository.save(user);
-
-        return new ResponseSignSuccessDto(true, "success");
+        return new ResponseUniformDto(true, "success");
 
 
     }
-
+    ///  여기까지 수정이 요구
 
 
 

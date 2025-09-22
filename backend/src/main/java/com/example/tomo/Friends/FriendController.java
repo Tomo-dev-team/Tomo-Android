@@ -1,8 +1,7 @@
 package com.example.tomo.Friends;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -16,13 +15,13 @@ public class FriendController {
     }
 
     @GetMapping("/friends")
-    public List<Long> getMyFriends(@RequestParam("id") Long user_id){
-        return friendService.getFriends(user_id);
+    public ResponseEntity<List<ResponseGetFriendsDto>> getMyFriends(){
+        return ResponseEntity.ok(friendService.getFriends());
     }
 
-    @GetMapping("/friends/{id}")
-    public List<ResponseFriendDetailDto> getFriendDetails(@PathVariable("id") Long user_id){
-        return friendService.getDetailFriends(user_id);
+    @GetMapping("/friends/detail")
+    public ResponseEntity<List<ResponseFriendDetailDto>> getFriendDetails(){
+        return ResponseEntity.ok().body(friendService.getDetailFriends());
     }
 
 }
