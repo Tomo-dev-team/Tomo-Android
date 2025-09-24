@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 public class MoimController {
@@ -52,11 +54,11 @@ public class MoimController {
         }
     }
 
-    /*// 사용자 ID에 해당하는 모임 정보 불러오기
-    @GetMapping("moims")
-    public List<getMoimResponseDTO> getAllMoims(@RequestParam Long user_id) {
-        return moimService.getMoimList(user_id);
-    }*/
+    // 사용자 ID에 해당하는 모임 정보 불러오기
+    @GetMapping("moims/mine")
+    public ResponseEntity<List<getMoimResponseDTO>> getAllMoims() {
+        return ResponseEntity.ok().body(moimService.getMoimList());
+    }
 
 
 
