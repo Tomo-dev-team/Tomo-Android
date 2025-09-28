@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,7 +15,6 @@ fun ProfileScreen(
     name: String,
     email: String,
     userId: String,
-    onSignOut: () -> Unit,
     paddingValues: PaddingValues
 ) {
     Column(
@@ -32,9 +30,7 @@ fun ProfileScreen(
             Text(text = "이메일: $email")
             Text(text = "아이디: $userId")
         }
-        Button(onClick = { onSignOut() }) {
-            Text(text = "로그아웃")
-        }
+
     }
 }
 

@@ -87,8 +87,8 @@ fun MainScreen(onSignOut: () -> Unit) {
         when (selectedTab) {
             BottomTab.Home -> HomeScreen(paddingValues)
             BottomTab.Friends -> FriendsScreen(paddingValues)
-            BottomTab.Profile -> ProfileScreen(name, email, userId, onSignOut, paddingValues)
-            BottomTab.Settings -> SettingsScreen(paddingValues)
+            BottomTab.Profile -> ProfileScreen(name, email, userId, paddingValues)
+            BottomTab.Settings -> SettingsScreen(paddingValues, onSignOut)
         }
     }
 }
