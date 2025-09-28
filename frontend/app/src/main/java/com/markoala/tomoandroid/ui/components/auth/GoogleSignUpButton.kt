@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +33,8 @@ import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.data.model.UserData
 import com.markoala.tomoandroid.data.repository.AuthRepository
 import com.markoala.tomoandroid.data.repository.UserRepository
+import com.markoala.tomoandroid.ui.components.CustomText
+import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.utils.auth.GoogleCredentialHelper
 import kotlinx.coroutines.CancellationException
@@ -55,9 +58,10 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
     Column {
         Button(
             modifier = Modifier
+                .fillMaxWidth()
                 .border(
                     width = 1.dp,
-                    color = CustomColor.lightGray,
+                    color = CustomColor.gray100,
                     shape = RoundedCornerShape(8.dp)
                 ),
             onClick = {
@@ -140,13 +144,17 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_google_logo),
+                    painter = painterResource(id = R.drawable.ic_google),
                     contentDescription = "Google Logo",
                     tint = Color.Unspecified,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
-                Text(text = "Google 계정으로 로그인", color = Color.Black)
+                CustomText(
+                    text = "Google 계정으로 로그인",
+                    color = Color.Black,
+                    type = CustomTextType.labelLarge
+                )
             }
         }
     }

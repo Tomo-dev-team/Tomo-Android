@@ -65,7 +65,7 @@ fun ProfileScreen(onSignOut: () -> Unit) {
                     CustomText(
                         text = "친구와의 우정을 기록하세요",
                         type = CustomTextType.bodyMedium,
-                        color = CustomColor.mediumGray
+                        color = CustomColor.gray300
                     )
                 }
 
@@ -75,7 +75,7 @@ fun ProfileScreen(onSignOut: () -> Unit) {
             )
         )
         Spacer(modifier = Modifier.height(16.dp))
-        HorizontalDivider(color = CustomColor.lightGray, thickness = 1.dp)
+        HorizontalDivider(color = CustomColor.gray100, thickness = 1.dp)
         Box(
             modifier = Modifier
                 .fillMaxSize()
