@@ -13,7 +13,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Switch
@@ -62,7 +62,7 @@ fun SettingsScreen(
                     checked = pushEnabled,
                     onCheckedChange = { pushEnabled = it }
                 )
-                Divider(modifier = Modifier.padding(vertical = 12.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
                 SettingsToggle(
                     title = "다크 모드",
                     description = "시스템 테마와 별도로 설정합니다.",

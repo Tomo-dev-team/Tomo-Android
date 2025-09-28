@@ -123,9 +123,9 @@ fun LoginScreen(navController: NavController) {
                         .border(
                             width = 1.dp,
                             color = CustomColor.gray100,
-                            shape = RoundedCornerShape(8.dp),
+                            shape = RoundedCornerShape(8.dp)
 
-                            )
+                        )
                         .padding(vertical = 16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
