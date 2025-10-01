@@ -10,11 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,10 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.markoala.tomoandroid.ui.components.BottomNavigationBar
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.theme.CustomColor
@@ -37,63 +33,6 @@ enum class BottomTab(val label: String) {
     Friends("친구목록"),
     Profile("내정보"),
     Settings("설정")
-}
-
-@Composable
-fun BottomNavigationBar(selectedTab: BottomTab, onTabSelected: (BottomTab) -> Unit) {
-    Column {
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            color = CustomColor.gray50,
-            thickness = 1.dp
-        )
-        NavigationBar(containerColor = CustomColor.white) {
-            NavigationBarItem(
-                selected = selectedTab == BottomTab.Home,
-                onClick = { onTabSelected(BottomTab.Home) },
-                icon = {
-                    Icon(
-                        painterResource(id = com.markoala.tomoandroid.R.drawable.ic_home),
-                        contentDescription = "홈"
-                    )
-                },
-                label = { Text("홈") }
-            )
-            NavigationBarItem(
-                selected = selectedTab == BottomTab.Friends,
-                onClick = { onTabSelected(BottomTab.Friends) },
-                icon = {
-                    Icon(
-                        painterResource(id = com.markoala.tomoandroid.R.drawable.ic_friends),
-                        contentDescription = "친구목록"
-                    )
-                },
-                label = { Text("친구목록") }
-            )
-            NavigationBarItem(
-                selected = selectedTab == BottomTab.Profile,
-                onClick = { onTabSelected(BottomTab.Profile) },
-                icon = {
-                    Icon(
-                        painterResource(id = com.markoala.tomoandroid.R.drawable.ic_profile),
-                        contentDescription = "내정보"
-                    )
-                },
-                label = { Text("내정보") }
-            )
-            NavigationBarItem(
-                selected = selectedTab == BottomTab.Settings,
-                onClick = { onTabSelected(BottomTab.Settings) },
-                icon = {
-                    Icon(
-                        painterResource(id = com.markoala.tomoandroid.R.drawable.ic_setting),
-                        contentDescription = "설정"
-                    )
-                },
-                label = { Text("설정") }
-            )
-        }
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
