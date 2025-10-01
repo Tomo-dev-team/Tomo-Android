@@ -42,16 +42,6 @@ fun FriendsScreen(paddingValues: PaddingValues) {
             .padding(paddingValues)
             .padding(horizontal = 24.dp)
     ) {
-        Text(
-            text = "토모",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
-        Text(
-            text = "친구 목록",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = { /* 친구 초대 */ },
