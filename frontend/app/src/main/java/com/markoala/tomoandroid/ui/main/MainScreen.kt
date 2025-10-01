@@ -1,16 +1,13 @@
 package com.markoala.tomoandroid.ui.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -26,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -43,31 +41,58 @@ enum class BottomTab(val label: String) {
 
 @Composable
 fun BottomNavigationBar(selectedTab: BottomTab, onTabSelected: (BottomTab) -> Unit) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = selectedTab == BottomTab.Home,
-            onClick = { onTabSelected(BottomTab.Home) },
-            icon = { Icon(Icons.Filled.Home, contentDescription = "홈") },
-            label = { Text("홈") }
+    Column {
+        HorizontalDivider(
+            modifier = Modifier.fillMaxWidth(),
+            color = CustomColor.gray50,
+            thickness = 1.dp
         )
-        NavigationBarItem(
-            selected = selectedTab == BottomTab.Friends,
-            onClick = { onTabSelected(BottomTab.Friends) },
-            icon = { Icon(Icons.Filled.Face, contentDescription = "친구목록") },
-            label = { Text("친구목록") }
-        )
-        NavigationBarItem(
-            selected = selectedTab == BottomTab.Profile,
-            onClick = { onTabSelected(BottomTab.Profile) },
-            icon = { Icon(Icons.Filled.Person, contentDescription = "내정보") },
-            label = { Text("내정보") }
-        )
-        NavigationBarItem(
-            selected = selectedTab == BottomTab.Settings,
-            onClick = { onTabSelected(BottomTab.Settings) },
-            icon = { Icon(Icons.Filled.Settings, contentDescription = "설정") },
-            label = { Text("설정") }
-        )
+        NavigationBar(containerColor = CustomColor.white) {
+            NavigationBarItem(
+                selected = selectedTab == BottomTab.Home,
+                onClick = { onTabSelected(BottomTab.Home) },
+                icon = {
+                    Icon(
+                        painterResource(id = com.markoala.tomoandroid.R.drawable.ic_home),
+                        contentDescription = "홈"
+                    )
+                },
+                label = { Text("홈") }
+            )
+            NavigationBarItem(
+                selected = selectedTab == BottomTab.Friends,
+                onClick = { onTabSelected(BottomTab.Friends) },
+                icon = {
+                    Icon(
+                        painterResource(id = com.markoala.tomoandroid.R.drawable.ic_friends),
+                        contentDescription = "친구목록"
+                    )
+                },
+                label = { Text("친구목록") }
+            )
+            NavigationBarItem(
+                selected = selectedTab == BottomTab.Profile,
+                onClick = { onTabSelected(BottomTab.Profile) },
+                icon = {
+                    Icon(
+                        painterResource(id = com.markoala.tomoandroid.R.drawable.ic_profile),
+                        contentDescription = "내정보"
+                    )
+                },
+                label = { Text("내정보") }
+            )
+            NavigationBarItem(
+                selected = selectedTab == BottomTab.Settings,
+                onClick = { onTabSelected(BottomTab.Settings) },
+                icon = {
+                    Icon(
+                        painterResource(id = com.markoala.tomoandroid.R.drawable.ic_setting),
+                        contentDescription = "설정"
+                    )
+                },
+                label = { Text("설정") }
+            )
+        }
     }
 }
 
@@ -97,7 +122,8 @@ fun MainScreen(onSignOut: () -> Unit) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding(),
+                    .statusBarsPadding()
+                    .background(CustomColor.white),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -123,11 +149,17 @@ fun MainScreen(onSignOut: () -> Unit) {
             BottomNavigationBar(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
         }
     ) { paddingValues ->
-        when (selectedTab) {
-            BottomTab.Home -> HomeScreen(paddingValues)
-            BottomTab.Friends -> FriendsScreen(paddingValues)
-            BottomTab.Profile -> ProfileScreen(name, email, userId, paddingValues)
-            BottomTab.Settings -> SettingsScreen(paddingValues, onSignOut)
+        Box(
+            modifier = Modifier
+                .background(CustomColor.white)
+                .fillMaxWidth()
+        ) {
+            when (selectedTab) {
+                BottomTab.Home -> HomeScreen(paddingValues)
+                BottomTab.Friends -> FriendsScreen(paddingValues)
+                BottomTab.Profile -> ProfileScreen(name, email, userId, paddingValues)
+                BottomTab.Settings -> SettingsScreen(paddingValues, onSignOut)
+            }
         }
     }
 }
