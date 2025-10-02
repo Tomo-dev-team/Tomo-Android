@@ -15,17 +15,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.markoala.tomoandroid.data.model.MeetingSummary
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
-
-data class MeetingSummary(
-    val title: String,
-    val location: String?,
-    val time: String?,
-    val peopleCounts: Int = 1
-)
 
 @Composable
 fun MeetingCard(meeting: MeetingSummary) {

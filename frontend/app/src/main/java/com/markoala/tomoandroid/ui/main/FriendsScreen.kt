@@ -23,10 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.friends.FriendCard
-import com.markoala.tomoandroid.ui.components.friends.FriendProfile
+
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import java.time.LocalDate
 

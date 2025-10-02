@@ -17,19 +17,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.utils.calculateDate
-import java.time.LocalDate
-
-
-data class FriendProfile(
-    val name: String,
-    val email: String,
-    val friendSince: LocalDate,
-    val intimacy: Int
-)
 
 
 @Composable
