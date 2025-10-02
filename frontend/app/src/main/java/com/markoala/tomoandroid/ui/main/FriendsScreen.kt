@@ -11,12 +11,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -73,17 +72,20 @@ fun FriendsScreen(paddingValues: PaddingValues) {
                 color = Color.White
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Filled.Add,
+                        painter = androidx.compose.ui.res.painterResource(
+                            id = com.markoala.tomoandroid.R.drawable.ic_addfriend
+                        ),
                         contentDescription = "친구 추가",
-                        tint = CustomColor.black
+                        tint = CustomColor.black,
+                        modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     CustomText(
-                        text = "모임 생성",
+                        text = "친구추가",
                         type = CustomTextType.bodyMedium,
                         fontSize = 14.sp,
                         color = CustomColor.black
@@ -92,8 +94,15 @@ fun FriendsScreen(paddingValues: PaddingValues) {
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(sampleFriends) { friend ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+
+        ) {
+            sampleFriends.forEach { friend ->
                 FriendCard(friend)
             }
         }

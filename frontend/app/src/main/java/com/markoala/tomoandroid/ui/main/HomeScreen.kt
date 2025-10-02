@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -75,7 +76,8 @@ fun HomeScreen(paddingValues: PaddingValues) {
                     Icon(
                         imageVector = Icons.Filled.Add,
                         contentDescription = "모임 추가",
-                        tint = CustomColor.black
+                        tint = CustomColor.black,
+                        modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     CustomText(
