@@ -13,6 +13,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -20,6 +21,7 @@ import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.DashedCircleBorder
+import com.markoala.tomoandroid.ui.components.IntimacyStatusBar
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.utils.calculateDate
 
@@ -41,7 +43,10 @@ fun FriendCard(friend: FriendProfile) {
                 .padding(16.dp),
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)
         ) {
-            Row {
+            Row(
+                horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 DashedCircleBorder(
                     modifier = Modifier.padding(end = 10.dp),
                     size = 48.dp,
@@ -57,7 +62,9 @@ fun FriendCard(friend: FriendProfile) {
                             .padding(12.dp)
                     )
                 }
-                Column {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
                     CustomText(
                         text = friend.name,
                         type = CustomTextType.titleMedium,
@@ -86,6 +93,16 @@ fun FriendCard(friend: FriendProfile) {
                         )
                     }
                 }
+
+                // 우정 상태 바 추가
+                IntimacyStatusBar(
+                    intimacy = friend.intimacy,
+                    modifier = Modifier,
+                    showLabel = true,
+                    showPercentage = true,
+                    height = 8,
+                    width = 80
+                )
             }
             Column(
                 modifier = Modifier.padding(horizontal = 4.dp),
@@ -102,7 +119,8 @@ fun FriendCard(friend: FriendProfile) {
                 Row(
                     horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
                         4.dp
-                    )
+                    ),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         painter = androidx.compose.ui.res.painterResource(id = com.markoala.tomoandroid.R.drawable.ic_time),
