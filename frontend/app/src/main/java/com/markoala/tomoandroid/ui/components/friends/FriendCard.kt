@@ -98,9 +98,7 @@ fun FriendCard(friend: FriendProfile) {
                 IntimacyStatusBar(
                     intimacy = friend.intimacy,
                     modifier = Modifier,
-                    showLabel = true,
-                    showPercentage = true,
-                    height = 8,
+                    height = 15,
                     width = 80
                 )
             }

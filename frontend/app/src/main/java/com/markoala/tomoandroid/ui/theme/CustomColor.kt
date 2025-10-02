@@ -12,6 +12,7 @@ object CustomColor {
     // 필요시 다른 색상도 추가 가능
     val white = Color(0xFFFFFFFF)
     val black = Color(0xFF000000)
+    val charcoal = Color(0xFF4B5563)
 
 }
 
