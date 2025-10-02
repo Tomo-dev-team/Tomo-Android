@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,7 +51,11 @@ public class UserController {
 
 
     }*/
-
+    @GetMapping("/api/protected/user")
+    public String getUser(@AuthenticationPrincipal String uid) {
+        // SecurityContext에 등록된 Firebase UID 가져오기
+        return "Hello, user " + uid;
+    }
 
 
 }
