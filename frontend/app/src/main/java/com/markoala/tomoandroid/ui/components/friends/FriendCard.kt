@@ -20,8 +20,8 @@ import androidx.compose.ui.unit.sp
 import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
-import com.markoala.tomoandroid.ui.components.DashedCircleBorder
 import com.markoala.tomoandroid.ui.components.IntimacyStatusBar
+import com.markoala.tomoandroid.ui.components.ProfileImage
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.utils.calculateDate
 
@@ -35,7 +35,7 @@ fun FriendCard(friend: FriendProfile) {
             .border(
                 1.dp,
                 CustomColor.gray100,
-                androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
             )
     ) {
         Column(
@@ -45,23 +45,12 @@ fun FriendCard(friend: FriendProfile) {
         ) {
             Row(
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
             ) {
-                DashedCircleBorder(
+                ProfileImage(
                     modifier = Modifier.padding(end = 10.dp),
-                    size = 48.dp,
-                    borderColor = CustomColor.gray100,
-                    borderWidth = 2.dp
-                ) {
-                    Icon(
-                        painter = androidx.compose.ui.res.painterResource(id = com.markoala.tomoandroid.R.drawable.ic_profile),
-                        contentDescription = null,
-                        tint = CustomColor.gray200,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(12.dp)
-                    )
-                }
+                    size = 50.dp,
+                    imageUrl = null // 기본 아이콘 표시
+                )
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {

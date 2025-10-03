@@ -60,7 +60,7 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
             .border(
                 width = 1.dp,
                 color = CustomColor.gray100,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(16.dp)
             ),
         onClick = {
             coroutineScope.launch {

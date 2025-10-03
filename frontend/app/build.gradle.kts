@@ -1,4 +1,3 @@
-import org.gradle.kotlin.dsl.implementation
 import java.util.Properties
 
 plugins {
@@ -29,7 +28,11 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
         // BuildConfig에 default_web_client_id 추가
-        buildConfigField("String", "DEFAULT_WEB_CLIENT_ID", "\"${localProperties.getProperty("default_web_client_id", "")}\"")
+        buildConfigField(
+            "String",
+            "DEFAULT_WEB_CLIENT_ID",
+            "\"${localProperties.getProperty("default_web_client_id", "")}\""
+        )
     }
 
     buildTypes {
@@ -86,6 +89,9 @@ dependencies {
     implementation(libs.retrofit2)
     implementation(libs.retrofit2.converter.gson)
 
+    // Coil for image loading
+    implementation(libs.coil.compose)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -94,7 +100,5 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
-
-    implementation("com.google.firebase:firebase-firestore-ktx")
-
+    implementation(libs.firebase.firestore)
 }

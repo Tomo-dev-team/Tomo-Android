@@ -23,7 +23,7 @@ import com.markoala.tomoandroid.ui.theme.CustomColor
 @Composable
 fun DashedBorderBox(
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(8.dp),
+    shape: Shape = RoundedCornerShape(16.dp),
     borderColor: Color = CustomColor.gray100,
     borderWidth: Dp = 1.dp,
     dashLength: Float = 5f,
@@ -44,7 +44,7 @@ fun DashedBorderBox(
 
             when (shape) {
                 is RoundedCornerShape -> {
-                    val cornerRadius = 8.dp.toPx() // 기본값, 필요시 매개변수로 추가 가능
+                    val cornerRadius = 16.dp.toPx() // 기본값, 필요시 매개변수로 추가 가능
                     val path = Path().apply {
                         addRoundRect(
                             androidx.compose.ui.geometry.RoundRect(
