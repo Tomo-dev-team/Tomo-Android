@@ -102,13 +102,13 @@ fun FriendsScreen(paddingValues: PaddingValues) {
                 .fillMaxWidth()
                 .height(80.dp)
                 .padding(bottom = 16.dp),
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(16.dp),
             borderColor = CustomColor.gray50,
             borderWidth = 1.dp
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(16.dp),
                 color = CustomColor.gray30
             ) {
                 Box(

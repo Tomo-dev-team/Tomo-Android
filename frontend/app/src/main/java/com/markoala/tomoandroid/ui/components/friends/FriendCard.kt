@@ -35,7 +35,7 @@ fun FriendCard(friend: FriendProfile) {
             .border(
                 1.dp,
                 CustomColor.gray100,
-                androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+                androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
             )
     ) {
         Column(
