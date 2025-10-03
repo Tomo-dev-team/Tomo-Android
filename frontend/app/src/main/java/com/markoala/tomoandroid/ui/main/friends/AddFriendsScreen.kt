@@ -167,10 +167,9 @@ fun AddFriendsScreen(
         // 검색 필드 - email 선택 시에만 표시
         if (selectedOption == "email") {
             CustomText(
-                text = "유저 이메일",
+                text = "유저이메일",
                 type = CustomTextType.bodyMedium,
-                color = CustomColor.black,
-                fontSize = 14.sp
+                color = CustomColor.black
             )
             OutlinedTextField(
                 value = searchText,
