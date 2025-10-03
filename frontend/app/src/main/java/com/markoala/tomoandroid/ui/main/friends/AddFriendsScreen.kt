@@ -163,28 +163,32 @@ fun AddFriendsScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-        // 검색 필드
-        CustomText(
-            text = "유저 이메일",
-            type = CustomTextType.bodyMedium,
-            color = CustomColor.black,
-            fontSize = 14.sp
-        )
-        OutlinedTextField(
-            value = searchText,
-            onValueChange = { searchText = it },
-            label = {
-                CustomText(
-                    text = "이메일로 친구 찾기",
-                    type = CustomTextType.bodyMedium,
-                    color = CustomColor.gray300
-                )
-            },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        // 검색 필드 - email 선택 시에만 표시
+        if (selectedOption == "email") {
+            CustomText(
+                text = "유저 이메일",
+                type = CustomTextType.bodyMedium,
+                color = CustomColor.black,
+                fontSize = 14.sp
+            )
+            OutlinedTextField(
+                value = searchText,
+                onValueChange = { searchText = it },
+                label = {
+                    CustomText(
+                        text = "이메일로 친구 찾기",
+                        type = CustomTextType.bodyMedium,
+                        color = CustomColor.gray300
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            )
+            Spacer(modifier = Modifier.height(24.dp))
+        } else {
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
         // 안내 메시지
         DashedBorderBox(
@@ -206,7 +210,7 @@ fun AddFriendsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     CustomText(
-                        text = "친구의 이메일을 입력하여\n새로운 친구를 추가해보세요!",
+                        text = if (selectedOption == "phone") "준비중입니다." else "친구의 이메일을 입력하여\n새로운 친구를 추가해보세요!",
                         type = CustomTextType.bodyLarge,
                         fontSize = 14.sp,
                         color = CustomColor.gray300,
