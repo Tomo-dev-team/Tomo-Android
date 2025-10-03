@@ -7,7 +7,8 @@ import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
-import com.markoala.tomoandroid.R
+import com.markoala.tomoandroid.BuildConfig
+
 
 object GoogleCredentialHelper { // Singleton 객체로 변경
     /**
@@ -20,7 +21,7 @@ object GoogleCredentialHelper { // Singleton 객체로 변경
         credentialManager: CredentialManager // Android Credentials API
     ): String { // 반환값: 문자열
         val googleIdOption = GetGoogleIdOption.Builder() // Google Id Token 요청 옵션
-            .setServerClientId(context.getString(R.string.default_web_client_id)) // 서버 클라이언트 ID 설정
+            .setServerClientId(BuildConfig.DEFAULT_WEB_CLIENT_ID) // 서버 클라이언트 ID 설정 (BuildConfig 사용)
             .setFilterByAuthorizedAccounts(false) // 이미 인증된 계정만 가져오지 않음
             .setAutoSelectEnabled(false) // 사용자 선택 없이 자동으로 계정 선택 X
             .build()

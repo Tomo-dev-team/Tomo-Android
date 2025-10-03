@@ -43,16 +43,6 @@ fun SettingsScreen(
             .padding(paddingValues)
             .padding(horizontal = 24.dp)
     ) {
-        Text(
-            text = "토모",
-            style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
-        )
-        Text(
-            text = "앱 설정",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
         Spacer(modifier = Modifier.height(16.dp))
         Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
             Column(modifier = Modifier.padding(16.dp)) {
