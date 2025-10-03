@@ -3,30 +3,34 @@ package com.markoala.tomoandroid.ui.main
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.ProfileImage
+import com.markoala.tomoandroid.ui.theme.CustomColor
 
 @Composable
 fun ProfileScreen(
@@ -36,14 +40,14 @@ fun ProfileScreen(
     paddingValues: PaddingValues,
     onSaveProfile: (String, String) -> Unit = { _, _ -> }
 ) {
-    var editableName by remember { mutableStateOf(TextFieldValue(name)) }
-    var editableEmail by remember { mutableStateOf(TextFieldValue(email)) }
+    var profileName by remember { mutableStateOf(TextFieldValue(name)) }
+    var profileEmail by remember { mutableStateOf(TextFieldValue(email)) }
 
     LaunchedEffect(name) {
-        editableName = TextFieldValue(name)
+        profileName = TextFieldValue(name)
     }
     LaunchedEffect(email) {
-        editableEmail = TextFieldValue(email)
+        profileEmail = TextFieldValue(email)
     }
 
     Column(
@@ -61,7 +65,7 @@ fun ProfileScreen(
                 text = "내 정보",
                 type = CustomTextType.headlineLarge,
                 fontSize = 20.sp,
-                modifier = Modifier.align(androidx.compose.ui.Alignment.TopStart)
+                modifier = Modifier.align(Alignment.TopStart)
             )
         }
 
@@ -69,7 +73,7 @@ fun ProfileScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 32.dp),
-            contentAlignment = androidx.compose.ui.Alignment.Center
+            contentAlignment = Alignment.Center
         ) {
             ProfileImage(
                 size = 80.dp,
@@ -77,37 +81,75 @@ fun ProfileScreen(
             )
         }
 
-
-        Card(colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                OutlinedTextField(
-                    value = editableName,
-                    onValueChange = { editableName = it },
-                    label = { Text("이름") },
-                    modifier = Modifier.fillMaxWidth()
+        Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_profile),
+                    contentDescription = "기본 프로필 아이콘",
+                    tint = CustomColor.gray200,
+                    modifier = Modifier
+                        .size(24.dp),
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                OutlinedTextField(
-                    value = editableEmail,
-                    onValueChange = { editableEmail = it },
-                    label = { Text("이메일") },
-                    modifier = Modifier.fillMaxWidth()
+                CustomText(
+                    text = "이름",
+                    type = CustomTextType.bodyLarge,
+                    color = CustomColor.gray200,
+                    fontSize = 14.sp,
                 )
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = "UID: $userId",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-                Button(
-                    onClick = { onSaveProfile(editableName.text, editableEmail.text) },
-                    enabled = editableName.text.isNotBlank() && editableEmail.text.isNotBlank(),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("변경사항 저장")
-                }
             }
+
+            OutlinedTextField(
+                value = profileName,
+                onValueChange = { profileName = it },
+                enabled = false,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = CustomColor.gray100,
+                    focusedBorderColor = CustomColor.gray100
+                )
+            )
         }
+
+        Column {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_email),
+                    contentDescription = "이메일",
+                    tint = CustomColor.gray200,
+                    modifier = Modifier
+                        .size(20.dp),
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                CustomText(
+                    text = "이메일",
+                    type = CustomTextType.bodyLarge,
+                    color = CustomColor.gray200,
+                    fontSize = 14.sp,
+                )
+            }
+
+            OutlinedTextField(
+                value = profileEmail,
+                onValueChange = { },
+                enabled = false,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                shape = RoundedCornerShape(8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    unfocusedBorderColor = CustomColor.gray100,
+                    focusedBorderColor = CustomColor.gray100
+                )
+            )
+        }
+
+
     }
 }
