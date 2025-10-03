@@ -171,19 +171,51 @@ fun AddFriendsScreen(
                 type = CustomTextType.bodyMedium,
                 color = CustomColor.black
             )
-            OutlinedTextField(
-                value = searchText,
-                onValueChange = { searchText = it },
-                label = {
-                    CustomText(
-                        text = "이메일로 친구 찾기",
-                        type = CustomTextType.bodyMedium,
-                        color = CustomColor.gray300
-                    )
-                },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp)
-            )
+                verticalAlignment = Alignment.Bottom
+            ) {
+                OutlinedTextField(
+                    value = searchText,
+                    onValueChange = { searchText = it },
+                    label = {
+                        CustomText(
+                            text = "이메일로 친구 찾기",
+                            type = CustomTextType.bodyMedium,
+                            color = CustomColor.gray300
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                Surface(
+                    modifier = Modifier
+                        .height(56.dp)
+                        .width(56.dp)
+                        .border(
+                            width = 1.dp,
+                            color = CustomColor.black,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .clickable { /* 검색 로직 추가 */ },
+                    color = CustomColor.white,
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(id = com.markoala.tomoandroid.R.drawable.ic_search),
+                            contentDescription = "검색",
+                            tint = CustomColor.black
+                        )
+                    }
+                }
+            }
             Spacer(modifier = Modifier.height(24.dp))
         } else {
             Spacer(modifier = Modifier.height(24.dp))
