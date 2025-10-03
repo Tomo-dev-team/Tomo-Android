@@ -1,10 +1,13 @@
 package com.example.tomo.Friends;
 
+import com.example.tomo.Friends.dtos.ResponseGetFriendsDto;
 import com.example.tomo.global.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
+
 
 import java.util.List;
 
@@ -16,7 +19,7 @@ public class FriendController {
         this.friendService = friendService;
     }
 
-    @GetMapping("/friends")
+    @GetMapping("/friends/list")
     public ResponseEntity<ApiResponse<List<ResponseGetFriendsDto>>> getMyFriends(){
         try{
             return ResponseEntity.ok(ApiResponse.success(friendService.getFriends(),"성공"));

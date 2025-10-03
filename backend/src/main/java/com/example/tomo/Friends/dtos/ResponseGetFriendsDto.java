@@ -1,4 +1,4 @@
-package com.example.tomo.Friends;
+package com.example.tomo.Friends.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

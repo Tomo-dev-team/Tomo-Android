@@ -1,11 +1,9 @@
-package com.example.tomo.Friends;
+package com.example.tomo.Friends.dtos;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.DateTimeException;
-import java.util.Date;
 
 @Getter
 @Setter

@@ -1,8 +1,10 @@
 package com.example.tomo.Moim;
 
+import com.example.tomo.Moim.dtos.addMoimRequestDto;
+import com.example.tomo.Moim.dtos.getMoimResponseDTO;
 import com.example.tomo.Moim_people.MoimPeopleRepository;
 import com.example.tomo.Moim_people.Moim_people;
-import com.example.tomo.Users.ResponseUniformDto;
+import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserRepository;
 import com.example.tomo.global.DuplicatedException;
@@ -29,8 +31,8 @@ public class MoimService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
-    public ResponseUniformDto addMoim(addMoimRequestDto dto) {
+    @Transactional // 이메일로 처리하기
+    public ResponsePostUniformDto addMoim(addMoimRequestDto dto) {
         if (moimRepository.existsByMoimName(dto.getMoimName())) {
             throw new DuplicatedException("이미 존재하는 모임 이름입니다.");
         }
@@ -50,7 +52,7 @@ public class MoimService {
             moimPeopleRepository.save(moim_people);
         }
 
-        return new ResponseUniformDto(true ,"모임 생성 완료 ");
+        return new ResponsePostUniformDto(true ,"모임 생성 완료 ");
     }
 
     // 모임 단일 조회

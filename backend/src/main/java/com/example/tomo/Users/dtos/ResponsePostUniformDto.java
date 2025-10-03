@@ -1,4 +1,4 @@
-package com.example.tomo.Users;
+package com.example.tomo.Users.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class ResponseUniformDto {
+public class ResponsePostUniformDto {
     private Boolean success;
     private String message;
 }

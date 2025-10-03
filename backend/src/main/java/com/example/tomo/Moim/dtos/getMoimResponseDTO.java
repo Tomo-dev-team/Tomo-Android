@@ -1,4 +1,4 @@
-package com.example.tomo.Moim;
+package com.example.tomo.Moim.dtos;
 
 import lombok.Getter;
 import lombok.Setter;
