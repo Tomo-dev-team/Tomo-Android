@@ -1,12 +1,9 @@
 package com.markoala.tomoandroid.ui.components.friends
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -23,8 +20,8 @@ import androidx.compose.ui.unit.sp
 import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
-import com.markoala.tomoandroid.ui.components.DashedCircleBorder
 import com.markoala.tomoandroid.ui.components.IntimacyStatusBar
+import com.markoala.tomoandroid.ui.components.ProfileImage
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.utils.calculateDate
 
@@ -49,30 +46,11 @@ fun FriendCard(friend: FriendProfile) {
             Row(
                 horizontalArrangement = androidx.compose.foundation.layout.Arrangement.SpaceBetween,
             ) {
-                DashedCircleBorder(
+                ProfileImage(
                     modifier = Modifier.padding(end = 10.dp),
-                    size = 48.dp,
-                    borderColor = CustomColor.gray100,
-                    borderWidth = 2.dp
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(
-                                color = CustomColor.gray30,
-                                shape = androidx.compose.foundation.shape.CircleShape
-                            )
-                    ) {
-                        Icon(
-                            painter = androidx.compose.ui.res.painterResource(id = com.markoala.tomoandroid.R.drawable.ic_profile),
-                            contentDescription = null,
-                            tint = CustomColor.gray200,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .padding(12.dp)
-                        )
-                    }
-                }
+                    size = 50.dp,
+                    imageUrl = null // 기본 아이콘 표시
+                )
                 Column(
                     modifier = Modifier.weight(1f)
                 ) {
