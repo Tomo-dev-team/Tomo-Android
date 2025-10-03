@@ -14,3 +14,4 @@ data class FriendSearchResponse(
     val message: String,
     val data: FriendSearchData?
 )
+
