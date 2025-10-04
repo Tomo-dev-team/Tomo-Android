@@ -112,6 +112,7 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
                     onSignedIn()
 
                 } catch (e: CancellationException) {
+                    toastManager.showError("작업 취소됨: ${e.message}")
                     Log.w("GoogleSignIn", "작업 취소됨 ${e.message}")
                 } catch (e: Exception) {
                     Log.e("GoogleSignIn", "로그인 실패: ${e.message}", e)
