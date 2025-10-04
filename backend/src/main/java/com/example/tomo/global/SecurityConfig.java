@@ -37,13 +37,15 @@ public class SecurityConfig {
     public SecurityFilterChain jwtChain(HttpSecurity http,
                                         JwtAuthenticationFilter jwtAuthFilter) throws Exception {
         http
+                .securityMatcher("/api/**")
                 .csrf(CsrfConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/protected/**").permitAll() // 이 경로는 허용
-                        .anyRequest().authenticated() // 다른 모든 요청은 인증이 요구
+                        .requestMatchers("/api/protected/**").permitAll() // Firebase 체인 전용
+                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
     }
