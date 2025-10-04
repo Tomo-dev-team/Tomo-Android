@@ -1,5 +1,6 @@
 package com.example.tomo.firebase;
 
+import com.example.tomo.jwt.JwtTokenProvider;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import jakarta.servlet.FilterChain;
@@ -19,9 +20,12 @@ import java.util.List;
 public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 
     private final FirebaseService firebaseService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public FirebaseAuthenticationFilter(FirebaseService firebaseService) {
+    public FirebaseAuthenticationFilter(FirebaseService firebaseService,
+                                        JwtTokenProvider jwtTokenProvider) {
         this.firebaseService = firebaseService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -42,12 +46,21 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
             String idToken = header.substring(7);
             try {
                 FirebaseToken decodedToken = firebaseService.verifyIdToken(idToken);
-                System.out.println("Token verified: " + decodedToken.getUid());
+                String uuid = decodedToken.getUid();
+                System.out.println("Token verified: " + uuid);
 
-                // 인증 객체 생성 (권한 목록 빈 리스트)
+                // 1️⃣ Spring Security 인증 객체 설정
                 UsernamePasswordAuthenticationToken auth =
-                        new UsernamePasswordAuthenticationToken(decodedToken.getUid(), null, List.of());
+                        new UsernamePasswordAuthenticationToken(uuid, null, List.of());
                 SecurityContextHolder.getContext().setAuthentication(auth);
+
+                // 2️⃣ JWT Access & Refresh 토큰 생성
+                String accessToken = jwtTokenProvider.createAccessToken(uuid);
+                String refreshToken = jwtTokenProvider.createRefreshToken(uuid);
+
+                // 3️⃣ 응답 헤더에 추가
+                response.setHeader("Authorization", "Bearer " + accessToken);
+                response.setHeader("Refresh-Token", refreshToken);
 
             } catch (FirebaseAuthException e) {
                 System.out.println("[DEBUG] Token verification failed: " + e.getMessage());
@@ -56,7 +69,7 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
             }
         } else {
             // 헤더 없음 → 인증 실패 처리
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Authorization header!!!");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Authorization header");
             return;
         }
 
