@@ -3,7 +3,6 @@ package com.example.tomo.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +13,8 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     // 시크릿 키 (512bit)
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    //private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private final Key key = Keys.hmacShaKeyFor("0123456789012345678901234567890123456789012345678901234567890123".getBytes());
 
 
     // Access 토큰 생성
