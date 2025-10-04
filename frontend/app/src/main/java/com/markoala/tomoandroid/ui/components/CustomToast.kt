@@ -8,10 +8,13 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -193,12 +196,13 @@ fun ToastProvider(
         Box(modifier = Modifier.fillMaxSize()) {
             content()
 
-            // 토스트를 화면 상단에 표시
+            // 토스트를 화면 상단에 표시 (상태바 높이 고려)
             CustomToast(
                 config = toastManager.currentToast.value,
                 onDismiss = { toastManager.dismissToast() },
                 modifier = Modifier
                     .align(Alignment.TopCenter)
+                    .windowInsetsPadding(WindowInsets.statusBars)
                     .padding(top = 16.dp)
             )
         }
