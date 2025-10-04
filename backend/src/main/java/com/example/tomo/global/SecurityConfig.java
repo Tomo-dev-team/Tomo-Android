@@ -37,7 +37,7 @@ public class SecurityConfig {
     public SecurityFilterChain jwtChain(HttpSecurity http,
                                         JwtAuthenticationFilter jwtAuthFilter) throws Exception {
         http
-                .securityMatcher("/api/**")
+                .securityMatcher("/public/**")
                 .csrf(CsrfConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
