@@ -36,6 +36,14 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
         String header = request.getHeader("Authorization");
         System.out.println("Authorization header: " + header);
 
+        String path = request.getRequestURI();
+
+        // 🔹 Public 요청이면 JWT/FireBase 인증 필터 건너뛰기
+        if (path.startsWith("/public") || path.equals("/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // Preflight 요청(CORS OPTIONS)은 그냥 통과
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
