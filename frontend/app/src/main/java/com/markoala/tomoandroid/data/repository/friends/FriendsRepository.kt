@@ -8,6 +8,7 @@ import com.markoala.tomoandroid.data.model.FriendData
 import com.markoala.tomoandroid.data.model.FriendSearchRequest
 import com.markoala.tomoandroid.data.model.FriendSearchResponse
 import com.markoala.tomoandroid.data.model.GetFriendsResponse
+import com.markoala.tomoandroid.utils.ErrorHandler
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -64,7 +65,12 @@ class FriendsRepository {
                     }
                 } else {
                     Log.e("FriendsRepository", "HTTP 응답 실패 - 코드: ${response.code()}")
-                    onError("검색에 실패했습니다")
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("FriendsRepository", "에러 본문: $errorBody")
+
+                    // HTTP 상태 코드에 따른 구체적인 에러 메시지 생성
+                    val errorResult = ErrorHandler.handleHttpError(response.code(), errorBody)
+                    onError(errorResult.message)
                 }
             }
 
@@ -139,12 +145,13 @@ class FriendsRepository {
                         "FriendsRepository",
                         "HTTP 응답 실패 - 코드: ${response.code()}, 메시지: ${response.message()}"
                     )
-                    Log.e(
-                        "FriendsRepository",
-                        "에러 본문: ${response.errorBody()?.string()}"
-                    )
-                    onError("친구 추가에 실패했습니다")
-                    Toast.makeText(context, "친구 추가에 실패했습니다", Toast.LENGTH_SHORT).show()
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("FriendsRepository", "에러 본문: $errorBody")
+
+                    // HTTP 상태 코드에 따른 구체적인 에러 메시지 생성
+                    val errorResult = ErrorHandler.handleHttpError(response.code(), errorBody)
+                    onError(errorResult.message)
+                    Toast.makeText(context, errorResult.message, Toast.LENGTH_SHORT).show()
                 }
             }
 
