@@ -2,14 +2,12 @@ package com.example.tomo.Friends;
 
 import com.example.tomo.Friends.dtos.FriendCalculatedDto;
 import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
-import com.example.tomo.Friends.dtos.ResponseGetFriendsDto;
 import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,10 +45,15 @@ public class FriendService {
                             .map(User::getUsername)
                             .orElse("알수 없음");
 
+                    String email = userRepository.findById(dto.getUserId())
+                            .map(User::getEmail)
+                            .orElse("알 수 없음");
+
                     System.out.println("friendName = " + friendName);
 
                     return new ResponseFriendDetailDto(
                             friendName,
+                            email,
                             dto.getFriendship(),
                             dto.getFriendPeriod()
                     );

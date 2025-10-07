@@ -24,8 +24,8 @@ public class FriendController {
 
 
 
-    @Operation(summary = "친구 상세 정보 조회", description = "로그인된 사용자의 친구 상세 정보를 반환합니다")
-    @GetMapping("/friends/detail")
+    @Operation(summary = "친구 목록 조회", description = "사용자의 친구 목록을 반환합니다")
+    @GetMapping("/friends/list")
     public ResponseEntity<ApiResponse<List<ResponseFriendDetailDto>>> getFriendDetails() {
         try {
             return ResponseEntity.ok().body(ApiResponse.success(friendService.getDetailFriends(), "성공"));
