@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -21,6 +22,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         AuthManager.init()
+        AuthManager.initTokenManager(this)
 
         setContent {
             TomoAndroidTheme {
@@ -33,14 +35,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainScreen() {
     var signedIn by remember { mutableStateOf(false) }
-//    val context = LocalContext.current
-//    val scope = rememberCoroutineScope()
     val navController = rememberNavController()
+
+    // 앱 시작 시 저장된 토큰 확인
+    LaunchedEffect(Unit) {
+        signedIn = AuthManager.hasValidTokens()
+    }
 
     ToastProvider {
         // 로그인/로그아웃 시 signedIn 상태 변경
         AppNavHost(navController = navController, isSignedIn = signedIn)
     }
-
-    // 로그인 성공/실패 콜백을 NavHost에서 처리하므로 아래 기존 UI는 제거
 }

@@ -38,7 +38,6 @@ import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.DashedBorderBox
 import com.markoala.tomoandroid.ui.components.LocalToastManager
 import com.markoala.tomoandroid.ui.theme.CustomColor
-import com.markoala.tomoandroid.utils.ErrorHandler
 
 @Composable
 fun AddFriendsScreen(
@@ -82,10 +81,19 @@ fun AddFriendsScreen(
             onError = { error ->
                 searchResults = emptyList()
                 errorMessage = error
-
-                // ErrorHandler를 사용하여 에러 처리
-                val errorResult = ErrorHandler.handleFriendSearchError(error)
-                ErrorHandler.showToast(toastManager, errorResult)
+                // HTTP 상태 코드에 따른 에러 처리는 Repository에서 이미 수행됨
+                // 추가로 UI에서 에러 타입을 구분하려면 ErrorHandler 사용
+                if (error.contains("해당 이메일로 등록된 사용자가 없습니다") ||
+                    error.contains("찾을 수 없습니다")
+                ) {
+                    toastManager.showInfo(error)
+                } else if (error.contains("인증") || error.contains("로그인")) {
+                    toastManager.showError(error)
+                } else if (error.contains("입력") || error.contains("잘못된")) {
+                    toastManager.showWarning(error)
+                } else {
+                    toastManager.showError(error)
+                }
             }
         )
     }
@@ -105,10 +113,19 @@ fun AddFriendsScreen(
             },
             onError = { error ->
                 errorMessage = error
-
-                // ErrorHandler를 사용하여 에러 처리
-                val errorResult = ErrorHandler.handleFriendAddError(error)
-                ErrorHandler.showToast(toastManager, errorResult)
+                // HTTP 상태 코드에 따른 에러 처리는 Repository에서 이미 수행됨
+                // 추가로 UI에서 에러 타입을 구분하려면 ErrorHandler 사용
+                if (error.contains("이미 친구") || error.contains("해당 이메일로 등록된 사용자가 없습니다")) {
+                    toastManager.showInfo(error)
+                } else if (error.contains("자신을")) {
+                    toastManager.showWarning(error)
+                } else if (error.contains("인증") || error.contains("로그인")) {
+                    toastManager.showError(error)
+                } else if (error.contains("입력") || error.contains("잘못된")) {
+                    toastManager.showWarning(error)
+                } else {
+                    toastManager.showError(error)
+                }
             }
         )
     }
