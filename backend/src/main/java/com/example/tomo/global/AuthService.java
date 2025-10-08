@@ -44,12 +44,17 @@ public class AuthService {
             }
 
             String newAccessToken = jwtTokenProvider.createAccessToken(uid);
-            // 필요시 Refresh Token 갱신 가능
-            String newRefreshToken = user.getRefreshToken();
+            String newRefreshToken = jwtTokenProvider.createRefreshToken(uid);
+
+
+            user.setRefreshToken(newRefreshToken);
+            userRepository.save(user);
 
             return new ResponseFirebaseLoginDto(newAccessToken, newRefreshToken);
+
         } catch (Exception e) {
             throw new RuntimeException("Refresh token 검증 실패", e);
         }
     }
+
 }
