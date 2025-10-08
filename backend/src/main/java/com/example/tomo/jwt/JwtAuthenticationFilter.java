@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
 
         // /api/protected/** 요청은 JWT 검증하지 않고 다음 필터로
-        if (path.startsWith("/api/protected/")) {
+        if (path.startsWith("/api/auth/firebase-login")) {
             filterChain.doFilter(request, response);
             return;
         }
