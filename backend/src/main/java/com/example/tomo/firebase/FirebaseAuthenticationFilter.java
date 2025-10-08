@@ -1,7 +1,5 @@
 package com.example.tomo.firebase;
 
-import com.example.tomo.jwt.JwtTokenProvider;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import jakarta.servlet.FilterChain;
@@ -21,12 +19,9 @@ import java.util.List;
 public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
 
     private final FirebaseService firebaseService;
-    private final JwtTokenProvider jwtTokenProvider;
 
-    public FirebaseAuthenticationFilter(FirebaseService firebaseService,
-                                        JwtTokenProvider jwtTokenProvider) {
+    public FirebaseAuthenticationFilter(FirebaseService firebaseService) {
         this.firebaseService = firebaseService;
-        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @Override
@@ -34,65 +29,47 @@ public class FirebaseAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
 
-        String header = request.getHeader("Authorization");
-        System.out.println("Authorization header: " + header);
-
         String path = request.getRequestURI();
 
-        // 🔹 Public 요청이면 JWT/FireBase 인증 필터 건너뛰기
-        if (path.startsWith("/public") || path.equals("/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (path.startsWith("/swagger-ui")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        if (path.startsWith("/v3")) {
+        // 로그인 전용 API만 처리
+        if (!path.equals("/api/auth/firebase-login")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-
-        // Preflight 요청(CORS OPTIONS)은 그냥 통과
+        // Preflight 요청(CORS OPTIONS)은 통과
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
             return;
         }
 
+        String header = request.getHeader("Authorization");
+
         if (header != null && header.startsWith("Bearer ")) {
             String idToken = header.substring(7);
             try {
+                // Firebase ID Token 검증
                 FirebaseToken decodedToken = firebaseService.verifyIdToken(idToken);
                 String uuid = decodedToken.getUid();
-                System.out.println("Token verified: " + uuid);
+                System.out.println(" Firebase Token verified: " + uuid);
 
-                // 1️⃣ Spring Security 인증 객체 설정
+                // SecurityContext에 사용자 UID 등록
                 UsernamePasswordAuthenticationToken auth =
                         new UsernamePasswordAuthenticationToken(uuid, null, List.of());
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
-                // 2️⃣ JWT Access & Refresh 토큰 생성
-                String accessToken = jwtTokenProvider.createAccessToken(uuid);
-                String refreshToken = jwtTokenProvider.createRefreshToken(uuid);
-
-                // 3️⃣ 응답 본문으로 JWT 전달
-                ResponseFirebaseLoginDto responseDto = new ResponseFirebaseLoginDto(accessToken, refreshToken);
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                new ObjectMapper().writeValue(response.getWriter(), responseDto);
-
+                //  여기서 response를 직접 작성하지 않고 filterChain으로 넘김
+                filterChain.doFilter(request, response);
+                return;
 
             } catch (FirebaseAuthException e) {
                 System.out.println("[DEBUG] Token verification failed: " + e.getMessage());
                 response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired Firebase ID token");
-
+                return;
             }
         } else {
-            // 헤더 없음 → 인증 실패 처리
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Missing Authorization header");
-
+            return;
         }
-
     }
 }

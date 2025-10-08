@@ -23,7 +23,7 @@ public class SecurityConfig {
     public SecurityFilterChain firebaseChain(HttpSecurity http,
                                              FirebaseAuthenticationFilter firebaseAuthFilter) throws Exception {
         http
-                .securityMatcher("/api/protected/**") // 이 경로만 Firebase 필터 적용
+                .securityMatcher("/api/auth/**") // 이 경로만 Firebase 필터 적용
                 .csrf(CsrfConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
@@ -45,7 +45,7 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults());
         http
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/protected/**","/swagger-ui/**","public/signup").permitAll() // Firebase 체인 전용
+                        .requestMatchers("/api/auth/**","/swagger-ui/**","/public/signup").permitAll() // Firebase 체인 전용
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
