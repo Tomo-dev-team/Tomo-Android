@@ -4,6 +4,8 @@ import com.example.tomo.Friends.dtos.FriendCalculatedDto;
 import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
 import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -62,5 +64,25 @@ public class FriendService {
                 .collect(Collectors.toList());
 
 
+    }
+
+
+    @Transactional
+    public void removeFriend(String uid, String friendEmail) {
+        // 1️⃣ 본인 찾기
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new EntityNotFoundException("본인 사용자를 찾을 수 없습니다."));
+
+        // 2️⃣ 친구 찾기
+        User friend = userRepository.findByEmail(friendEmail)
+                .orElseThrow(() -> new EntityNotFoundException("삭제할 친구를 찾을 수 없습니다."));
+
+        // 3️⃣ Friend 관계 조회
+        Friend relation = friendRepository.findByUserAndFriend(user, friend)
+                .orElse(friendRepository.findByUserAndFriend(friend, user)
+                        .orElseThrow(() -> new EntityNotFoundException("친구 관계가 존재하지 않습니다.")));
+
+        // 4️⃣ 삭제
+        friendRepository.delete(relation);
     }
 }

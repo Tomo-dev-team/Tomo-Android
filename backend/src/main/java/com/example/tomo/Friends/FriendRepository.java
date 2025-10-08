@@ -1,21 +1,20 @@
 package com.example.tomo.Friends;
 
 import com.example.tomo.Friends.dtos.FriendCalculatedDto;
+import com.example.tomo.Users.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FriendRepository extends JpaRepository<Friend, Long> {
 
-    // 사용자 ID에 해당하는 친구 목록 가져오기
-    @Query("SELECT f.friend.id From Friend f WHERE f.user.id = :userId")
-    List<Long> getFriends(@Param("userId") Long user_id);
 
-    // 얘는 jpql로 처리해야하지 싶은데
+
     // select friend_user_id from Friend f where 입력받은 ID = f.user 컬럼
 
     @Query ("SELECT new com.example.tomo.Friends.dtos.FriendCalculatedDto(f.friend.id , f.m_score, f.b_score, f.created_at) " +
@@ -32,4 +31,9 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     @Query ("SELECT COUNT(f) > 0 FROM Friend f WHERE f.user.id = 1 and f.friend.id = :friendId")
     boolean findFriendsByIdById(@Param("friendId")Long id);
 
+    // 본인(user) 또는 상대(friend)가 포함된 모든 친구 관계 삭제
+    void deleteAllByUserOrFriend(User user, User friend);
+
+    // 본인과 친구 관계 조회
+    Optional<Friend> findByUserAndFriend(User user, User friend);
 }
