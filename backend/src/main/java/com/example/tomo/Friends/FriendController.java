@@ -22,21 +22,38 @@ public class FriendController {
         this.friendService = friendService;
     }
 
-
-    @Operation(summary = "친구 목록 조회", description = "사용자의 친구 목록을 반환합니다")
+    @Operation(
+            summary = "친구 목록 조회",
+            description = "사용자의 친구 목록을 반환합니다",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "조회 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "로그인되지 않은 사용자")
+            }
+    )
     @GetMapping("/friends/list")
-    public ResponseEntity<ApiResponse<List<ResponseFriendDetailDto>>> getFriendDetails(@AuthenticationPrincipal String Uid) {
+    public ResponseEntity<ApiResponse<List<ResponseFriendDetailDto>>> getFriendDetails(
+            @AuthenticationPrincipal String uid) {
         try {
-            return ResponseEntity.ok().body(ApiResponse.success(friendService.getDetailFriends(Uid), "성공"));
+            return ResponseEntity.ok(ApiResponse.success(friendService.getDetailFriends(uid), "성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.failure("로그인된 사용자가 아닙니다"));
         }
     }
 
+    @Operation(
+            summary = "친구 삭제",
+            description = "본인의 친구를 이메일을 통해 삭제합니다",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "친구 삭제 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 또는 친구를 찾을 수 없음"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 오류 발생")
+            }
+    )
     @DeleteMapping("/friends")
     public ResponseEntity<ApiResponse<Void>> removeFriend(
             @AuthenticationPrincipal String uid,
+            @io.swagger.v3.oas.annotations.Parameter(description = "삭제할 친구 이메일", required = true)
             @RequestParam String friendEmail) {
 
         try {
@@ -50,6 +67,4 @@ public class FriendController {
                     .body(ApiResponse.failure("친구 삭제 중 오류가 발생했습니다."));
         }
     }
-
-
 }

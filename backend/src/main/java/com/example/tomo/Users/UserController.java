@@ -21,43 +21,65 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@Tag(name = "User API", description = "사용자 회원가입, 친구 관리 API")
+@Tag(name = "User API", description = "사용자 회원가입, 친구 관리, 인증 API")
 public class UserController {
 
     private final UserService userService;
     private final AuthService authService;
 
     @Autowired
-    public UserController(UserService userService,AuthService authService) {
-
+    public UserController(UserService userService, AuthService authService) {
         this.userService = userService;
         this.authService = authService;
-
     }
 
-    @Operation(summary = "친구 추가", description = "이메일을 이용하여 친구를 추가합니다.")
+    @Operation(
+            summary = "친구 추가",
+            description = "이메일을 이용하여 친구를 추가합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "친구 추가 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이미 존재하는 친구")
+            }
+    )
     @PostMapping("/public/friends")
     public ResponseEntity<ResponsePostUniformDto> addFriendsUsingEmail(
             @AuthenticationPrincipal String uid,
             @RequestBody addFriendRequestDto dto) {
-       try{
-           dto.setUid(uid);
-           return ResponseEntity.status(HttpStatus.CREATED).body(userService.addFriends(dto));
-       }catch (EntityExistsException e){
-           return ResponseEntity.status(HttpStatus.CONFLICT).body(new ResponsePostUniformDto(false, e.getMessage()));
-       }
-    }
-    @Operation(summary = "친구 조회", description = "이메일을 이용하여 친구 정보를 조회합니다.")
-    @GetMapping("/public/friends") // 이메일로 친구 검색
-    public ResponseEntity<ApiResponse<getFriendResponseDto>> getFriendsUsingEmail(@RequestParam String email ) {
         try {
-            return ResponseEntity.ok(ApiResponse.success(userService.getUserInfo(email),"친구 조회 완료"));
-        }catch(EntityNotFoundException e){
+            dto.setUid(uid);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.addFriends(dto));
+        } catch (EntityExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ResponsePostUniformDto(false, e.getMessage()));
+        }
+    }
+
+    @Operation(
+            summary = "친구 조회",
+            description = "이메일로 친구 정보를 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "친구 조회 완료"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "친구를 찾을 수 없음")
+            }
+    )
+    @GetMapping("/public/friends")
+    public ResponseEntity<ApiResponse<getFriendResponseDto>> getFriendsUsingEmail(@RequestParam String email) {
+        try {
+            return ResponseEntity.ok(ApiResponse.success(userService.getUserInfo(email), "친구 조회 완료"));
+        } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(e.getMessage()));
         }
     }
 
-    @Operation(summary = "회원가입", description = "새로운 사용자를 등록합니다.")
+    @Operation(
+            summary = "회원가입",
+            description = "새로운 사용자를 등록합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "회원가입 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이미 존재하는 사용자"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "422", description = "데이터 유효성 오류")
+            }
+    )
     @PostMapping("/public/signup")
     public ResponseEntity<ResponsePostUniformDto> signUser(@RequestBody RequestUserSignDto dto) {
         try {
@@ -65,13 +87,20 @@ public class UserController {
         } catch (EntityExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ResponsePostUniformDto(false, e.getMessage()));
-        } catch (DataIntegrityViolationException e){
+        } catch (DataIntegrityViolationException e) {
             return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-                    .body(new ResponsePostUniformDto(false,"같은 이메일로 가입 내역이 존재합니다"));
+                    .body(new ResponsePostUniformDto(false, "같은 이메일로 가입 내역이 존재합니다"));
         }
-
     }
-    // 본인 계정 삭제
+
+    @Operation(
+            summary = "계정 삭제",
+            description = "인증된 사용자 본인의 계정을 삭제합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "계정 삭제 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
+            }
+    )
     @DeleteMapping("/public/users")
     public ResponseEntity<ApiResponse<Void>> deleteMyAccount(@AuthenticationPrincipal String uid) {
         try {
@@ -86,7 +115,15 @@ public class UserController {
         }
     }
 
-    @Operation(summary = "firebase Token 인증 후 jwt 헤더로 발급", description = "인증된 사용자에게 액세스, 리프레쉬 토큰 발급. (JWT/Firebase 보호 필요)")
+    @Operation(
+            summary = "Firebase 로그인",
+            description = "Firebase 토큰 인증 후 JWT 액세스/리프레쉬 토큰 발급",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그인 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "회원가입 필요"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 에러")
+            }
+    )
     @PostMapping("/api/auth/firebase-login")
     public ResponseEntity<ApiResponse<ResponseFirebaseLoginDto>> login(@AuthenticationPrincipal String uid) {
         try {
@@ -101,10 +138,18 @@ public class UserController {
         }
     }
 
+    @Operation(
+            summary = "Access 토큰 재발급",
+            description = "Refresh Token을 이용하여 Access Token 재발급",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "재발급 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "리프레쉬 토큰 불일치"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 에러")
+            }
+    )
     @PostMapping("/api/auth/refresh")
     public ResponseEntity<ApiResponse<ResponseFirebaseLoginDto>> refreshToken(
             @RequestHeader("Refresh-Token") String refreshTokenHeader) {
-
         try {
             ResponseFirebaseLoginDto tokens = authService.reissueAccessToken(refreshTokenHeader);
             return ResponseEntity.ok(ApiResponse.success(tokens, "Access token 재발급 성공"));
@@ -116,6 +161,16 @@ public class UserController {
                     .body(ApiResponse.failure("Internal server error"));
         }
     }
+
+    @Operation(
+            summary = "로그아웃",
+            description = "현재 사용자의 Refresh Token을 삭제하여 로그아웃 처리",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그아웃 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 에러")
+            }
+    )
     @DeleteMapping("/public/logout")
     public ResponseEntity<ApiResponse<Void>> logout(@AuthenticationPrincipal String uid) {
         try {
@@ -129,6 +184,4 @@ public class UserController {
                     .body(ApiResponse.failure("로그아웃 중 오류가 발생했습니다."));
         }
     }
-
-
 }
