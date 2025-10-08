@@ -107,5 +107,14 @@ public class UserService {
         return new getFriendResponseDto(user.get().getUsername(), user.get().getEmail());
     }
 
+    public void saveRefreshToken(String uid, String refreshToken){
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new EntityNotFoundException("로그인 되지 않은 사용자입니다."));
+
+
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+    }
+
 
 }
