@@ -6,7 +6,7 @@ import com.example.tomo.Users.dtos.addFriendRequestDto;
 import com.example.tomo.Users.dtos.getFriendResponseDto;
 import com.example.tomo.firebase.ResponseFirebaseLoginDto;
 import com.example.tomo.global.ApiResponse;
-import com.example.tomo.jwt.JwtTokenProvider;
+import com.example.tomo.global.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityExistsException;
@@ -25,13 +25,14 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final AuthService authService;
 
     @Autowired
-    public UserController(UserService userService, JwtTokenProvider jwtTokenProvider) {
+    public UserController(UserService userService,AuthService authService) {
 
         this.userService = userService;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.authService = authService;
+
     }
 
     @Operation(summary = "친구 추가", description = "이메일을 이용하여 친구를 추가합니다.")
@@ -76,27 +77,33 @@ public class UserController {
 
     }*/
     @Operation(summary = "firebase Token 인증 후 jwt 헤더로 발급", description = "인증된 사용자에게 액세스, 리프레쉬 토큰 발급. (JWT/Firebase 보호 필요)")
-    @GetMapping("/api/auth/firebase-login")
+    @PostMapping("/api/auth/firebase-login")
     public ResponseEntity<ApiResponse<ResponseFirebaseLoginDto>> login(@AuthenticationPrincipal String uid) {
         try {
-            String accessToken = jwtTokenProvider.createAccessToken(uid);
-            String refreshToken = jwtTokenProvider.createRefreshToken(uid);
-
-            // DB에 RefreshToken 저장
-            userService.saveRefreshToken(uid, refreshToken);
-
-            // 성공 응답 반환
-            ResponseFirebaseLoginDto responseDto = new ResponseFirebaseLoginDto(accessToken, refreshToken);
-            return ResponseEntity.ok(ApiResponse.success(responseDto, "로그인 성공"));
-
+            ResponseFirebaseLoginDto tokens = authService.loginWithFirebase(uid);
+            return ResponseEntity.ok(ApiResponse.success(tokens, "로그인 성공"));
         } catch (EntityNotFoundException e) {
-            // 사용자 없을 때
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.failure("회원가입 먼저 진행해 주세요"));
-
         } catch (Exception e) {
-            // 기타 예외
             return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
+                    .body(ApiResponse.failure("Internal server error"));
+        }
+    }
+
+    // Controller
+    @PostMapping("/api/auth/refresh")
+    public ResponseEntity<ApiResponse<ResponseFirebaseLoginDto>> refreshToken(
+            @RequestHeader("Refresh-Token") String refreshTokenHeader) {
+
+        try {
+            ResponseFirebaseLoginDto tokens = authService.reissueAccessToken(refreshTokenHeader);
+            return ResponseEntity.ok(ApiResponse.success(tokens, "Access token 재발급 성공"));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.failure("리프레쉬 토큰이 올바르지 않습니다. 다시 로그인해 주세요"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(ApiResponse.failure("Internal server error"));
         }
     }
