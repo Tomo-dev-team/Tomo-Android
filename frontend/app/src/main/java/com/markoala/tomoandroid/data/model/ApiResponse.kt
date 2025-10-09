@@ -15,3 +15,14 @@ data class GetFriendsResponse(
     val message: String,
     val data: FriendData
 )
+
+data class FirebaseTokenResponse(
+    val success: Boolean,
+    val message: String,
+    val data: TokenData
+)
+
+data class TokenData(
+    val accessToken: String,
+    val refreshToken: String
+)

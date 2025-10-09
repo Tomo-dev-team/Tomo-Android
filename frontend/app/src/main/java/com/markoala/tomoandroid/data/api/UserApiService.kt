@@ -1,5 +1,6 @@
 package com.markoala.tomoandroid.data.api
 
+import com.markoala.tomoandroid.data.model.FirebaseTokenResponse
 import com.markoala.tomoandroid.data.model.FriendSearchRequest
 import com.markoala.tomoandroid.data.model.FriendSearchResponse
 import com.markoala.tomoandroid.data.model.GetFriendsResponse
@@ -24,11 +25,11 @@ interface UserApiService {
     fun signup(@Body body: UserData): Call<PostResponse>
 
     // Firebase ID 토큰으로 access token과 refresh token 받기
-    @GET("/api/protected/user")
+    @POST("/api/auth/firebase-login")
     suspend fun getTokensWithFirebaseToken(
         @Header("Authorization") firebaseToken: String,
         @Header("Content-Type") contentType: String = "application/json"
-    ): Response<String>
+    ): Response<FirebaseTokenResponse>
 
     // 친구 검색 API (AuthInterceptor가 자동으로 Authorization 헤더 추가)
     @POST("/public/friends")
