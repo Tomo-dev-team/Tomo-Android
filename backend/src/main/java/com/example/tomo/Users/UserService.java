@@ -57,7 +57,7 @@ public class UserService {
 
         // 액세스 토큰으로 사용자 인증하기
         // 현재는 ID 가 1인 유저 꺼내기
-        Optional<User> user = userRepository.findById(1L);
+        Optional<User> user = userRepository.findByFirebaseId(dto.getUid());
         if(user.isEmpty()){
             throw new EntityNotFoundException("친구 요청은 로그인이 선행되어야 합니다");
         }
@@ -105,6 +105,32 @@ public class UserService {
              throw new EntityNotFoundException("존재하지 않는 사용자입니다");
         }
         return new getFriendResponseDto(user.get().getUsername(), user.get().getEmail());
+    }
+
+    public void saveRefreshToken(String uid, String refreshToken){
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new EntityNotFoundException("로그인 되지 않은 사용자입니다."));
+
+
+        user.setRefreshToken(refreshToken);
+        userRepository.save(user);
+    }
+
+    public void deleteUser(String uid){
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자 또는 UUID의 형식 오류"));
+
+        // 친구 관계 삭제
+        friendRepository.deleteAllByUserOrFriend(user, user);
+
+        userRepository.delete(user);
+    }
+    public void logout(String uid) {
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
+        // Refresh Token 삭제
+        user.setRefreshToken(null);
+        userRepository.save(user);
     }
 
 

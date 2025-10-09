@@ -4,6 +4,8 @@ import com.example.tomo.Friends.dtos.FriendCalculatedDto;
 import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
 import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +27,10 @@ public class FriendService {
 
 
     // 친구 상세 정보 출력하기
-    public List<ResponseFriendDetailDto> getDetailFriends(){
+    public List<ResponseFriendDetailDto> getDetailFriends(String userId) {
 
-        long userId =1L;
 
-        User user = userRepository.findById(userId)
+        User user = userRepository.findByFirebaseId(userId)
                 .orElseThrow(()->new IllegalArgumentException("친구 상세 정보 출력 중 사용자 인증이 되지 않았습니다. 로그인 부탁"));
 
         // 친구 엔티티를 가져와서 점수 계산하는 로직 JPQL 작성하기
@@ -62,5 +63,25 @@ public class FriendService {
                 .collect(Collectors.toList());
 
 
+    }
+
+
+    @Transactional
+    public void removeFriend(String uid, String friendEmail) {
+        // 본인 User 조회
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
+
+        // 친구 User 조회
+        User friend = userRepository.findByEmail(friendEmail)
+                .orElseThrow(() -> new EntityNotFoundException("친구를 찾을 수 없습니다."));
+
+        // 본인이 친구로 등록한 레코드 삭제
+        friendRepository.findByUserAndFriend(user, friend)
+                .ifPresent(friendRepository::delete);
+
+        // 친구가 본인을 친구로 등록한 레코드 삭제
+        friendRepository.findByUserAndFriend(friend, user)
+                .ifPresent(friendRepository::delete);
     }
 }
