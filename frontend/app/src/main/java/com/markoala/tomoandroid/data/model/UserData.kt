@@ -7,8 +7,8 @@ data class UserData(
 )
 
 data class FriendProfile(
-    val name: String,
+    val username: String,
     val email: String,
-    val friendship: Int,
+    val friendship: Double,
     val createdAt: String
 )

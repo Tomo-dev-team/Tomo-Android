@@ -20,7 +20,6 @@ import androidx.compose.ui.unit.sp
 import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
-import com.markoala.tomoandroid.ui.components.IntimacyStatusBar
 import com.markoala.tomoandroid.ui.components.ProfileImage
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
@@ -54,7 +53,7 @@ fun FriendCard(friend: FriendProfile) {
                     modifier = Modifier.weight(1f)
                 ) {
                     CustomText(
-                        text = friend.name,
+                        text = friend.username,
                         type = CustomTextType.titleMedium,
                         color = CustomColor.black,
                         fontSize = 16.sp
@@ -81,14 +80,13 @@ fun FriendCard(friend: FriendProfile) {
                         )
                     }
                 }
-
-                // 우정 상태 바 추가
-                IntimacyStatusBar(
-                    intimacy = friend.friendship,
-                    modifier = Modifier,
-                    height = 15,
-                    width = 80
+                CustomText(
+                    text = "친밀도: " + friend.friendship.toString(),
+                    type = CustomTextType.bodyMedium,
+                    color = CustomColor.gray200,
+                    fontSize = 12.sp
                 )
+
             }
             Column(
                 modifier = Modifier.padding(horizontal = 4.dp),

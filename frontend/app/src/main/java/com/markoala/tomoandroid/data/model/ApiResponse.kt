@@ -26,3 +26,9 @@ data class TokenData(
     val accessToken: String,
     val refreshToken: String
 )
+
+data class FriendsListDTO(
+    val success: Boolean,
+    val message: String,
+    val data: List<FriendProfile>
+)

@@ -3,6 +3,7 @@ package com.markoala.tomoandroid.data.api
 import com.markoala.tomoandroid.data.model.FirebaseTokenResponse
 import com.markoala.tomoandroid.data.model.FriendSearchRequest
 import com.markoala.tomoandroid.data.model.FriendSearchResponse
+import com.markoala.tomoandroid.data.model.FriendsListDTO
 import com.markoala.tomoandroid.data.model.GetFriendsResponse
 import com.markoala.tomoandroid.data.model.PostResponse
 import com.markoala.tomoandroid.data.model.UserData
@@ -41,6 +42,10 @@ interface UserApiService {
     fun getFriends(
         @Query("email") email: String
     ): Call<GetFriendsResponse>
+
+    @GET("/public/friends/list")
+    fun getFriendsList(
+    ): Call<FriendsListDTO>
 }
 
 // HttpLoggingInterceptor 생성 및 설정

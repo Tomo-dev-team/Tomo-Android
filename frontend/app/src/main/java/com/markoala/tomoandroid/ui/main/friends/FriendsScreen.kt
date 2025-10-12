@@ -17,38 +17,36 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.R
-import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.DashedBorderBox
 import com.markoala.tomoandroid.ui.components.friends.FriendCard
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
-private val sampleFriends = listOf(
-    FriendProfile("김토모", "tomoKim@gmail.com", 70, "2022-01-15"),
-    FriendProfile("이토모", "tomoLee@gmail.com", 80, "2021-06-20"),
-    FriendProfile("박토모", "tomoPark@gmail.com", 30, "2023-03-10"),
-    FriendProfile("정토모", "tomoJung@gmail.com", 90, "2020-11-05"),
-    FriendProfile("최토모", "tomoChoi@gmail.com", 60, "2022-08-25"),
-    FriendProfile("한토모", "tomoHan@gmail.com", 50, "2023-01-30")
-)
-
-
 @Composable
 fun FriendsScreen(
     paddingValues: PaddingValues,
-    onAddFriendsClick: () -> Unit = {}
+    onAddFriendsClick: () -> Unit = {},
+    viewModel: FriendsViewModel = viewModel()
 ) {
+    val friends by viewModel.friends.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -136,10 +134,55 @@ fun FriendsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
-
         ) {
-            sampleFriends.forEach { friend ->
-                FriendCard(friend)
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = CustomColor.gray300,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                error != null -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CustomText(
+                            text = error ?: "오류가 발생했습니다",
+                            type = CustomTextType.bodyMedium,
+                            fontSize = 14.sp,
+                            color = CustomColor.gray300,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                friends.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CustomText(
+                            text = "친구가 없습니다",
+                            type = CustomTextType.bodyMedium,
+                            fontSize = 14.sp,
+                            color = CustomColor.gray300,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                else -> {
+                    friends.forEach { friend ->
+                        FriendCard(friend)
+                    }
+                }
             }
         }
     }
