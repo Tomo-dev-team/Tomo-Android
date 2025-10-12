@@ -2,16 +2,20 @@ package com.markoala.tomoandroid.ui.components.friends
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -119,6 +123,29 @@ fun FriendCard(friend: FriendProfile) {
                         type = CustomTextType.bodyMedium,
                         color = CustomColor.gray200,
                         fontSize = 12.sp
+                    )
+                }
+
+                // 친구삭제 버튼
+                OutlinedButton(
+                    onClick = {},
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = CustomColor.white,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, CustomColor.gray100),
+                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                    contentPadding = PaddingValues(vertical = 12.dp)
+                ) {
+
+                    CustomText(
+                        text = "친구삭제",
+                        type = CustomTextType.titleMedium,
+                        fontSize = 14.sp,
+                        color = CustomColor.gray300
                     )
                 }
             }
