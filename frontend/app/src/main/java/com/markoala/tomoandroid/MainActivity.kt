@@ -13,6 +13,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.compose.rememberNavController
 import com.markoala.tomoandroid.auth.AuthManager
 import com.markoala.tomoandroid.navigation.AppNavHost
+import com.markoala.tomoandroid.navigation.Screen
 import com.markoala.tomoandroid.ui.components.ToastProvider
 import com.markoala.tomoandroid.ui.theme.TomoAndroidTheme
 
@@ -40,6 +41,14 @@ fun MainScreen() {
     // 앱 시작 시 저장된 토큰 확인
     LaunchedEffect(Unit) {
         signedIn = AuthManager.hasValidTokens()
+
+        // 401 에러 발생 시 로그인 페이지로 이동하는 콜백 설정
+        AuthManager.setUnauthorizedCallback {
+            signedIn = false
+            navController.navigate(Screen.Login.route) {
+                popUpTo(Screen.Profile.route) { inclusive = true }
+            }
+        }
     }
 
     ToastProvider {

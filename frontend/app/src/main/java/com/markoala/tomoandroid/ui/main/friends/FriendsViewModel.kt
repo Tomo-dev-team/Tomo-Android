@@ -1,7 +1,9 @@
 package com.markoala.tomoandroid.ui.main.friends
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.markoala.tomoandroid.auth.AuthManager
 import com.markoala.tomoandroid.data.api.apiService
 import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.data.model.FriendsListDTO
@@ -13,7 +15,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class FriendsViewModel : ViewModel() {
+class FriendsViewModel(application: Application) : AndroidViewModel(application) {
     private val _friends = MutableStateFlow<List<FriendProfile>>(emptyList()) // 내부 변경용
     val friends: StateFlow<List<FriendProfile>> = _friends.asStateFlow() // 외부 노출용
 
@@ -49,6 +51,14 @@ class FriendsViewModel : ViewModel() {
                             _error.value = "서버 응답이 비어있습니다."
                         }
                     } else {
+                        if (response.code() == 401) {
+                            // 401 에러 발생 시 자동 로그아웃 처리
+                            viewModelScope.launch {
+                                AuthManager.handleUnauthorized(getApplication())
+                            }
+                            return
+                        }
+
                         val errorMessage = when (response.code()) {
                             401 -> "인증이 필요합니다. 다시 로그인해주세요."
                             403 -> "접근 권한이 없습니다."

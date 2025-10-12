@@ -135,4 +135,17 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
             Pair(false, e.localizedMessage)
         }
     }
+
+    // 401 에러 발생 시 자동 로그아웃을 위한 콜백
+    private var onUnauthorizedCallback: (() -> Unit)? = null
+
+    fun setUnauthorizedCallback(callback: () -> Unit) {
+        onUnauthorizedCallback = callback
+    }
+
+    suspend fun handleUnauthorized(context: Context) {
+        Log.w(TAG, "401 Unauthorized - 자동 로그아웃 처리")
+        signOutSuspend(context)
+        onUnauthorizedCallback?.invoke()
+    }
 }
