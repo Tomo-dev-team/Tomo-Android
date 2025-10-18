@@ -37,7 +37,9 @@ fun CreateMeetingScreen(
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -66,7 +68,6 @@ fun CreateMeetingScreen(
                         color = CustomColor.black
                     )
                 }
-
             }
         }
 
