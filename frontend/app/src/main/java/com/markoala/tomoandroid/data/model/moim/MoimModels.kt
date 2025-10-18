@@ -12,3 +12,9 @@ data class MoimDTO(
     val description: String,
     val peopleCounts: Int
 )
+
+data class CreateMoimDTO(
+    val moimName: String,
+    val description: String,
+    val emails: List<String>
+)
