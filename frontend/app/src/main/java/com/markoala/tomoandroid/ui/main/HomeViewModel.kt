@@ -19,7 +19,7 @@ class HomeViewModel : ViewModel() {
         fetchMeetings()
     }
 
-    private fun fetchMeetings() {
+    fun fetchMeetings() {
         viewModelScope.launch {
             try {
                 val response = MoimsApiService.getMoimsList().awaitResponse()
@@ -41,4 +41,3 @@ class HomeViewModel : ViewModel() {
         }
     }
 }
-
