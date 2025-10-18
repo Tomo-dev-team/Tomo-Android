@@ -21,25 +21,21 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.markoala.tomoandroid.data.model.moim.Meeting
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.home.MeetingCard
-
 import com.markoala.tomoandroid.ui.theme.CustomColor
-
-private val sampleMeetings = listOf(
-    Meeting("주말 브런치", "강남역 11번 출구", "토요일 11:00", 3),
-    Meeting("영화 모임", "잠실 롯데시네마", "금요일 19:30", 5),
-    Meeting("스터디", "온라인 Google Meet", "수요일 20:00", 4)
-)
 
 @Composable
 fun HomeScreen(paddingValues: PaddingValues) {
+    val homeViewModel: HomeViewModel = viewModel()
+    val meetings = homeViewModel.meetings.collectAsState().value
 
     Column(
         modifier = Modifier
@@ -91,9 +87,25 @@ fun HomeScreen(paddingValues: PaddingValues) {
             }
         }
         Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(sampleMeetings) { meeting ->
-                MeetingCard(meeting)
+        if (meetings.isEmpty()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 48.dp),
+                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+            ) {
+                CustomText(
+                    text = "생성된 모임이 없습니다.",
+                    type = CustomTextType.bodyMedium,
+                    color = CustomColor.gray200,
+                    fontSize = 16.sp
+                )
+            }
+        } else {
+            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                items(meetings) { meeting ->
+                    MeetingCard(meeting)
+                }
             }
         }
     }

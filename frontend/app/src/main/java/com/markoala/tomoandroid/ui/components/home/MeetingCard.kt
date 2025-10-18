@@ -32,15 +32,13 @@ fun MeetingCard(meeting: Meeting) {
                 CustomColor.gray100,
                 androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
             )
-
     ) {
         Column(
-            modifier = Modifier
-                .padding(16.dp),
+            modifier = Modifier.padding(16.dp),
             verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)
         ) {
             CustomText(
-                text = meeting.title,
+                text = meeting.title, // 모임명
                 type = CustomTextType.titleMedium,
                 color = CustomColor.black,
                 fontSize = 16.sp
@@ -64,27 +62,7 @@ fun MeetingCard(meeting: Meeting) {
                             .size(12.dp)
                     )
                     CustomText(
-                        text = meeting.location ?: "",
-                        type = CustomTextType.bodyMedium,
-                        color = CustomColor.gray200,
-                        fontSize = 12.sp
-                    )
-                }
-                Row(
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
-                        4.dp
-                    )
-                ) {
-                    Icon(
-                        painter = androidx.compose.ui.res.painterResource(id = com.markoala.tomoandroid.R.drawable.ic_time),
-                        contentDescription = null,
-                        tint = CustomColor.gray200,
-                        modifier = Modifier
-                            .padding(top = 2.dp)
-                            .size(12.dp)
-                    )
-                    CustomText(
-                        text = meeting.time ?: "",
+                        text = meeting.location ?: "설명 없음", // description을 location에 매핑
                         type = CustomTextType.bodyMedium,
                         color = CustomColor.gray200,
                         fontSize = 12.sp
