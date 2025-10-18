@@ -1,6 +1,9 @@
 package com.markoala.tomoandroid.ui.components.friends
 
+import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -9,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -23,8 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.markoala.tomoandroid.R
+import com.markoala.tomoandroid.auth.AuthManager.getStoredAccessToken
 import com.markoala.tomoandroid.data.api.apiService
 import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.data.model.FriendsResponseDTO
@@ -110,7 +117,7 @@ fun FriendCard(
             }
             Column(
                 modifier = Modifier.padding(horizontal = 4.dp),
-                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp)
+                verticalArrangement = spacedBy(4.dp)
             ) {
 
                 HorizontalDivider(
@@ -121,13 +128,13 @@ fun FriendCard(
                     thickness = 1.dp
                 )
                 Row(
-                    horizontalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(
+                    horizontalArrangement = spacedBy(
                         4.dp
                     ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = androidx.compose.ui.res.painterResource(id = com.markoala.tomoandroid.R.drawable.ic_time),
+                        painter = painterResource(id = R.drawable.ic_time),
                         contentDescription = null,
                         tint = CustomColor.gray200,
                         modifier = Modifier
@@ -152,8 +159,8 @@ fun FriendCard(
                         containerColor = CustomColor.white,
                         contentColor = MaterialTheme.colorScheme.onSurface
                     ),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, CustomColor.gray100),
-                    shape = androidx.compose.foundation.shape.RoundedCornerShape(14.dp),
+                    border = BorderStroke(1.dp, CustomColor.gray100),
+                    shape = RoundedCornerShape(14.dp),
                     contentPadding = PaddingValues(vertical = 12.dp)
                 ) {
 
@@ -175,18 +182,18 @@ fun FriendCard(
             friendName = friend.username,
             onConfirm = {
                 // API 호출로 친구 삭제
-                android.util.Log.d("FriendCard", "=== 친구삭제 API 호출 시작 ===")
-                android.util.Log.d("FriendCard", "삭제할 친구 이메일: ${friend.email}")
-                android.util.Log.d(
+                Log.d("FriendCard", "=== 친구삭제 API 호출 시작 ===")
+                Log.d("FriendCard", "삭제할 친구 이메일: ${friend.email}")
+                Log.d(
                     "FriendCard",
                     "요청 URL: DELETE /public/friends?email=${friend.email}"
                 )
 
                 // 현재 저장된 액세스 토큰 확인
-                val accessToken = com.markoala.tomoandroid.auth.AuthManager.getStoredAccessToken()
-                android.util.Log.d("FriendCard", "현재 액세스 토큰 존재 여부: ${accessToken != null}")
+                val accessToken = getStoredAccessToken()
+                Log.d("FriendCard", "현재 액세스 토큰 존재 여부: ${accessToken != null}")
                 if (accessToken != null) {
-                    android.util.Log.d("FriendCard", "액세스 토큰 앞 10자리: ${accessToken.take(10)}...")
+                    Log.d("FriendCard", "액세스 토큰 앞 10자리: ${accessToken.take(10)}...")
                 }
 
                 apiService.deleteFriends(friend.email)
@@ -195,53 +202,53 @@ fun FriendCard(
                             call: Call<FriendsResponseDTO>,
                             response: Response<FriendsResponseDTO>
                         ) {
-                            android.util.Log.d("FriendCard", "=== API 응답 수신 ===")
-                            android.util.Log.d("FriendCard", "Response Code: ${response.code()}")
-                            android.util.Log.d(
+                            Log.d("FriendCard", "=== API 응답 수신 ===")
+                            Log.d("FriendCard", "Response Code: ${response.code()}")
+                            Log.d(
                                 "FriendCard",
                                 "Response Message: ${response.message()}"
                             )
-                            android.util.Log.d("FriendCard", "Request URL: ${call.request().url}")
-                            android.util.Log.d(
+                            Log.d("FriendCard", "Request URL: ${call.request().url}")
+                            Log.d(
                                 "FriendCard",
                                 "Request Headers: ${call.request().headers}"
                             )
 
                             if (response.isSuccessful) {
                                 val responseBody = response.body()
-                                android.util.Log.d("FriendCard", "친구삭제 성공!")
-                                android.util.Log.d("FriendCard", "응답 본문: $responseBody")
+                                Log.d("FriendCard", "친구삭제 성공!")
+                                Log.d("FriendCard", "응답 본문: $responseBody")
                                 toastManager.showSuccess("${friend.username}님이 친구 목록에서 삭제되었습니다.")
                                 onFriendDeleted?.invoke()
                             } else {
                                 val errorBody = response.errorBody()?.string()
-                                android.util.Log.e("FriendCard", "=== 친구삭제 실패 ===")
-                                android.util.Log.e("FriendCard", "오류 코드: ${response.code()}")
-                                android.util.Log.e("FriendCard", "오류 메시지: ${response.message()}")
-                                android.util.Log.e("FriendCard", "오류 본문: $errorBody")
-                                android.util.Log.e("FriendCard", "응답 헤더: ${response.headers()}")
+                                Log.e("FriendCard", "=== 친구삭제 실패 ===")
+                                Log.e("FriendCard", "오류 코드: ${response.code()}")
+                                Log.e("FriendCard", "오류 메시지: ${response.message()}")
+                                Log.e("FriendCard", "오류 본문: $errorBody")
+                                Log.e("FriendCard", "응답 헤더: ${response.headers()}")
 
                                 // 400 에러인 경우 추가 정보 로깅
                                 if (response.code() == 400) {
-                                    android.util.Log.e("FriendCard", "400 Bad Request - 가능한 원인:")
-                                    android.util.Log.e("FriendCard", "1. 인증 토큰 문제")
-                                    android.util.Log.e("FriendCard", "2. 요청 형식 문제")
-                                    android.util.Log.e("FriendCard", "3. 친구 관계가 존재하지 않음")
-                                    android.util.Log.e("FriendCard", "4. 권한 부족")
+                                    Log.e("FriendCard", "400 Bad Request - 가능한 원인:")
+                                    Log.e("FriendCard", "1. 인증 토큰 문제")
+                                    Log.e("FriendCard", "2. 요청 형식 문제")
+                                    Log.e("FriendCard", "3. 친구 관계가 존재하지 않음")
+                                    Log.e("FriendCard", "4. 권한 부족")
                                 }
                                 toastManager.showError("친구삭제에 실패했습니다.")
                             }
                         }
 
                         override fun onFailure(call: Call<FriendsResponseDTO>, t: Throwable) {
-                            android.util.Log.e("FriendCard", "친구삭제 네트워크 오류: ${t.message}", t)
+                            Log.e("FriendCard", "친구삭제 네트워크 오류: ${t.message}", t)
                             toastManager.showError("네트워크 오류가 발생했습니다.")
                         }
                     })
                 showDeleteDialog = false
             },
             onDismiss = {
-                android.util.Log.d("FriendCard", "친구삭제 다이얼로그 취소됨")
+                Log.d("FriendCard", "친구삭제 다이얼로그 취소됨")
                 showDeleteDialog = false
             }
         )
