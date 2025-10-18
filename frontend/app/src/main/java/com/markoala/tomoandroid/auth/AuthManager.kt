@@ -9,7 +9,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.markoala.tomoandroid.data.api.apiService
+import com.markoala.tomoandroid.data.api.userApiService
+import com.markoala.tomoandroid.data.repository.AuthRepository
 import com.markoala.tomoandroid.utils.auth.TokenManager
 import kotlinx.coroutines.tasks.await
 
@@ -40,7 +41,7 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
                     // Firebase ID 토큰 가져오기
                     val firebaseToken = it.getIdToken(true).await()?.token // 파베 Id 토큰 발급
                     if (firebaseToken != null) {
-                        Log.d(TAG, "Firebase ID Token acquired")
+                        Log.d(TAG, "Firebase ID $firebaseToken")
                         // 서버에서 access token과 refresh token 받아오기
                         val success = exchangeFirebaseTokenForServerTokens(
                             firebaseToken,
@@ -70,12 +71,16 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
                 initTokenManager(context)
             }
 
-            val response = apiService.getTokensWithFirebaseToken("Bearer $firebaseToken") // 서버에 요청
+            val response =
+                userApiService.getTokensWithFirebaseToken("Bearer $firebaseToken") // 서버에 요청
 
             if (response.isSuccessful) {
                 // 헤더에서 토큰 추출
-                val accessToken = response.headers()["Authorization"] // 응답 헤더의 Authorization 부분 추출
-                val refreshToken = response.headers()["Refresh-Token"] // 응답 헤더의 refresh-token 부분 추출
+
+                val responseBody = response.body()
+
+                val accessToken = responseBody?.data?.accessToken
+                val refreshToken = responseBody?.data?.refreshToken
 
                 if (accessToken != null && refreshToken != null) {
                     // "Bearer " 제거
@@ -92,6 +97,55 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
                     Log.e(TAG, "응답 헤더에서 토큰을 찾을 수 없습니다")
                     false
                 }
+            } else if (response.code() == 401) {
+                // 401 에러 발생 시 회원가입 진행
+                Log.w(TAG, "401 에러 발생 - 회원가입을 진행합니다")
+
+                // 현재 사용자 프로필 가져오기
+                val userProfile = AuthRepository.getCurrentUserProfile()
+
+                if (userProfile != null) {
+                    try {
+                        // 회원가입 진행
+                        val signupResponse = AuthRepository.signUp(userProfile)
+
+                        if (signupResponse.isSuccessful) {
+                            Log.d(TAG, "회원가입 성공 - 다시 토큰 교환을 시도합니다")
+
+                            // 회원가입 성공 후 다시 토큰 교환 시도
+                            val retryResponse =
+                                userApiService.getTokensWithFirebaseToken("Bearer $firebaseToken")
+
+                            if (retryResponse.isSuccessful) {
+                                val responseBody = retryResponse.body()
+                                val accessToken = responseBody?.data?.accessToken
+                                val refreshToken = responseBody?.data?.refreshToken
+
+                                if (accessToken != null && refreshToken != null) {
+                                    val cleanAccessToken = accessToken.removePrefix("Bearer ")
+                                    tokenManager?.saveTokens(cleanAccessToken, refreshToken)
+                                    Log.d(TAG, "회원가입 후 토큰이 성공적으로 저장되었습니다")
+                                    true
+                                } else {
+                                    Log.e(TAG, "회원가입 후 응답 헤더에서 토큰을 찾을 수 없습니다")
+                                    false
+                                }
+                            } else {
+                                Log.e(TAG, "회원가입 후 토큰 교환 실패: ${retryResponse.code()}")
+                                false
+                            }
+                        } else {
+                            Log.e(TAG, "회원가입 실패: ${signupResponse.code()}")
+                            false
+                        }
+                    } catch (e: Exception) {
+                        Log.e(TAG, "회원가입 중 오류 발생", e)
+                        false
+                    }
+                } else {
+                    Log.e(TAG, "사용자 프로필을 가져올 수 없어 회원가입을 진행할 수 없습니다")
+                    false
+                }
             } else {
                 Log.e(TAG, "서버 토큰 교환 실패: ${response.code()}")
                 false
@@ -106,9 +160,9 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
         return tokenManager?.getAccessToken()
     }
 
-    fun getStoredRefreshToken(): String? {
-        return tokenManager?.getRefreshToken()
-    }
+//    fun getStoredRefreshToken(): String? {
+//        return tokenManager?.getRefreshToken()
+//    }
 
     fun hasValidTokens(): Boolean {
         return tokenManager?.hasValidTokens() == true
@@ -131,5 +185,18 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
             Log.e(TAG, "SignOut failed", e)
             Pair(false, e.localizedMessage)
         }
+    }
+
+    // 401 에러 발생 시 자동 로그아웃을 위한 콜백
+    private var onUnauthorizedCallback: (() -> Unit)? = null
+
+    fun setUnauthorizedCallback(callback: () -> Unit) {
+        onUnauthorizedCallback = callback
+    }
+
+    suspend fun handleUnauthorized(context: Context) {
+        Log.w(TAG, "401 Unauthorized - 자동 로그아웃 처리")
+        signOutSuspend(context)
+        onUnauthorizedCallback?.invoke()
     }
 }

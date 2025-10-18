@@ -1,13 +1,11 @@
 package com.markoala.tomoandroid.data.repository.friends
 
-import android.content.Context
 import android.util.Log
-import android.widget.Toast
-import com.markoala.tomoandroid.data.api.apiService
-import com.markoala.tomoandroid.data.model.FriendData
-import com.markoala.tomoandroid.data.model.FriendSearchRequest
-import com.markoala.tomoandroid.data.model.FriendSearchResponse
-import com.markoala.tomoandroid.data.model.GetFriendsResponse
+import com.markoala.tomoandroid.data.api.friendsApiService
+import com.markoala.tomoandroid.data.model.friends.FriendLookupResponse
+import com.markoala.tomoandroid.data.model.friends.FriendSearchRequest
+import com.markoala.tomoandroid.data.model.friends.FriendSearchResponse
+import com.markoala.tomoandroid.data.model.friends.FriendSummary
 import com.markoala.tomoandroid.utils.ErrorHandler
 import retrofit2.Call
 import retrofit2.Callback
@@ -18,16 +16,15 @@ class FriendsRepository {
     // 친구 검색 함수 (GET)
     fun getFriends(
         email: String,
-        context: Context,
         onLoading: (Boolean) -> Unit,
-        onSuccess: (List<FriendData>) -> Unit,
+        onSuccess: (List<FriendSummary>) -> Unit,
         onError: (String) -> Unit
     ) {
         Log.d("FriendsRepository", "getFriends 시작 - 입력된 이메일: $email")
 
         if (email.isBlank()) {
             Log.w("FriendsRepository", "이메일이 비어있음")
-            Toast.makeText(context, "이메일을 입력해주세요", Toast.LENGTH_SHORT).show()
+
             return
         }
 
@@ -37,13 +34,13 @@ class FriendsRepository {
         // AuthInterceptor가 자동으로 토큰을 추가하므로 직접 API 호출
         Log.d("FriendsRepository", "getFriends API 요청 생성")
 
-        val call = apiService.getFriends(email)
+        val call = friendsApiService.getFriends(email)
         Log.d("FriendsRepository", "getFriends API 호출 시작")
 
-        call.enqueue(object : Callback<GetFriendsResponse> {
+        call.enqueue(object : Callback<FriendLookupResponse> {
             override fun onResponse(
-                call: Call<GetFriendsResponse>,
-                response: Response<GetFriendsResponse>
+                call: Call<FriendLookupResponse>,
+                response: Response<FriendLookupResponse>
             ) {
                 Log.d("FriendsRepository", "getFriends API 응답 수신")
                 Log.d("FriendsRepository", "응답 코드: ${response.code()}")
@@ -53,7 +50,7 @@ class FriendsRepository {
                     val result = response.body()
                     Log.d("FriendsRepository", "응답 본문: $result")
 
-                    if (result?.success == true && result.data != null) {
+                    if (result?.success == true) {
                         Log.d(
                             "FriendsRepository",
                             "친구 검색 성공 - 찾은 친구: ${result.data.username}"
@@ -74,7 +71,7 @@ class FriendsRepository {
                 }
             }
 
-            override fun onFailure(call: Call<GetFriendsResponse>, t: Throwable) {
+            override fun onFailure(call: Call<FriendLookupResponse>, t: Throwable) {
                 Log.e("FriendsRepository", "getFriends API 요청 실패", t)
                 onLoading(false)
                 onError("네트워크 오류가 발생했습니다")
@@ -85,7 +82,6 @@ class FriendsRepository {
     // 친구 추가 함수 (POST)
     fun postFriends(
         email: String,
-        context: Context,
         onLoading: (Boolean) -> Unit,
         onSuccess: () -> Unit,
         onError: (String) -> Unit
@@ -94,7 +90,7 @@ class FriendsRepository {
 
         if (email.isBlank()) {
             Log.w("FriendsRepository", "이메일이 비어있음")
-            Toast.makeText(context, "이메일을 입력해주세요", Toast.LENGTH_SHORT).show()
+
             return
         }
 
@@ -105,7 +101,7 @@ class FriendsRepository {
         val request = FriendSearchRequest(email = email)
         Log.d("FriendsRepository", "API 요청 생성 - 요청 데이터: $request")
 
-        val call = apiService.postFriends(request)
+        val call = friendsApiService.postFriends(request)
         Log.d("FriendsRepository", "API 호출 시작 - URL: ${call.request().url}")
         Log.d("FriendsRepository", "HTTP 메소드: ${call.request().method}")
 
@@ -124,12 +120,12 @@ class FriendsRepository {
                     val result = response.body()
                     Log.d("FriendsRepository", "응답 본문: $result")
 
-                    if (result?.success == true && result.data != null) {
+                    if (result?.success == true) {
                         Log.d(
                             "FriendsRepository",
-                            "친구 추가 성공 - 사용자명: ${result.data.username}, 이메일: ${result.data.email}"
+                            "친구 추가 성공 - message: ${result.message}"
                         )
-                        Toast.makeText(context, "친구 추가 성공!", Toast.LENGTH_SHORT).show()
+
                         onSuccess()
                     } else {
                         Log.w(
@@ -138,7 +134,7 @@ class FriendsRepository {
                         )
                         val errorMsg = result?.message ?: "친구 추가에 실패했습니다"
                         onError(errorMsg)
-                        Toast.makeText(context, errorMsg, Toast.LENGTH_SHORT).show()
+
                     }
                 } else {
                     Log.e(
@@ -151,7 +147,7 @@ class FriendsRepository {
                     // HTTP 상태 코드에 따른 구체적인 에러 메시지 생성
                     val errorResult = ErrorHandler.handleHttpError(response.code(), errorBody)
                     onError(errorResult.message)
-                    Toast.makeText(context, errorResult.message, Toast.LENGTH_SHORT).show()
+
                 }
             }
 
@@ -163,7 +159,7 @@ class FriendsRepository {
 
                 onLoading(false)
                 onError("네트워크 오류")
-                Toast.makeText(context, "네트워크 오류가 발생했습니다", Toast.LENGTH_SHORT).show()
+
             }
         })
     }

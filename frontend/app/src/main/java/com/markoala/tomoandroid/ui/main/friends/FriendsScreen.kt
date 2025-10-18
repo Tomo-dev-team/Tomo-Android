@@ -17,39 +17,42 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.R
-import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.DashedBorderBox
 import com.markoala.tomoandroid.ui.components.friends.FriendCard
 import com.markoala.tomoandroid.ui.theme.CustomColor
-import java.time.LocalDate
-
-private val sampleFriends = listOf(
-    FriendProfile("김토모", "tomoKim@gmail.com", LocalDate.of(2024, 1, 15), 70),
-    FriendProfile("이토모", "tomoLee@gmail.com", LocalDate.of(2023, 8, 22), 80),
-    FriendProfile("박토모", "tomoPark@gmail.com", LocalDate.of(2025, 9, 10), 30),
-    FriendProfile("정토모", "tomoJung@gmail.com", LocalDate.of(2022, 5, 3), 90),
-    FriendProfile("최토모", "tomoChoi@gmail.com", LocalDate.of(2024, 11, 28), 60),
-    FriendProfile("한토모", "tomoHan@gmail.com", LocalDate.of(2025, 7, 8), 50)
-)
-
 
 @Composable
 fun FriendsScreen(
     paddingValues: PaddingValues,
-    onAddFriendsClick: () -> Unit = {}
+    onAddFriendsClick: () -> Unit = {},
+    viewModel: FriendsViewModel = viewModel()
 ) {
+    val friends by viewModel.friends.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+
+    // 화면 진입 시마다 친구 목록 새로고침
+    LaunchedEffect(Unit) {
+        viewModel.refreshFriends()
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -137,10 +140,85 @@ fun FriendsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
-
         ) {
-            sampleFriends.forEach { friend ->
-                FriendCard(friend)
+            when {
+                isLoading -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = CustomColor.gray300,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                error != null -> {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        CustomText(
+                            text = "친구 목록을 불러올 수 없습니다",
+                            type = CustomTextType.bodyMedium,
+                            fontSize = 16.sp,
+                            color = CustomColor.gray300,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                        CustomText(
+                            text = error ?: "알 수 없는 오류가 발생했습니다",
+                            type = CustomTextType.bodySmall,
+                            fontSize = 12.sp,
+                            color = CustomColor.gray200,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Surface(
+                            modifier = Modifier
+                                .border(
+                                    width = 1.dp,
+                                    color = CustomColor.gray100,
+                                    shape = RoundedCornerShape(8.dp)
+                                )
+                                .clickable { viewModel.refreshFriends() },
+                            shape = RoundedCornerShape(8.dp),
+                            color = Color.White
+                        ) {
+                            CustomText(
+                                text = "다시 시도",
+                                type = CustomTextType.bodyMedium,
+                                fontSize = 14.sp,
+                                color = CustomColor.black,
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            )
+                        }
+                    }
+                }
+
+                friends.isEmpty() -> {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CustomText(
+                            text = "친구가 없습니다",
+                            type = CustomTextType.bodyMedium,
+                            fontSize = 14.sp,
+                            color = CustomColor.gray300,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                }
+
+                else -> {
+                    friends.forEach { friend ->
+                        FriendCard(
+                            friend = friend,
+                            onFriendDeleted = { viewModel.refreshFriends() }
+                        )
+                    }
+                }
             }
         }
     }

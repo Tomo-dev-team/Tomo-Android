@@ -1,5 +1,4 @@
-package com.markoala.tomoandroid.data.model
-
+package com.markoala.tomoandroid.data.model.meeting
 
 data class Meeting(
     val title: String,

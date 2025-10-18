@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -31,9 +30,10 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.markoala.tomoandroid.data.model.FriendData
+import com.markoala.tomoandroid.data.model.friends.FriendSummary
 import com.markoala.tomoandroid.data.repository.friends.FriendsRepository
 import com.markoala.tomoandroid.ui.components.CustomText
+import com.markoala.tomoandroid.ui.components.CustomTextField
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.DashedBorderBox
 import com.markoala.tomoandroid.ui.components.LocalToastManager
@@ -45,7 +45,7 @@ fun AddFriendsScreen(
     onBackClick: () -> Unit
 ) {
     var searchText by remember { mutableStateOf("") }
-    var searchResults by remember { mutableStateOf<List<FriendData>>(emptyList()) }
+    var searchResults by remember { mutableStateOf<List<FriendSummary>>(emptyList()) }
     var isSearching by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     val context = LocalContext.current
@@ -61,7 +61,7 @@ fun AddFriendsScreen(
 
         friendsRepository.getFriends(
             email = searchText,
-            context = context,
+
             onLoading = { loading ->
                 isSearching = loading
                 if (loading) {
@@ -102,14 +102,13 @@ fun AddFriendsScreen(
     fun addFriend(email: String) {
         friendsRepository.postFriends(
             email = email,
-            context = context,
+
             onLoading = { loading ->
                 isSearching = loading
             },
             onSuccess = {
-                // 친구 추가 성공 시 검색 결과 갱신
                 toastManager.showSuccess("친구가 성공적으로 추가되었습니다!")
-                searchFriends()
+
             },
             onError = { error ->
                 errorMessage = error
@@ -265,19 +264,12 @@ fun AddFriendsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Bottom
             ) {
-                OutlinedTextField(
+                CustomTextField(
                     value = searchText,
                     onValueChange = { searchText = it },
                     modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = !isSearching,
-                    placeholder = {
-                        CustomText(
-                            text = "이메일을 입력하세요",
-                            type = CustomTextType.bodyMedium,
-                            color = CustomColor.gray300
-                        )
-                    }
+                    placeholder = "이메일을 입력하세요",
+                    enabled = !isSearching
                 )
 
                 Spacer(modifier = Modifier.width(8.dp))
