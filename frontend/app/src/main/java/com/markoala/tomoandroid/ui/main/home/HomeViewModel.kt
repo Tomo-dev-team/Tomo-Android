@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.main
+package com.markoala.tomoandroid.ui.main.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

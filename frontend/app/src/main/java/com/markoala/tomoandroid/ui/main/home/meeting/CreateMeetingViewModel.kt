@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.main.meeting
+package com.markoala.tomoandroid.ui.main.home.meeting
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -8,6 +8,7 @@ import com.markoala.tomoandroid.data.api.MoimsApiService
 import com.markoala.tomoandroid.data.api.friendsApi
 import com.markoala.tomoandroid.data.model.friends.FriendProfile
 import com.markoala.tomoandroid.data.model.moim.CreateMoimDTO
+import com.markoala.tomoandroid.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -64,7 +65,7 @@ class CreateMeetingViewModel(application: Application) : AndroidViewModel(applic
         viewModelScope.launch {
             try {
                 val myEmail =
-                    com.markoala.tomoandroid.data.repository.AuthRepository.getCurrentUserProfile()?.email
+                    AuthRepository.getCurrentUserProfile()?.email
                         ?: ""
                 val emails =
                     (selectedEmails.value + myEmail).filter { it.isNotBlank() }.distinct().toList()

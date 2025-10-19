@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.main
+package com.markoala.tomoandroid.ui.main.home
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
@@ -45,7 +46,7 @@ fun HomeScreen(
     val homeViewModel: HomeViewModel = viewModel()
     val meetings = homeViewModel.meetings.collectAsState().value
     val isLoading = homeViewModel.isLoading.collectAsState().value
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->

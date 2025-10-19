@@ -27,7 +27,8 @@ import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.main.friends.AddFriendsScreen
 import com.markoala.tomoandroid.ui.main.friends.FriendsScreen
-import com.markoala.tomoandroid.ui.main.meeting.CreateMeetingScreen
+import com.markoala.tomoandroid.ui.main.home.HomeScreen
+import com.markoala.tomoandroid.ui.main.home.meeting.CreateMeetingScreen
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
 // 탭 타입 정의

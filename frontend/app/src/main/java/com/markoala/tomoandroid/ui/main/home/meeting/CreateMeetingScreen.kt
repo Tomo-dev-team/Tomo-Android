@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.main.meeting
+package com.markoala.tomoandroid.ui.main.home.meeting
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -402,7 +402,10 @@ private fun SummaryCard(title: String, value: String) {
         border = BorderStroke(1.dp, CustomColor.gray100),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             CustomText(
                 text = title,
                 type = CustomTextType.bodySmall,
