@@ -56,8 +56,8 @@ fun NavigationBottomButtons(
             enabled = canGoNext && !isLoading,
             modifier = Modifier.weight(1f),
             colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = if (canGoNext && !isLoading) CustomColor.white else CustomColor.gray50,
-                disabledContainerColor = CustomColor.gray50
+                containerColor = CustomColor.gray50,
+                disabledContainerColor = CustomColor.white
             ),
             border = BorderStroke(1.dp, CustomColor.gray200),
             shape = RoundedCornerShape(14.dp),
