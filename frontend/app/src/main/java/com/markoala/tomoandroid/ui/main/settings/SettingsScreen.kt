@@ -60,7 +60,7 @@ fun SettingsScreen(
         ) {
             CustomText(
                 text = "설정",
-                type = CustomTextType.headlineLarge,
+                type = CustomTextType.headline,
                 fontSize = 20.sp,
                 modifier = Modifier.align(Alignment.TopStart)
             )
@@ -88,7 +88,7 @@ fun SettingsScreen(
                         tint = CustomColor.gray300,
                         modifier = Modifier.padding(end = 8.dp)
                     )
-                    CustomText(text = "앱 설정", type = CustomTextType.titleSmall, fontSize = 14.sp)
+                    CustomText(text = "앱 설정", type = CustomTextType.title, fontSize = 14.sp)
                 }
                 HorizontalDivider(
                     modifier = Modifier
@@ -142,7 +142,7 @@ fun SettingsScreen(
         ) {
             CustomText(
                 text = "로그아웃",
-                type = CustomTextType.titleSmall,
+                type = CustomTextType.title,
                 fontSize = 16.sp,
                 color = CustomColor.gray300
             )
@@ -161,7 +161,7 @@ fun SettingsScreen(
         ) {
             CustomText(
                 text = "계정삭제",
-                type = CustomTextType.titleSmall,
+                type = CustomTextType.title,
                 fontSize = 16.sp,
                 color = CustomColor.gray300
             )

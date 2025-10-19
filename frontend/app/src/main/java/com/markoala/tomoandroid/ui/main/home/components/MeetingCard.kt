@@ -43,7 +43,7 @@ fun MeetingCard(meeting: Meeting) {
         ) {
             CustomText(
                 text = meeting.title, // 모임명
-                type = CustomTextType.titleMedium,
+                type = CustomTextType.title,
                 color = CustomColor.black,
                 fontSize = 16.sp
             )
@@ -67,7 +67,7 @@ fun MeetingCard(meeting: Meeting) {
                     )
                     CustomText(
                         text = meeting.location ?: "설명 없음", // description을 location에 매핑
-                        type = CustomTextType.bodyMedium,
+                        type = CustomTextType.body,
                         color = CustomColor.gray200,
                         fontSize = 12.sp
                     )
@@ -87,7 +87,7 @@ fun MeetingCard(meeting: Meeting) {
                     )
                     CustomText(
                         text = meeting.peopleCounts.toString() + "명 참여",
-                        type = CustomTextType.bodyMedium,
+                        type = CustomTextType.body,
                         color = CustomColor.gray200,
                         fontSize = 12.sp
                     )

@@ -84,7 +84,7 @@ fun FriendCard(
                 ) {
                     CustomText(
                         text = friend.username,
-                        type = CustomTextType.titleMedium,
+                        type = CustomTextType.title,
                         color = CustomColor.black,
                         fontSize = 16.sp
                     )
@@ -104,7 +104,7 @@ fun FriendCard(
                         )
                         CustomText(
                             text = friend.email,
-                            type = CustomTextType.bodyMedium,
+                            type = CustomTextType.body,
                             color = CustomColor.gray200,
                             fontSize = 12.sp
                         )
@@ -112,7 +112,7 @@ fun FriendCard(
                 }
                 CustomText(
                     text = "친밀도: " + friend.friendship.toString(),
-                    type = CustomTextType.bodyMedium,
+                    type = CustomTextType.body,
                     color = CustomColor.gray200,
                     fontSize = 12.sp
                 )
@@ -146,7 +146,7 @@ fun FriendCard(
                     )
                     CustomText(
                         text = "우정 기간: " + friend.createdAt,
-                        type = CustomTextType.bodyMedium,
+                        type = CustomTextType.body,
                         color = CustomColor.gray200,
                         fontSize = 12.sp
                     )
@@ -169,7 +169,7 @@ fun FriendCard(
 
                     CustomText(
                         text = "친구삭제",
-                        type = CustomTextType.titleMedium,
+                        type = CustomTextType.title,
                         fontSize = 14.sp,
                         color = CustomColor.gray300
                     )

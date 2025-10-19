@@ -72,7 +72,7 @@ fun AddFriendsScreen(
             ) {
                 CustomText(
                     text = "친구 추가",
-                    type = CustomTextType.headlineLarge,
+                    type = CustomTextType.headline,
                     fontSize = 20.sp
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -90,7 +90,7 @@ fun AddFriendsScreen(
                     Box(modifier = Modifier.padding(vertical = 10.dp, horizontal = 16.dp)) {
                         CustomText(
                             text = "목록보기",
-                            type = CustomTextType.titleSmall,
+                            type = CustomTextType.title,
                             fontSize = 14.sp,
                             color = CustomColor.black
                         )
@@ -137,7 +137,7 @@ fun AddFriendsScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 CustomText(
                     text = "전화번호",
-                    type = CustomTextType.bodyMedium,
+                    type = CustomTextType.body,
                     fontSize = 16.sp
                 )
             }
@@ -164,7 +164,7 @@ fun AddFriendsScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 CustomText(
                     text = "유저이메일",
-                    type = CustomTextType.bodyMedium,
+                    type = CustomTextType.body,
                     fontSize = 16.sp
                 )
 
@@ -177,7 +177,7 @@ fun AddFriendsScreen(
         if (selectedOption == "email") {
             CustomText(
                 text = "유저이메일",
-                type = CustomTextType.bodyMedium,
+                type = CustomTextType.body,
                 color = CustomColor.black
             )
             Spacer(modifier = Modifier.height(8.dp))
@@ -253,14 +253,14 @@ fun AddFriendsScreen(
                                 ) {
                                     CustomText(
                                         text = friend.username,
-                                        type = CustomTextType.bodyLarge,
+                                        type = CustomTextType.body,
                                         fontSize = 16.sp,
                                         color = CustomColor.black
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     CustomText(
                                         text = friend.email,
-                                        type = CustomTextType.bodyMedium,
+                                        type = CustomTextType.body,
                                         fontSize = 14.sp,
                                         color = CustomColor.gray300
                                     )
@@ -287,7 +287,7 @@ fun AddFriendsScreen(
                                     ) {
                                         CustomText(
                                             text = "친구 추가",
-                                            type = CustomTextType.titleSmall,
+                                            type = CustomTextType.title,
                                             fontSize = 12.sp,
                                             color = CustomColor.black
                                         )
@@ -319,7 +319,7 @@ fun AddFriendsScreen(
                         ) {
                             CustomText(
                                 text = errorMessage!!,
-                                type = CustomTextType.bodyLarge,
+                                type = CustomTextType.body,
                                 fontSize = 14.sp,
                                 color = CustomColor.error,
                                 textAlign = TextAlign.Center
@@ -354,7 +354,7 @@ fun AddFriendsScreen(
                     ) {
                         CustomText(
                             text = if (selectedOption == "phone") "준비중입니다." else if (isSearching) "검색 중..." else "친구의 이메일을 입력하여\n새로운 친구를 추가해보세요!",
-                            type = CustomTextType.bodyLarge,
+                            type = CustomTextType.body,
                             fontSize = 14.sp,
                             color = CustomColor.gray300,
                             textAlign = TextAlign.Center

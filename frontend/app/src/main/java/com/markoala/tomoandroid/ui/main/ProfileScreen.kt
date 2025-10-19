@@ -60,7 +60,7 @@ fun ProfileScreen(
         ) {
             CustomText(
                 text = "내 정보",
-                type = CustomTextType.headlineLarge,
+                type = CustomTextType.headline,
                 fontSize = 20.sp,
                 modifier = Modifier.align(Alignment.TopStart)
             )
@@ -91,7 +91,7 @@ fun ProfileScreen(
                 )
                 CustomText(
                     text = "이름",
-                    type = CustomTextType.bodyLarge,
+                    type = CustomTextType.body,
                     color = CustomColor.gray200,
                     fontSize = 14.sp,
                 )
@@ -125,7 +125,7 @@ fun ProfileScreen(
                 Spacer(modifier = Modifier.width(4.dp))
                 CustomText(
                     text = "이메일",
-                    type = CustomTextType.bodyLarge,
+                    type = CustomTextType.body,
                     color = CustomColor.gray200,
                     fontSize = 14.sp,
                 )

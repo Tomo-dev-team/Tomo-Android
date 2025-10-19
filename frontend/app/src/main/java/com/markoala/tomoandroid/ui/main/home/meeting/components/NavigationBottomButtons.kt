@@ -33,7 +33,7 @@ fun NavigationBottomButtons(
                 onClick = onPrevious,
                 modifier = Modifier.weight(1f)
             ) {
-                CustomText(text = "이전", type = CustomTextType.bodyMedium)
+                CustomText(text = "이전", type = CustomTextType.body)
             }
         }
 
@@ -53,7 +53,7 @@ fun NavigationBottomButtons(
             }
             CustomText(
                 text = if (currentStep < 3) "다음" else "모임 만들기",
-                type = CustomTextType.bodyMedium,
+                type = CustomTextType.body,
                 color = Color.White
             )
         }

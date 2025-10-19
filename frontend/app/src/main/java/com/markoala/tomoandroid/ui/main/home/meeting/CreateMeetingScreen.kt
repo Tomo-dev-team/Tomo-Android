@@ -93,7 +93,7 @@ fun CreateMeetingScreen(
         if (errorMessage != null) {
             CustomText(
                 text = errorMessage ?: "",
-                type = CustomTextType.bodySmall,
+                type = CustomTextType.body,
                 color = CustomColor.gray300
             )
             Spacer(modifier = Modifier.height(12.dp))

@@ -46,7 +46,7 @@ fun StepIndicator(currentStep: Int) {
                     Box(contentAlignment = Alignment.Center) {
                         CustomText(
                             text = stepNumber.toString(),
-                            type = CustomTextType.bodyMedium,
+                            type = CustomTextType.body,
                             color = if (currentStep >= stepNumber) Color.White else CustomColor.black
                         )
                     }
@@ -54,7 +54,7 @@ fun StepIndicator(currentStep: Int) {
                 Spacer(modifier = Modifier.height(8.dp))
                 CustomText(
                     text = title,
-                    type = CustomTextType.bodySmall,
+                    type = CustomTextType.body,
                     color = if (currentStep == stepNumber) CustomColor.black else CustomColor.gray200
                 )
             }

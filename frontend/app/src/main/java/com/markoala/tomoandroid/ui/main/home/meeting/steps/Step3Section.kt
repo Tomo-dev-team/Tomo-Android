@@ -29,7 +29,7 @@ fun StepThreeSection(
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         CustomText(
             text = "입력한 내용을 확인하세요",
-            type = CustomTextType.bodyMedium,
+            type = CustomTextType.body,
             color = CustomColor.gray300
         )
 
@@ -45,21 +45,21 @@ fun StepThreeSection(
             Column(modifier = Modifier.padding(16.dp)) {
                 CustomText(
                     text = "초대 친구",
-                    type = CustomTextType.titleMedium,
+                    type = CustomTextType.title,
                     color = CustomColor.black
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 if (selectedFriends.isEmpty()) {
                     CustomText(
                         text = "선택된 친구가 없습니다.",
-                        type = CustomTextType.bodySmall,
+                        type = CustomTextType.body,
                         color = CustomColor.gray200
                     )
                 } else {
                     selectedFriends.forEachIndexed { index, friend ->
                         CustomText(
                             text = "${index + 1}. ${friend.username} (${friend.email})",
-                            type = CustomTextType.bodySmall,
+                            type = CustomTextType.body,
                             color = CustomColor.black
                         )
                         if (index != selectedFriends.lastIndex) {
@@ -86,12 +86,12 @@ private fun SummaryCard(title: String, value: String) {
         ) {
             CustomText(
                 text = title,
-                type = CustomTextType.bodySmall,
+                type = CustomTextType.body,
                 color = CustomColor.gray200
             )
             CustomText(
                 text = value,
-                type = CustomTextType.bodyMedium,
+                type = CustomTextType.body,
                 color = CustomColor.black
             )
         }

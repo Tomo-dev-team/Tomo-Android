@@ -75,7 +75,7 @@ fun HomeScreen(
         ) {
             CustomText(
                 text = "모임 목록",
-                type = CustomTextType.headlineLarge,
+                type = CustomTextType.headline,
                 fontSize = 20.sp
             )
             Surface(
@@ -102,7 +102,7 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.width(8.dp))
                     CustomText(
                         text = "모임 생성",
-                        type = CustomTextType.bodyMedium,
+                        type = CustomTextType.body,
                         fontSize = 14.sp,
                         color = CustomColor.black
                     )
@@ -130,7 +130,7 @@ fun HomeScreen(
             ) {
                 CustomText(
                     text = "생성된 모임이 없습니다.",
-                    type = CustomTextType.bodyMedium,
+                    type = CustomTextType.body,
                     color = CustomColor.gray200,
                     fontSize = 16.sp
                 )

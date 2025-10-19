@@ -152,7 +152,7 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
             CustomText(
                 text = "Google 계정으로 로그인",
                 color = Color.Black,
-                type = CustomTextType.labelLarge
+                type = CustomTextType.label
             )
         }
     }

@@ -31,7 +31,7 @@ fun MeetingHeader(onBackClick: () -> Unit) {
     ) {
         CustomText(
             text = "모임 생성",
-            type = CustomTextType.headlineLarge,
+            type = CustomTextType.headline,
             fontSize = 20.sp
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -49,7 +49,7 @@ fun MeetingHeader(onBackClick: () -> Unit) {
             Box(modifier = Modifier.padding(vertical = 10.dp, horizontal = 16.dp)) {
                 CustomText(
                     text = "목록보기",
-                    type = CustomTextType.titleSmall,
+                    type = CustomTextType.title,
                     fontSize = 14.sp,
                     color = CustomColor.black
                 )

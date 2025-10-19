@@ -77,11 +77,11 @@ fun MainScreen(onSignOut: () -> Unit) {
                     Spacer(modifier = Modifier.height(10.dp))
                     CustomText(
                         text = "토모",
-                        type = CustomTextType.headlineSmall
+                        type = CustomTextType.headline
                     )
                     CustomText(
                         text = "친구와의 우정을 기록하세요",
-                        type = CustomTextType.bodyMedium,
+                        type = CustomTextType.body,
                         color = CustomColor.gray300
                     )
                     HorizontalDivider(

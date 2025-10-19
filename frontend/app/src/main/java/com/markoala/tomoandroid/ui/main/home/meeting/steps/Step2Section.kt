@@ -34,7 +34,7 @@ fun StepTwoSection(
     Column(modifier = Modifier.fillMaxWidth()) {
         CustomText(
             text = "초대할 친구를 선택하세요",
-            type = CustomTextType.bodyMedium,
+            type = CustomTextType.body,
             color = CustomColor.gray300
         )
         Spacer(modifier = Modifier.height(12.dp))
@@ -50,7 +50,7 @@ fun StepTwoSection(
                 ) {
                     CustomText(
                         text = "초대할 친구가 없습니다.",
-                        type = CustomTextType.bodyMedium,
+                        type = CustomTextType.body,
                         color = CustomColor.gray200
                     )
                 }
@@ -83,13 +83,13 @@ fun StepTwoSection(
                             Column {
                                 CustomText(
                                     text = friend.username,
-                                    type = CustomTextType.bodyMedium,
+                                    type = CustomTextType.body,
                                     color = CustomColor.black
                                 )
                                 Spacer(modifier = Modifier.height(4.dp))
                                 CustomText(
                                     text = friend.email,
-                                    type = CustomTextType.bodySmall,
+                                    type = CustomTextType.body,
                                     color = CustomColor.gray200
                                 )
                             }
@@ -97,7 +97,7 @@ fun StepTwoSection(
                             if (selected) {
                                 CustomText(
                                     text = "선택됨",
-                                    type = CustomTextType.bodySmall,
+                                    type = CustomTextType.body,
                                     color = CustomColor.gray300,
                                     fontSize = 12.sp
                                 )

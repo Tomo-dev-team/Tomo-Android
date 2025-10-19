@@ -50,13 +50,13 @@ fun SettingsToggle(
             Column {
                 CustomText(
                     text = title,
-                    type = CustomTextType.titleSmall,
+                    type = CustomTextType.title,
                     fontSize = 16.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 CustomText(
                     text = description,
-                    type = CustomTextType.bodyMedium,
+                    type = CustomTextType.body,
                     fontSize = 12.sp,
                     color = CustomColor.gray300
                 )
