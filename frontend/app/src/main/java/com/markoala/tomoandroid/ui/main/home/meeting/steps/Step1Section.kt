@@ -38,7 +38,7 @@ fun StepOneSection(
             placeholder = "모임명을 입력해주세요"
         )
         CustomText(
-            text = "모임 제목",
+            text = "모임 설명",
             type = CustomTextType.body,
             color = CustomColor.black,
             fontSize = 14.sp

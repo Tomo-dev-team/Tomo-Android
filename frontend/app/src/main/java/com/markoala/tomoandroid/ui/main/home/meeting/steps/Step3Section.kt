@@ -3,22 +3,22 @@ package com.markoala.tomoandroid.ui.main.home.meeting.steps
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.markoala.tomoandroid.data.model.friends.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
-
 import com.markoala.tomoandroid.ui.theme.CustomColor
+
 
 @Composable
 fun StepThreeSection(
@@ -33,67 +33,98 @@ fun StepThreeSection(
             color = CustomColor.gray300
         )
 
-        SummaryCard(title = "모임 제목", value = moimName)
-        SummaryCard(title = "모임 설명", value = description)
-
         Card(
-            colors = CardDefaults.cardColors(containerColor = Color.White),
-            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = CustomColor.white),
+            shape = RoundedCornerShape(12.dp),
             border = BorderStroke(1.dp, CustomColor.gray100),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 CustomText(
-                    text = "초대 친구",
+                    text = "모임 정보 확인",
                     type = CustomTextType.title,
-                    color = CustomColor.black
+                    color = CustomColor.gray300
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                if (selectedFriends.isEmpty()) {
+                HorizontalDivider(color = CustomColor.gray100, thickness = 1.dp)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
                     CustomText(
-                        text = "선택된 친구가 없습니다.",
+                        text = "제목: ",
                         type = CustomTextType.body,
-                        color = CustomColor.gray200
+                        color = CustomColor.gray300
                     )
-                } else {
-                    selectedFriends.forEachIndexed { index, friend ->
+                    CustomText(
+                        text = moimName,
+                        type = CustomTextType.title,
+                        color = CustomColor.black,
+                        fontSize = 14.sp
+                    )
+
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    CustomText(
+                        text = "설명: ",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300
+                    )
+                    CustomText(
+                        text = description,
+                        type = CustomTextType.title,
+                        color = CustomColor.black,
+                        fontSize = 14.sp
+                    )
+
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    CustomText(
+                        text = "인원 수: ",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray300
+                    )
+                    CustomText(
+                        text = selectedFriends.size.toString(),
+                        type = CustomTextType.title,
+                        color = CustomColor.black,
+                        fontSize = 14.sp
+                    )
+                }
+                // 추가된 친구 목록 표시
+                if (selectedFriends.isNotEmpty()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
                         CustomText(
-                            text = "${index + 1}. ${friend.username} (${friend.email})",
+                            text = "친구: ",
                             type = CustomTextType.body,
-                            color = CustomColor.black
+                            color = CustomColor.gray300
                         )
-                        if (index != selectedFriends.lastIndex) {
-                            Spacer(modifier = Modifier.height(6.dp))
+                        selectedFriends.forEachIndexed { index, friend ->
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                CustomText(
+                                    text = friend.username + if (index != selectedFriends.lastIndex) "," else "",
+                                    type = CustomTextType.title,
+                                    color = CustomColor.black,
+                                    fontSize = 14.sp
+                                )
+                            }
                         }
                     }
+
                 }
+
             }
         }
-    }
-}
 
-@Composable
-private fun SummaryCard(title: String, value: String) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        shape = RoundedCornerShape(16.dp),
-        border = BorderStroke(1.dp, CustomColor.gray100),
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            CustomText(
-                text = title,
-                type = CustomTextType.body,
-                color = CustomColor.gray200
-            )
-            CustomText(
-                text = value,
-                type = CustomTextType.body,
-                color = CustomColor.black
-            )
-        }
+
     }
 }
