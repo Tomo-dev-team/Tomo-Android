@@ -1,26 +1,11 @@
 package com.markoala.tomoandroid.ui.main.home.meeting
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,14 +13,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
+import com.markoala.tomoandroid.ui.main.home.meeting.components.MeetingHeader
+import com.markoala.tomoandroid.ui.main.home.meeting.components.NavigationBottomButtons
+import com.markoala.tomoandroid.ui.main.home.meeting.components.StepIndicator
 import com.markoala.tomoandroid.ui.main.home.meeting.steps.StepOneSection
 import com.markoala.tomoandroid.ui.main.home.meeting.steps.StepThreeSection
 import com.markoala.tomoandroid.ui.main.home.meeting.steps.StepTwoSection
@@ -114,7 +99,7 @@ fun CreateMeetingScreen(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        NavigationButtons(
+        NavigationBottomButtons(
             currentStep = currentStep,
             isLoading = isLoading,
             canGoNext = when (currentStep) {
@@ -139,137 +124,8 @@ fun CreateMeetingScreen(
     }
 }
 
-@Composable
-private fun MeetingHeader(onBackClick: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        CustomText(
-            text = "모임 생성",
-            type = CustomTextType.headlineLarge,
-            fontSize = 20.sp
-        )
-        Spacer(modifier = Modifier.width(8.dp))
-        Surface(
-            modifier = Modifier
-                .border(
-                    width = 1.dp,
-                    color = CustomColor.gray100,
-                    shape = RoundedCornerShape(32.dp)
-                )
-                .clickable { onBackClick() },
-            shape = RoundedCornerShape(32.dp),
-            color = CustomColor.white
-        ) {
-            Box(modifier = Modifier.padding(vertical = 10.dp, horizontal = 16.dp)) {
-                CustomText(
-                    text = "목록보기",
-                    type = CustomTextType.titleSmall,
-                    fontSize = 14.sp,
-                    color = CustomColor.black
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StepIndicator(currentStep: Int) {
-    val steps = listOf(
-        "기본 정보",
-        "친구 초대",
-        "확인"
-    )
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        steps.forEachIndexed { index, title ->
-            val stepNumber = index + 1
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.weight(1f)
-            ) {
-                Surface(
-                    shape = CircleShape,
-                    color = if (currentStep >= stepNumber) CustomColor.black else CustomColor.gray50,
-                    contentColor = if (currentStep >= stepNumber) Color.White else CustomColor.black,
-                    modifier = Modifier.size(36.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        CustomText(
-                            text = stepNumber.toString(),
-                            type = CustomTextType.bodyMedium,
-                            color = if (currentStep >= stepNumber) Color.White else CustomColor.black
-                        )
-                    }
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                CustomText(
-                    text = title,
-                    type = CustomTextType.bodySmall,
-                    color = if (currentStep == stepNumber) CustomColor.black else CustomColor.gray200
-                )
-            }
-
-            if (index < steps.lastIndex) {
-                Box(
-                    modifier = Modifier
-                        .weight(0.2f)
-                        .height(1.dp)
-                        .background(if (currentStep > stepNumber) CustomColor.black else CustomColor.gray50)
-                )
-            }
-        }
-    }
-}
 
 
-@Composable
-private fun NavigationButtons(
-    currentStep: Int,
-    isLoading: Boolean,
-    canGoNext: Boolean,
-    onPrevious: () -> Unit,
-    onNext: () -> Unit
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        if (currentStep > 1) {
-            OutlinedButton(
-                onClick = onPrevious,
-                modifier = Modifier.weight(1f)
-            ) {
-                CustomText(text = "이전", type = CustomTextType.bodyMedium)
-            }
-        }
 
-        Button(
-            onClick = onNext,
-            enabled = canGoNext && !isLoading,
-            modifier = Modifier.weight(1f)
-        ) {
-            if (isLoading && currentStep == 3) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .size(18.dp),
-                    strokeWidth = 2.dp,
-                    color = Color.White
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-            }
-            CustomText(
-                text = if (currentStep < 3) "다음" else "모임 만들기",
-                type = CustomTextType.bodyMedium,
-                color = Color.White
-            )
-        }
-    }
-}
+
+
