@@ -30,7 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
-import com.markoala.tomoandroid.ui.components.auth.GoogleSignUpButton
+import com.markoala.tomoandroid.ui.login.components.GoogleSignUpButton
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
 @Composable
