@@ -95,4 +95,13 @@ class CreateMeetingViewModel(application: Application) : AndroidViewModel(applic
     fun clearError() {
         errorMessage.value = null
     }
+
+    fun resetAllData() {
+        moimName.value = ""
+        description.value = ""
+        _selectedEmails.value = emptySet()
+        errorMessage.value = null
+        isSuccess.value = null
+        isLoading.value = false
+    }
 }
