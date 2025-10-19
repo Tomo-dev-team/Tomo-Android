@@ -1,5 +1,6 @@
 package com.markoala.tomoandroid.ui.main.home.meeting.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,7 +14,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
@@ -37,17 +37,22 @@ fun StepIndicator(currentStep: Int) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.weight(1f)
             ) {
+                val isCurrentStep = currentStep >= stepNumber
                 Surface(
                     shape = CircleShape,
-                    color = if (currentStep >= stepNumber) CustomColor.black else CustomColor.gray50,
-                    contentColor = if (currentStep >= stepNumber) Color.White else CustomColor.black,
+                    color = if (isCurrentStep) CustomColor.gray50 else CustomColor.white,
+                    contentColor = if (isCurrentStep) CustomColor.black else CustomColor.gray100,
+                    border = BorderStroke(
+                        width = 1.dp,
+                        color = if (isCurrentStep) CustomColor.black else CustomColor.gray100
+                    ),
                     modifier = Modifier.size(36.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         CustomText(
                             text = stepNumber.toString(),
                             type = CustomTextType.body,
-                            color = if (currentStep >= stepNumber) Color.White else CustomColor.black
+                            color = if (isCurrentStep) CustomColor.black else CustomColor.gray200
                         )
                     }
                 }
