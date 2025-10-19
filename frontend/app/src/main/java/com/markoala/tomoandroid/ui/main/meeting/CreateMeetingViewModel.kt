@@ -1,7 +1,9 @@
 package com.markoala.tomoandroid.ui.main.meeting
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.markoala.tomoandroid.auth.AuthManager
 import com.markoala.tomoandroid.data.api.MoimsApiService
 import com.markoala.tomoandroid.data.api.friendsApi
 import com.markoala.tomoandroid.data.model.friends.FriendProfile
@@ -9,9 +11,10 @@ import com.markoala.tomoandroid.data.model.moim.CreateMoimDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 import retrofit2.awaitResponse
 
-class CreateMeetingViewModel : ViewModel() {
+class CreateMeetingViewModel(application: Application) : AndroidViewModel(application) {
     val moimName = MutableStateFlow("")
     val description = MutableStateFlow("")
     private val _friends = MutableStateFlow<List<FriendProfile>>(emptyList())
@@ -34,7 +37,12 @@ class CreateMeetingViewModel : ViewModel() {
                     _friends.value = response.body()?.data ?: emptyList()
                 }
             } catch (e: Exception) {
-                errorMessage.value = "친구 목록을 불러오지 못했습니다."
+                if (e is HttpException && e.code() == 401) {
+                    AuthManager.handleUnauthorized(getApplication())
+                    errorMessage.value = "인증이 필요합니다. 다시 로그인해주세요."
+                } else {
+                    errorMessage.value = "친구 목록을 불러오지 못했습니다."
+                }
             }
         }
     }
