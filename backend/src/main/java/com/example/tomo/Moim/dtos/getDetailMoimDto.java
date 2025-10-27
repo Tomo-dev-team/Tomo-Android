@@ -15,6 +15,6 @@ public class getDetailMoimDto {
     private List<userSimpleDto> members;
 
     private LocalDateTime createdAt;
-    private String leader;
+
 }
 

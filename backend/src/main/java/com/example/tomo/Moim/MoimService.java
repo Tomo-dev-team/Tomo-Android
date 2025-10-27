@@ -63,20 +63,19 @@ public class MoimService {
     }
 
     // 모임 단일 조회
-    public getMoimResponseDTO getMoim(String title) {
+    public getMoimResponseDTO getMoim(String title, String uid) {
          Moim moim= moimRepository.findByTitle(title).orElseThrow(
                  () -> new EntityNotFoundException("존재하지 않는 모임입니다")
          );
-
-        // 모임의 리더를 찾아서 이름을 반환해주어야 함
-
-        String name = moimPeopleRepository.findBymoimLeader(moim.getId()).getUsername();
+        Long id = userRepository.findByFirebaseId(uid).orElseThrow(EntityNotFoundException::new).getId();
+        // 모임의 리더 여부 출력
+        Boolean moimLeader = moimPeopleRepository.findLeaderByMoimIdAndUserId(moim.getId(),id);
 
         return new getMoimResponseDTO(
                 moim.getTitle(),
                 moim.getDescription(),
                 moim.getMoimPeopleList().size(),
-                name,
+                moimLeader,
                 moim.getCreatedAt());
 
     }
@@ -92,7 +91,7 @@ public class MoimService {
         List<getMoimResponseDTO> moimResponseDTOList = new ArrayList<>();
 
         for(Moim_people moim_people : moims){
-            moimResponseDTOList.add(this.getMoim(moim_people.getMoim().getTitle()));
+            moimResponseDTOList.add(this.getMoim(moim_people.getMoim().getTitle(), userId));
         }
 
         return moimResponseDTOList;
@@ -109,17 +108,17 @@ public class MoimService {
 
         for (Long userId : userIdList) {
             User user = userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
-            userSimpleDtoList.add(user.toSimpleDto());
+            Boolean leader = moimPeopleRepository.findLeaderByMoimIdAndUserId(find.getId(), userId);
+            userSimpleDto dto = new userSimpleDto(user.getUsername(),user.getEmail(),leader);
+            userSimpleDtoList.add(dto);
         }
-        // 4. 리더명 조회
-        String name = moimPeopleRepository.findBymoimLeader(find.getId()).getUsername();
 
         return new getDetailMoimDto(
                 find.getTitle(),
                 find.getDescription(),
                 userSimpleDtoList,
-                find.getCreatedAt(),
-                name);
+                find.getCreatedAt()
+                );
 
     }
 }

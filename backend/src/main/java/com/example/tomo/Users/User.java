@@ -3,7 +3,6 @@ package com.example.tomo.Users;
 import com.example.tomo.Friends.Friend;
 
 import com.example.tomo.Moim_people.Moim_people;
-import com.example.tomo.Users.dtos.userSimpleDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,10 +41,6 @@ public class User {
         this.username = username;
         this.email = email;
     }
-    public userSimpleDto toSimpleDto(){
-        return new userSimpleDto(this.getUsername() , this.getEmail());
-    }
-
 
 
 
