@@ -1,9 +1,14 @@
 package com.example.tomo.Friends;
 
 import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
+import com.example.tomo.Users.UserService;
+import com.example.tomo.Users.dtos.ResponsePostUniformDto;
+import com.example.tomo.Users.dtos.addFriendRequestDto;
+import com.example.tomo.Users.dtos.getFriendResponseDto;
 import com.example.tomo.global.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +23,52 @@ import java.util.List;
 public class FriendController {
 
     private final FriendService friendService;
-    public FriendController(FriendService friendService) {
+    private final UserService userService;
+    public FriendController(FriendService friendService, UserService userService) {
         this.friendService = friendService;
+        this.userService = userService;
     }
+
+    @Operation(
+            summary = "친구 추가",
+            description = "이메일을 이용하여 친구를 추가합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "친구 추가 성공"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "409", description = "이미 존재하는 친구")
+            }
+    )
+    @PostMapping("/public/friends")
+    public ResponseEntity<ResponsePostUniformDto> addFriendsUsingEmail(
+            @AuthenticationPrincipal String uid,
+            @RequestBody addFriendRequestDto dto) {
+        try {
+            dto.setUid(uid);
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.addFriends(dto));
+        } catch (EntityExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ResponsePostUniformDto(false, e.getMessage()));
+        }
+    }
+
+    @Operation(
+            summary = "친구 조회",
+            description = "이메일로 친구 정보를 조회합니다.",
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "친구 조회 완료"),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "친구를 찾을 수 없음")
+            }
+    )
+    @GetMapping("/public/friends")
+    public ResponseEntity<ApiResponse<getFriendResponseDto>> getFriendsUsingEmail(@RequestParam String email) {
+        try {
+            return ResponseEntity.ok(ApiResponse.success(userService.getUserInfo(email), "친구 조회 완료"));
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(e.getMessage()));
+        }
+    }
+
+
+
 
     @Operation(
             summary = "친구 목록 조회",
