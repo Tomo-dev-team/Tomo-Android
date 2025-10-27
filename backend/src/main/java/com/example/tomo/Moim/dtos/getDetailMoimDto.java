@@ -1,6 +1,5 @@
 package com.example.tomo.Moim.dtos;
 
-import com.example.tomo.Users.User;
 import com.example.tomo.Users.dtos.userSimpleDto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
