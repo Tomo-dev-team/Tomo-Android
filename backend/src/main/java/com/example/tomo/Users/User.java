@@ -29,7 +29,7 @@ public class User {
 
     public User(){}
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Friend> friends = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -41,7 +41,6 @@ public class User {
         this.username = username;
         this.email = email;
     }
-
 
 
 

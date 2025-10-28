@@ -1,10 +1,13 @@
 package com.example.tomo.Moim;
 
 import com.example.tomo.Moim.dtos.addMoimRequestDto;
+import com.example.tomo.Moim.dtos.getDetailMoimDto;
 import com.example.tomo.Moim.dtos.getMoimResponseDTO;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.global.ApiResponse;
 import com.example.tomo.global.DuplicatedException;
+import com.example.tomo.global.NoDataApiResponse;
+import com.example.tomo.global.NotLeaderUserException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,9 +41,11 @@ public class MoimController {
     )
     @PostMapping("/moims")
     public ResponseEntity<ResponsePostUniformDto> addmoim(
-            @RequestBody addMoimRequestDto dto) {
+            @RequestBody addMoimRequestDto dto,
+            @AuthenticationPrincipal String uid
+    ) {
         try {
-            return ResponseEntity.ok(moimService.addMoim(dto));
+            return ResponseEntity.ok(moimService.addMoim(uid, dto));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponsePostUniformDto(false ,"존재하지 않은 사용자를 친구로 추가했습니다"));
@@ -59,11 +64,11 @@ public class MoimController {
             }
     )
     @GetMapping("/moims")
-    public ResponseEntity<ApiResponse<getMoimResponseDTO>> moimGet(
+    public ResponseEntity<ApiResponse<getDetailMoimDto>> moimGet(
             @Parameter(description = "조회할 모임 이름", required = true)
-            @RequestParam String moimName) {
+            @RequestParam(name = "moimTitle") String title) {
         try {
-            return ResponseEntity.ok(ApiResponse.success(moimService.getMoim(moimName),"성공"));
+            return ResponseEntity.ok(ApiResponse.success(moimService.getMoimDetail(title),"성공"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).
                     body(ApiResponse.failure("존재하지 않는 모임입니다."));
@@ -81,8 +86,29 @@ public class MoimController {
     public ResponseEntity<ApiResponse<List<getMoimResponseDTO>>> getAllMoims(
             @Parameter(description = "로그인한 사용자의 UUID", required = true)
             @AuthenticationPrincipal String uid) {
-        return ResponseEntity.ok(
-                ApiResponse.success(moimService.getMoimList(uid), "모임 조회 성공")
-        );
+        try{
+            return ResponseEntity.ok(ApiResponse.success(moimService.getMoimList(uid), "모임 조회 성공"));
+
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure("로그인 후 진행해주세요."));
+        }
+
+    }
+
+    @DeleteMapping("/moims/{title}")
+    public ResponseEntity<NoDataApiResponse> deleteMoim(
+            @PathVariable("title") String title,
+            @AuthenticationPrincipal String uid
+    ){
+        try{
+            moimService.deleteMoim(title,uid);
+            return ResponseEntity.noContent().build();
+        }catch(EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(NoDataApiResponse.failure("삭제하려는 모임이 존재하지 않습니다"));
+        }catch(NotLeaderUserException e){
+            return ResponseEntity.status(403).body(NoDataApiResponse.failure("모임 삭제는 리더만 가능합니다"));
+        }
+
+
     }
 }
