@@ -86,9 +86,13 @@ public class MoimController {
     public ResponseEntity<ApiResponse<List<getMoimResponseDTO>>> getAllMoims(
             @Parameter(description = "로그인한 사용자의 UUID", required = true)
             @AuthenticationPrincipal String uid) {
-        return ResponseEntity.ok(
-                ApiResponse.success(moimService.getMoimList(uid), "모임 조회 성공")
-        );
+        try{
+            return ResponseEntity.ok(ApiResponse.success(moimService.getMoimList(uid), "모임 조회 성공"));
+
+        }catch (EntityNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure("로그인 후 진행해주세요."));
+        }
+
     }
 
     @DeleteMapping("/moims/{title}")
