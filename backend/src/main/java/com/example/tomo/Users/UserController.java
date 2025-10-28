@@ -56,12 +56,27 @@ public class UserController {
         }
     }
 
+
+
     @Operation(
-            summary = "계정 삭제",
-            description = "인증된 사용자 본인의 계정을 삭제합니다.",
+            summary = "회원 탈퇴 (계정 삭제)",
+            description = "Firebase UID 기반으로 사용자 계정을 삭제합니다. "
+                    + "해당 사용자가 리더로 있는 모임은 모임 전체가 삭제되며, "
+                    + "일반 멤버로 속한 모임에서는 본인만 탈퇴됩니다. "
+                    + "모든 친구 관계도 함께 제거됩니다.",
             responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "계정 삭제 성공"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "사용자 없음")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "계정이 삭제되었습니다."
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "존재하지 않는 사용자"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "계정 삭제 중 서버 오류"
+                    )
             }
     )
     @DeleteMapping("/public/users")
@@ -79,12 +94,24 @@ public class UserController {
     }
 
     @Operation(
-            summary = "Firebase 로그인",
-            description = "Firebase 토큰 인증 후 JWT 액세스/리프레쉬 토큰 발급",
+            summary = "회원 탈퇴 (계정 삭제)",
+            description = "Firebase UID 기반으로 사용자 계정을 삭제합니다. "
+                    + "해당 사용자가 리더로 있는 모임은 모임 전체가 삭제되며, "
+                    + "일반 멤버로 속한 모임에서는 본인만 탈퇴됩니다. "
+                    + "모든 친구 관계도 함께 제거됩니다.",
             responses = {
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "로그인 성공"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "401", description = "회원가입 필요"),
-                    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "500", description = "서버 에러")
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "계정이 삭제되었습니다."
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "존재하지 않는 사용자"
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "계정 삭제 중 서버 오류"
+                    )
             }
     )
     @PostMapping("/api/auth/firebase-login")
