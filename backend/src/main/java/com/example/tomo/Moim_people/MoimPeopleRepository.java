@@ -1,6 +1,7 @@
 package com.example.tomo.Moim_people;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,21 @@ public interface MoimPeopleRepository extends JpaRepository<Moim_people, Long> {
 
     @Query("SELECT COUNT(m) > 0 FROM Moim_people m WHERE m.moim.id = :moim_id and m.user.id = :user_id and m.leader = TRUE")
     Boolean findLeaderByMoimIdAndUserId(@Param("moim_id") Long moimId, @Param("user_id") Long userId);
+
+    //리더 모임 ID 조회
+    @Query("SELECT mp.moim.id FROM Moim_people mp WHERE mp.user.id = :userId AND mp.leader = TRUE")
+    List<Long> findLeaderMoimIds(@Param("userId") Long userId);
+
+    //️ 리더 모임 참여자 삭제
+    @Modifying
+    @Query("DELETE FROM Moim_people mp WHERE mp.moim.id IN :moimIds")
+    void deleteMoimPeopleByMoimIds(@Param("moimIds") List<Long> moimIds);
+
+
+    @Modifying
+    @Query("DELETE FROM Moim_people mp WHERE mp.user.id = :userId AND mp.leader = FALSE")
+    void deleteUserFromNonLeaderMoims(@Param("userId") Long userId);
+
 }
 
 

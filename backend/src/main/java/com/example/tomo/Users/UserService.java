@@ -2,6 +2,8 @@ package com.example.tomo.Users;
 
 import com.example.tomo.Friends.Friend;
 import com.example.tomo.Friends.FriendRepository;
+import com.example.tomo.Moim.MoimRepository;
+import com.example.tomo.Moim_people.MoimPeopleRepository;
 import com.example.tomo.Users.dtos.RequestUserSignDto;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.Users.dtos.addFriendRequestDto;
@@ -12,6 +14,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -21,11 +24,16 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
+    private final MoimPeopleRepository moimPeopleRepository;
+    private final MoimRepository moimRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository, FriendRepository friendRepository) {
+    public UserService(UserRepository userRepository, FriendRepository friendRepository
+    , MoimPeopleRepository moimPeopleRepository, MoimRepository moimRepository) {
         this.userRepository = userRepository;
         this.friendRepository = friendRepository;
+        this.moimPeopleRepository = moimPeopleRepository;
+        this.moimRepository = moimRepository;
     }
 
     // 사용자 존재 시 true 반환 404
@@ -119,13 +127,29 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public void deleteUser(String uid){
+    @Transactional
+    public void deleteUser(String uid) {
         User user = userRepository.findByFirebaseId(uid)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자 또는 UUID의 형식 오류"));
+                .orElseThrow(() -> new EntityNotFoundException("사용자 없음"));
+        Long userId = user.getId();
 
-        // 친구 관계 삭제
-        friendRepository.deleteAllByUserOrFriend(user, user);
+        //  리더 모임 ID 조회
+        List<Long> leaderMoimIds = moimPeopleRepository.findLeaderMoimIds(userId);
 
+        if (!leaderMoimIds.isEmpty()) {
+            // 리더 모임 참여자 삭제
+            moimPeopleRepository.deleteMoimPeopleByMoimIds(leaderMoimIds);
+            //  리더 모임 삭제
+            moimRepository.deleteMoimsByIds(leaderMoimIds);
+        }
+
+        // 일반 멤버 모임에서 본인만 삭제
+        moimPeopleRepository.deleteUserFromNonLeaderMoims(userId);
+
+        // 친구 관계 삭제 (선택)
+        friendRepository.deleteAllByUserId(userId);
+
+        // 사용자 삭제
         userRepository.delete(user);
     }
     public void logout(String uid) {

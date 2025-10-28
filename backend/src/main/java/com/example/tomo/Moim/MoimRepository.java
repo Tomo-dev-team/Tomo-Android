@@ -1,8 +1,12 @@
 package com.example.tomo.Moim;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,6 +18,9 @@ public interface MoimRepository extends JpaRepository<Moim, Long> {
     Optional<Moim> findByTitle(String moimName);
 
 
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM Moim m WHERE m.id IN :moimIds")
+    void deleteMoimsByIds(@Param("moimIds") List<Long> moimIds);
 
 
 
