@@ -14,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -23,46 +24,60 @@ import com.markoala.tomoandroid.data.model.moim.MoimList
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.theme.CustomColor
-
+import com.markoala.tomoandroid.util.parseIsoToKoreanDate
 
 @Composable
 fun MeetingCard(meeting: MoimList) {
+    val createdDate = parseIsoToKoreanDate(meeting.createdAt)
+
     Card(
         colors = CardDefaults.cardColors(containerColor = CustomColor.white),
         modifier = Modifier
             .fillMaxWidth()
-            .border(
-                1.dp,
-                CustomColor.gray100,
-                RoundedCornerShape(16.dp)
-            )
+            .border(1.dp, CustomColor.gray100, RoundedCornerShape(16.dp))
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            CustomText(
-                text = meeting.title, // 모임명
-                type = CustomTextType.title,
-                color = CustomColor.black,
-                fontSize = 16.sp
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CustomText(
+                    text = meeting.title,
+                    type = CustomTextType.title,
+                    color = CustomColor.black,
+                    fontSize = 16.sp
+                )
+
+                // 모임장 표시
+                if (meeting.leader) {
+                    CustomText(
+                        text = "모임장",
+                        type = CustomTextType.body,
+                        color = CustomColor.gray200,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(2.dp))
+
             CustomText(
-                text = meeting.description, // 모임명
+                text = meeting.description,
                 type = CustomTextType.title,
                 color = CustomColor.gray200,
                 fontSize = 12.sp
             )
+
             Column(
                 modifier = Modifier.padding(top = 8.dp),
-
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                if (!meeting.createdAt.isNullOrEmpty()) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
+                if (createdDate.isNotEmpty()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_time),
                             contentDescription = null,
@@ -72,18 +87,15 @@ fun MeetingCard(meeting: MoimList) {
                                 .size(12.dp)
                         )
                         CustomText(
-                            text = meeting.createdAt,
+                            text = createdDate,
                             type = CustomTextType.body,
                             color = CustomColor.gray200,
                             fontSize = 12.sp
                         )
                     }
                 }
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(
-                        4.dp
-                    )
-                ) {
+
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_people),
                         contentDescription = null,
@@ -93,7 +105,7 @@ fun MeetingCard(meeting: MoimList) {
                             .size(12.dp)
                     )
                     CustomText(
-                        text = meeting.peopleCount.toString(),
+                        text = meeting.peopleCount.toString() + "명",
                         type = CustomTextType.body,
                         color = CustomColor.gray200,
                         fontSize = 12.sp
