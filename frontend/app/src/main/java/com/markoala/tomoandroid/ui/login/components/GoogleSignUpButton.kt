@@ -126,7 +126,7 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_google),
                 contentDescription = "Google Logo",
-                tint = Color.Unspecified,
+                tint = Color.White,
                 modifier = Modifier.size(20.dp)
             )
         }
