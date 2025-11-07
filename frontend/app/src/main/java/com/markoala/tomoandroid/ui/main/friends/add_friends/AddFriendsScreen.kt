@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -113,28 +114,34 @@ fun AddFriendsScreen(
     ) {
         Header(onBackClick)
         Spacer(modifier = Modifier.height(24.dp))
-        TabSelector(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
-        Spacer(modifier = Modifier.height(24.dp))
 
-        when (selectedTab) {
-            AddFriendsTab.Search -> {
-                SearchFriendsSection(
-                    searchText = searchText,
-                    onSearchTextChange = { searchText = it },
-                    isSearching = isSearching,
-                    searchResults = searchResults,
-                    errorMessage = errorMessage,
-                    onSearch = { searchFriends() },
-                    onAddFriend = { addFriend(it) }
-                )
-            }
+        // 중앙 정렬 컨테이너
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+            Column(modifier = Modifier.widthIn(max = 600.dp)) {
+                TabSelector(selectedTab = selectedTab, onTabSelected = { selectedTab = it })
+                Spacer(modifier = Modifier.height(24.dp))
 
-            AddFriendsTab.Share -> {
-                ShareInviteSection(userId = userId, onCopy = {
-                    val invite = generateInviteCode(userId)
-                    clipboardManager.setText(AnnotatedString(invite))
-                    toastManager.showSuccess("초대 코드가 복사되었습니다.")
-                })
+                when (selectedTab) {
+                    AddFriendsTab.Search -> {
+                        SearchFriendsSection(
+                            searchText = searchText,
+                            onSearchTextChange = { searchText = it },
+                            isSearching = isSearching,
+                            searchResults = searchResults,
+                            errorMessage = errorMessage,
+                            onSearch = { searchFriends() },
+                            onAddFriend = { addFriend(it) }
+                        )
+                    }
+
+                    AddFriendsTab.Share -> {
+                        ShareInviteSection(userId = userId, onCopy = {
+                            val invite = generateInviteCode(userId)
+                            clipboardManager.setText(AnnotatedString(invite))
+                            toastManager.showSuccess("초대 코드가 복사되었습니다.")
+                        })
+                    }
+                }
             }
         }
     }
@@ -158,7 +165,7 @@ private fun Header(onBackClick: () -> Unit) {
 @Composable
 private fun TabSelector(selectedTab: AddFriendsTab, onTabSelected: (AddFriendsTab) -> Unit) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        AddFriendsTab.values().forEach { tab ->
+        AddFriendsTab.entries.forEach { tab ->
             val isSelected = tab == selectedTab
             Surface(
                 modifier = Modifier
@@ -288,7 +295,7 @@ private fun ShareInviteSection(userId: String, onCopy: () -> Unit) {
                 )
             }
         }
-        CustomButton(text = "초대 코드 복사", onClick = onCopy, style = ButtonStyle.Primary)
+        CustomButton(text = "초대 코드 복사", onClick = { onCopy() }, style = ButtonStyle.Primary)
     }
 }
 

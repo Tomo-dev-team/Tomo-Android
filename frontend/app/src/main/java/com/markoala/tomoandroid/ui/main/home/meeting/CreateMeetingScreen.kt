@@ -1,12 +1,15 @@
 package com.markoala.tomoandroid.ui.main.home.meeting
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -16,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -76,79 +80,87 @@ fun CreateMeetingScreen(
             .padding(paddingValues)
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
+        // 헤더: 좌측 정렬 유지
         MeetingHeader(onBackClick = onBackClick)
         Spacer(modifier = Modifier.height(16.dp))
-        StepIndicator(currentStep = currentStep)
-        Spacer(modifier = Modifier.height(24.dp))
 
-        Surface(
-            modifier = Modifier.weight(1f, fill = true),
-            color = CustomColor.background
-        ) {
-            when (currentStep) {
-                1 -> StepOneSection(
-                    title = title,
-                    description = description,
-                    onNameChange = {
-                        viewModel.title.value = it
-                        viewModel.clearError()
+        // 중앙 정렬 컨테이너: 스텝 + 본문
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
+            Column(modifier = Modifier.widthIn(max = 600.dp)) {
+                StepIndicator(currentStep = currentStep)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                Surface(
+                    // 본문 영역
+                    modifier = Modifier.fillMaxWidth(),
+                    color = CustomColor.background
+                ) {
+                    when (currentStep) {
+                        1 -> StepOneSection(
+                            title = title,
+                            description = description,
+                            onNameChange = {
+                                viewModel.title.value = it
+                                viewModel.clearError()
+                            },
+                            onDescriptionChange = {
+                                viewModel.description.value = it
+                                viewModel.clearError()
+                            }
+                        )
+
+                        2 -> StepTwoSection(
+                            friends = friends,
+                            selectedEmails = selectedEmails,
+                            onToggleEmail = {
+                                viewModel.toggleEmail(it)
+                                viewModel.clearError()
+                            }
+                        )
+
+                        3 -> StepThreeSection(
+                            title = title,
+                            description = description,
+                            selectedFriends = friends.filter { selectedEmails.contains(it.email) }
+                        )
+                    }
+                }
+
+                errorMessage?.let {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    CustomText(
+                        text = it,
+                        type = CustomTextType.bodySmall,
+                        color = CustomColor.danger
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+                NavigationBottomButtons(
+                    currentStep = currentStep,
+                    isLoading = isLoading,
+                    canGoNext = when (currentStep) {
+                        1 -> title.isNotBlank() && description.isNotBlank()
+                        2 -> selectedEmails.isNotEmpty()
+                        else -> true
                     },
-                    onDescriptionChange = {
-                        viewModel.description.value = it
-                        viewModel.clearError()
+                    onPrevious = {
+                        if (currentStep > 1) {
+                            currentStep -= 1
+                            viewModel.clearError()
+                        }
+                    },
+                    onNext = {
+                        if (currentStep < 3) {
+                            currentStep += 1
+                            viewModel.clearError()
+                        } else {
+                            viewModel.createMoim()
+                        }
                     }
                 )
-
-                2 -> StepTwoSection(
-                    friends = friends,
-                    selectedEmails = selectedEmails,
-                    onToggleEmail = {
-                        viewModel.toggleEmail(it)
-                        viewModel.clearError()
-                    }
-                )
-
-                3 -> StepThreeSection(
-                    title = title,
-                    description = description,
-                    selectedFriends = friends.filter { selectedEmails.contains(it.email) }
-                )
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
-
-        errorMessage?.let {
-            Spacer(modifier = Modifier.height(8.dp))
-            CustomText(
-                text = it,
-                type = CustomTextType.bodySmall,
-                color = CustomColor.danger
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-        NavigationBottomButtons(
-            currentStep = currentStep,
-            isLoading = isLoading,
-            canGoNext = when (currentStep) {
-                1 -> title.isNotBlank() && description.isNotBlank()
-                2 -> selectedEmails.isNotEmpty()
-                else -> true
-            },
-            onPrevious = {
-                if (currentStep > 1) {
-                    currentStep -= 1
-                    viewModel.clearError()
-                }
-            },
-            onNext = {
-                if (currentStep < 3) {
-                    currentStep += 1
-                    viewModel.clearError()
-                } else {
-                    viewModel.createMoim()
-                }
-            }
-        )
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }

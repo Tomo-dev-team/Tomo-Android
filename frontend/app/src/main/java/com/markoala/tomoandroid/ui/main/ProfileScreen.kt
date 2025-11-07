@@ -2,6 +2,7 @@ package com.markoala.tomoandroid.ui.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.Icon
@@ -56,8 +58,10 @@ fun ProfileScreen(
             .fillMaxSize()
             .background(CustomColor.background)
             .padding(paddingValues)
-            .padding(24.dp)
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
+        // 헤더는 좌측 정렬 유지
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -76,34 +80,43 @@ fun ProfileScreen(
             }
         }
         Spacer(modifier = Modifier.height(24.dp))
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(32.dp),
-            color = CustomColor.surface
-        ) {
+
+        // 중앙 정렬 구역
+        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.TopCenter) {
             Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                modifier = Modifier.widthIn(max = 600.dp),
+                verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                ProfileImage(size = 96.dp)
-                CustomText(text = profileName.ifBlank { "이름 없음" }, type = CustomTextType.title, color = CustomColor.textPrimary)
-                CustomText(text = "ID: ${userId.takeLast(6)}", type = CustomTextType.bodySmall, color = CustomColor.textSecondary)
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(32.dp),
+                    color = CustomColor.surface
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        ProfileImage(size = 96.dp)
+                        CustomText(text = profileName.ifBlank { "이름 없음" }, type = CustomTextType.title, color = CustomColor.textPrimary)
+                        CustomText(text = "ID: ${userId.takeLast(6)}", type = CustomTextType.bodySmall, color = CustomColor.textSecondary)
+                    }
+                }
+
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CustomText(text = "이름", type = CustomTextType.bodySmall, color = CustomColor.textSecondary)
+                        CustomTextField(value = profileName, onValueChange = {}, enabled = false)
+                    }
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        CustomText(text = "이메일", type = CustomTextType.bodySmall, color = CustomColor.textSecondary)
+                        CustomTextField(value = profileEmail, onValueChange = {}, enabled = false)
+                    }
+                }
+
+                CustomButton(text = "닫기", onClick = onClose, style = ButtonStyle.Secondary)
             }
         }
-        Spacer(modifier = Modifier.height(24.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(text = "이름", type = CustomTextType.bodySmall, color = CustomColor.textSecondary)
-                CustomTextField(value = profileName, onValueChange = {}, enabled = false)
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                CustomText(text = "이메일", type = CustomTextType.bodySmall, color = CustomColor.textSecondary)
-                CustomTextField(value = profileEmail, onValueChange = {}, enabled = false)
-            }
-        }
-        Spacer(modifier = Modifier.height(32.dp))
-        CustomButton(text = "닫기", onClick = onClose, style = ButtonStyle.Secondary)
     }
 }
 

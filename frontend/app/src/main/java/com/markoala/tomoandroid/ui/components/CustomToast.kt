@@ -85,10 +85,15 @@ private fun ToastContent(
     config: ToastConfig,
     modifier: Modifier = Modifier
 ) {
+    // 브랜드 톤에 맞춘 배경/아이콘 컬러 매핑
     val (backgroundColor, iconColor, icon) = when (config.type) {
-        ToastType.SUCCESS -> Triple(CustomColor.success, Color.White, Icons.Default.CheckCircle)
+        // 성공: 브라운 계열(brand primaryDim)
+        ToastType.SUCCESS -> Triple(CustomColor.primaryDim, Color.White, Icons.Default.CheckCircle)
+        // 오류: 위험 색상 유지
         ToastType.ERROR -> Triple(CustomColor.danger, Color.White, Icons.Filled.Warning)
-        ToastType.WARNING -> Triple(CustomColor.warning, Color.White, Icons.Default.Warning)
+        // 경고: 보조(secondary) 컬러
+        ToastType.WARNING -> Triple(CustomColor.secondary, Color.White, Icons.Default.Warning)
+        // 정보: 메인(brand primary)
         ToastType.INFO -> Triple(CustomColor.primary, Color.White, Icons.Default.Info)
     }
 
