@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -226,16 +228,17 @@ private fun MainTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                CustomText(
-                    text = "Tomo",
-                    type = CustomTextType.headline,
-                    color = CustomColor.primary
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Image(
+                    painter = painterResource(id = R.drawable.logo_tomo),
+                    contentDescription = "Tomo Logo",
+                    Modifier.width(60.dp)
                 )
                 CustomText(
                     text = subtitle,
                     type = CustomTextType.bodySmall,
-                    color = CustomColor.textSecondary
+                    color = CustomColor.textSecondary,
+                    modifier = Modifier.padding(start = 5.dp)
                 )
             }
 
