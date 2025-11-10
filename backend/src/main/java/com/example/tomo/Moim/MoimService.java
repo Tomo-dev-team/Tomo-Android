@@ -110,7 +110,7 @@ public class MoimService {
         for (Long userId : userIdList) {
             User user = userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
             Boolean leader = moimPeopleRepository.findLeaderByMoimIdAndUserId(find.getId(), userId);
-            userSimpleDto dto = new userSimpleDto(user.getUsername(),user.getEmail(),leader);
+            userSimpleDto dto = new userSimpleDto(user.getEmail(),leader);
             userSimpleDtoList.add(dto);
         }
 
