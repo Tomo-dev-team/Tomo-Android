@@ -1,10 +1,10 @@
 package com.example.tomo.Friends;
 
+
 import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
 import com.example.tomo.Users.UserService;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.Users.dtos.addFriendRequestDto;
-import com.example.tomo.Users.dtos.getFriendResponseDto;
 import com.example.tomo.global.ApiResponse;
 import com.example.tomo.global.NoDataApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -58,9 +58,11 @@ public class FriendController {
             }
     )
     @GetMapping("/friends")
-    public ResponseEntity<ApiResponse<getFriendResponseDto>> getFriendsUsingEmail(@RequestParam String email) {
+    public ResponseEntity<ApiResponse<ResponseFriendDetailDto>> getFriendsUsingEmail(
+            @AuthenticationPrincipal String uid,
+            @RequestParam String email) {
         try {
-            return ResponseEntity.ok(ApiResponse.success(userService.getUserInfo(email), "친구 조회 완료"));
+            return ResponseEntity.ok(ApiResponse.success(friendService.getFriend(uid, email), "친구 조회 완료"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(e.getMessage()));
         }
@@ -79,7 +81,7 @@ public class FriendController {
     public ResponseEntity<ApiResponse<List<ResponseFriendDetailDto>>> getFriendDetails(
             @AuthenticationPrincipal String uid) {
         try {
-            return ResponseEntity.ok(ApiResponse.success(friendService.getDetailFriends(uid), "성공"));
+            return ResponseEntity.ok(ApiResponse.success(friendService.getFriends(uid), "성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.failure("로그인된 사용자가 아닙니다"));

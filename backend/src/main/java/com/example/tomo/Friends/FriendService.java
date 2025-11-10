@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,7 @@ public class FriendService {
 
     // 매일 자정마다 실행
     @Transactional
-    @Scheduled(cron = "0 0 0 * * *")
+    @Scheduled(cron = "0 * * * * *")
     public void updateAllFriendshipScores() {
         List<Friend> friends = friendRepository.findAll();
 
@@ -68,6 +69,22 @@ public class FriendService {
     public ResponseFriendDetailDto getFriend(String uid, String email){
         Friend friend = this.getFriendByUidAndEmail(uid,email);
         return new ResponseFriendDetailDto(email, friend.getFriendship(),friend.getCreated_at());
+    }
+    @Transactional
+    public List<ResponseFriendDetailDto> getFriends(String uid){
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다"));
+        List<Friend> friends = friendRepository.findAllByUserId(user.getId());
+
+        return friends.stream()
+                .map((friend) -> new ResponseFriendDetailDto(
+                        userRepository.findById(friend.getFriend().getId())
+                                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다"))
+                                .getEmail(),
+                        friend.getFriendship(),
+                        friend.getCreated_at()
+                ))
+                .collect(Collectors.toList());
     }
 
     public Friend getFriendByUidAndEmail(String uid, String email){
