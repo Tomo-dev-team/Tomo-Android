@@ -6,24 +6,18 @@ import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class FriendService {
-
 
     private final FriendRepository friendRepository;
     private final UserRepository userRepository;
-
-    @Autowired
-    public FriendService(FriendRepository friendRepository, UserRepository userRepository) {
-        this.friendRepository = friendRepository;
-        this.userRepository = userRepository;
-    }
 
 
     // 친구 상세 정보 출력하기

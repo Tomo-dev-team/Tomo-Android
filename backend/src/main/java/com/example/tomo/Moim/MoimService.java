@@ -13,7 +13,7 @@ import com.example.tomo.global.DuplicatedException;
 import com.example.tomo.global.NotLeaderUserException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,18 +21,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class MoimService {
 
     private final MoimRepository moimRepository;
     private final UserRepository userRepository;
     private final MoimPeopleRepository moimPeopleRepository;
 
-    @Autowired
-    public MoimService(MoimRepository moimRepository, UserRepository userRepository, MoimPeopleRepository moimPeopleRepository) {
-        this.moimRepository = moimRepository;
-        this.moimPeopleRepository = moimPeopleRepository;
-        this.userRepository = userRepository;
-    }
 
     @Transactional // 이메일로 처리하기
     public ResponsePostUniformDto addMoim(String uid, addMoimRequestDto dto) {

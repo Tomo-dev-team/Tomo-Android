@@ -12,7 +12,7 @@ import com.example.tomo.global.SelfFriendRequestException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,21 +20,13 @@ import java.util.Optional;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
     private final MoimPeopleRepository moimPeopleRepository;
     private final MoimRepository moimRepository;
-
-    @Autowired
-    public UserService(UserRepository userRepository, FriendRepository friendRepository
-    , MoimPeopleRepository moimPeopleRepository, MoimRepository moimRepository) {
-        this.userRepository = userRepository;
-        this.friendRepository = friendRepository;
-        this.moimPeopleRepository = moimPeopleRepository;
-        this.moimRepository = moimRepository;
-    }
 
     // 사용자 존재 시 true 반환 404
     public User userSignUp(addFriendRequestDto dto){

@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,14 +22,11 @@ import java.util.List;
 @Tag(name = "Friend API", description = "친구 관련 API")
 @RestController
 @RequestMapping("/public")
+@RequiredArgsConstructor
 public class FriendController {
 
     private final FriendService friendService;
     private final UserService userService;
-    public FriendController(FriendService friendService, UserService userService) {
-        this.friendService = friendService;
-        this.userService = userService;
-    }
 
     @Operation(
             summary = "친구 추가",
