@@ -2,6 +2,7 @@ package com.markoala.tomoandroid.ui.main.profile
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -12,11 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -26,7 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomButton
@@ -60,8 +56,6 @@ fun ProfileScreen(
             .padding(horizontal = 24.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
-
         CustomText(
             text = "내 프로필",
             type = CustomTextType.headline,
@@ -76,11 +70,11 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 프로필 카드
+        // 프로필 카드 - 그라데이션 배경 추가
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(28.dp),
-            color = CustomColor.surface
+
         ) {
             Column(
                 modifier = Modifier
@@ -98,22 +92,30 @@ fun ProfileScreen(
                     CustomText(
                         text = profileName.ifBlank { "이름 없음" },
                         type = CustomTextType.headline,
-                        color = CustomColor.textPrimary
+                        color = CustomColor.primary
                     )
-                    CustomText(
-                        text = "초대코드: ${generateInviteCode(userId)}",
-                        type = CustomTextType.bodySmall,
-                        color = CustomColor.textSecondary
-                    )
+
+                    // 초대코드를 강조하는 배지 스타일
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = CustomColor.primary.copy(alpha = 0.15f)
+                    ) {
+                        CustomText(
+                            text = "초대코드: ${generateInviteCode(userId)}",
+                            type = CustomTextType.bodySmall,
+                            color = CustomColor.primary,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        )
+                    }
                 }
             }
         }
 
-        // 정보 필드
+        // 정보 필드 - 색상 강조
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(28.dp),
-            color = CustomColor.surface
+            color = CustomColor.white
         ) {
             Column(
                 modifier = Modifier
@@ -122,11 +124,22 @@ fun ProfileScreen(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CustomText(
-                        text = "이름",
-                        type = CustomTextType.bodySmall,
-                        color = CustomColor.textSecondary
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(CustomColor.primary)
+                        )
+                        CustomText(
+                            text = "이름",
+                            type = CustomTextType.bodySmall,
+                            color = CustomColor.primary
+                        )
+                    }
                     CustomTextField(
                         value = profileName,
                         onValueChange = {},
@@ -135,11 +148,22 @@ fun ProfileScreen(
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    CustomText(
-                        text = "이메일",
-                        type = CustomTextType.bodySmall,
-                        color = CustomColor.textSecondary
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(RoundedCornerShape(3.dp))
+                                .background(CustomColor.primary)
+                        )
+                        CustomText(
+                            text = "이메일",
+                            type = CustomTextType.bodySmall,
+                            color = CustomColor.primary
+                        )
+                    }
                     CustomTextField(
                         value = profileEmail,
                         onValueChange = {},
@@ -155,13 +179,8 @@ fun ProfileScreen(
         CustomButton(
             text = "닫기",
             onClick = onClose,
-            style = ButtonStyle.Secondary,
+            style = ButtonStyle.Primary,
             modifier = Modifier.fillMaxWidth()
         )
     }
-}
-
-private fun Modifier.clickableWithoutRipple(onClick: () -> Unit): Modifier = composed {
-    val interactionSource = remember { MutableInteractionSource() }
-    clickable(indication = null, interactionSource = interactionSource) { onClick() }
 }
