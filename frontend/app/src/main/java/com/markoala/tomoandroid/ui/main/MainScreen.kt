@@ -150,7 +150,7 @@ fun MainScreen(onSignOut: () -> Unit) {
                                 onPlanMeetingClick = { routingCreateMeeting = true },
                                 onAddFriendsClick = { routingAddFriends = true },
                                 onAffinityTabClick = { selectedTab = BottomTab.Affinity },
-                                onSettingsClick = { selectedTab = BottomTab.Settings },
+                                onMeetingClick = { selectedTab = BottomTab.Meetings },
                                 onProfileClick = { showProfile = true }
                             )
 

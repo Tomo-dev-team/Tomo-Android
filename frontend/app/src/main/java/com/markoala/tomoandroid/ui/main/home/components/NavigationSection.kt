@@ -38,7 +38,7 @@ private data class OverviewAction(
 fun NavigationSection(
     onAddFriendsClick: () -> Unit,
     onAffinityTabClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    onMeetingClick: () -> Unit,
     onProfileClick: () -> Unit,
 ) {
     val actions = listOf(
@@ -55,10 +55,10 @@ fun NavigationSection(
             onClick = onAffinityTabClick
         ),
         OverviewAction(
-            title = "설정",
-            description = "계정과 알림, 보안을 관리해요",
-            icon = Icons.Filled.Settings,
-            onClick = onSettingsClick
+            title = "모임",
+            description = "모임을 만들고 친구들과 함께해요",
+            icon = painterResource(id =com.markoala.tomoandroid.R.drawable.ic_friends),
+            onClick = onMeetingClick
         ),
         OverviewAction(
             title = "내 정보",

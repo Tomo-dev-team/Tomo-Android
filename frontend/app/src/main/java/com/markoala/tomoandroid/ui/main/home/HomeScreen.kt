@@ -21,7 +21,7 @@ fun HomeScreen(
     onPlanMeetingClick: () -> Unit,
     onAddFriendsClick: () -> Unit,
     onAffinityTabClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    onMeetingClick: () -> Unit,
     onProfileClick: () -> Unit,
 ) {
     val baseModifier = Modifier
@@ -35,7 +35,7 @@ fun HomeScreen(
         onPlanMeetingClick = onPlanMeetingClick,
         onAddFriendsClick = onAddFriendsClick,
         onAffinityTabClick = onAffinityTabClick,
-        onSettingsClick = onSettingsClick,
+        onMeetingClick = onMeetingClick,
         onProfileClick = onProfileClick
     )
 }
@@ -47,7 +47,7 @@ private fun HomeOverviewContent(
     onPlanMeetingClick: () -> Unit,
     onAddFriendsClick: () -> Unit,
     onAffinityTabClick: () -> Unit,
-    onSettingsClick: () -> Unit,
+    onMeetingClick: () -> Unit,
     onProfileClick: () -> Unit,
 ) {
     LazyColumn(
@@ -61,7 +61,7 @@ private fun HomeOverviewContent(
             NavigationSection(
                 onAddFriendsClick = onAddFriendsClick,
                 onAffinityTabClick = onAffinityTabClick,
-                onSettingsClick = onSettingsClick,
+                onMeetingClick = onMeetingClick,
                 onProfileClick = onProfileClick
             )
         }
