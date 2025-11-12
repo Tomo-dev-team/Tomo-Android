@@ -53,7 +53,7 @@ import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.main.friends.AddFriendsScreen
 import com.markoala.tomoandroid.ui.main.friends.FriendsScreen
 import com.markoala.tomoandroid.ui.main.home.HomeScreen
-import com.markoala.tomoandroid.ui.main.meeting.CreateMeetingScreen
+import com.markoala.tomoandroid.ui.main.meeting.create_meeting.CreateMeetingScreen
 import com.markoala.tomoandroid.ui.main.meeting.MeetingScreen
 import com.markoala.tomoandroid.ui.main.settings.SettingsScreen
 import com.markoala.tomoandroid.ui.theme.CustomColor

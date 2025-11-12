@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.main.meeting.steps
+package com.markoala.tomoandroid.ui.main.meeting.create_meeting.steps
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
