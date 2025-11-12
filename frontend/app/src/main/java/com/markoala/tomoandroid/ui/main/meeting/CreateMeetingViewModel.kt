@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.main.home.meeting
+package com.markoala.tomoandroid.ui.main.meeting
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel

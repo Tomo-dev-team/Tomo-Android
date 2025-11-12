@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.main.home.meeting
+package com.markoala.tomoandroid.ui.main.meeting
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -28,12 +28,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
-import com.markoala.tomoandroid.ui.main.home.meeting.components.MeetingHeader
-import com.markoala.tomoandroid.ui.main.home.meeting.components.NavigationBottomButtons
-import com.markoala.tomoandroid.ui.main.home.meeting.components.StepIndicator
-import com.markoala.tomoandroid.ui.main.home.meeting.steps.StepOneSection
-import com.markoala.tomoandroid.ui.main.home.meeting.steps.StepThreeSection
-import com.markoala.tomoandroid.ui.main.home.meeting.steps.StepTwoSection
+import com.markoala.tomoandroid.ui.main.meeting.components.MeetingHeader
+import com.markoala.tomoandroid.ui.main.meeting.components.NavigationBottomButtons
+import com.markoala.tomoandroid.ui.main.meeting.components.StepIndicator
+import com.markoala.tomoandroid.ui.main.meeting.steps.StepOneSection
+import com.markoala.tomoandroid.ui.main.meeting.steps.StepThreeSection
+import com.markoala.tomoandroid.ui.main.meeting.steps.StepTwoSection
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
 @Composable
