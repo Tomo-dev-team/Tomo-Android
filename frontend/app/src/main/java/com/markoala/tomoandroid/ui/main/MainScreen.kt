@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.PaddingValues
@@ -54,15 +53,16 @@ import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.main.friends.AddFriendsScreen
 import com.markoala.tomoandroid.ui.main.friends.FriendsScreen
 import com.markoala.tomoandroid.ui.main.home.HomeScreen
-import com.markoala.tomoandroid.ui.main.home.HomeScreenMode
-import com.markoala.tomoandroid.ui.main.home.meeting.CreateMeetingScreen
+import com.markoala.tomoandroid.ui.main.meeting.create_meeting.CreateMeetingScreen
+import com.markoala.tomoandroid.ui.main.meeting.MeetingScreen
+import com.markoala.tomoandroid.ui.main.profile.ProfileScreen
 import com.markoala.tomoandroid.ui.main.settings.SettingsScreen
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
-enum class BottomTab(val label: String, @DrawableRes val iconRes: Int) {
+enum class BottomTab(val label: String, @param:DrawableRes val iconRes: Int) {
     Home("홈", R.drawable.ic_home),
     Meetings("모임", R.drawable.ic_friends),
-    Affinity("친밀도", R.drawable.ic_profile),
+    Affinity("친구", R.drawable.ic_profile),
     Settings("설정", R.drawable.ic_setting)
 }
 
@@ -148,23 +148,17 @@ fun MainScreen(onSignOut: () -> Unit) {
                             BottomTab.Home -> HomeScreen(
                                 paddingValues = screenPadding,
                                 userName = name,
-                                mode = HomeScreenMode.Overview,
                                 onPlanMeetingClick = { routingCreateMeeting = true },
                                 onAddFriendsClick = { routingAddFriends = true },
                                 onAffinityTabClick = { selectedTab = BottomTab.Affinity },
-                                onSettingsClick = { selectedTab = BottomTab.Settings },
+                                onMeetingClick = { selectedTab = BottomTab.Meetings },
                                 onProfileClick = { showProfile = true }
                             )
 
-                            BottomTab.Meetings -> HomeScreen(
+                            BottomTab.Meetings -> MeetingScreen(
                                 paddingValues = screenPadding,
                                 userName = name,
-                                mode = HomeScreenMode.Meetings,
-                                onPlanMeetingClick = { routingCreateMeeting = true },
-                                onAddFriendsClick = { routingAddFriends = true },
-                                onAffinityTabClick = { selectedTab = BottomTab.Affinity },
-                                onSettingsClick = { selectedTab = BottomTab.Settings },
-                                onProfileClick = { showProfile = true }
+                                onPlanMeetingClick = { routingCreateMeeting = true }
                             )
 
                             BottomTab.Affinity -> FriendsScreen(

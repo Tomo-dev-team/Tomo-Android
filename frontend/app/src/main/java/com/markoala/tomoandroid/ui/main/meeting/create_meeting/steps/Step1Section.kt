@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.main.home.meeting.steps
+package com.markoala.tomoandroid.ui.main.meeting.create_meeting.steps
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
