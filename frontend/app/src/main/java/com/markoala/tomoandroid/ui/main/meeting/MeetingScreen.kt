@@ -38,7 +38,7 @@ import com.markoala.tomoandroid.ui.components.CustomButton
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.main.home.HomeViewModel
-import com.markoala.tomoandroid.ui.main.home.components.MeetingCard
+import com.markoala.tomoandroid.ui.main.meeting.components.MeetingCard
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import kotlinx.coroutines.delay
 
