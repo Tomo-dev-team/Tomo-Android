@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -53,42 +54,12 @@ fun MeetingDetailScreen(
         viewModel.fetchMoimDetails(moimTitle)
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(CustomColor.background)
-            .padding(top = androidx.compose.foundation.layout.WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp)
+            .windowInsetsPadding(WindowInsets.statusBars)
     ) {
-        // 상단 헤더
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = CustomColor.surface,
-            shadowElevation = 2.dp
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                        contentDescription = "뒤로가기",
-                        tint = CustomColor.textPrimary
-                    )
-                }
-                CustomText(
-                    text = "모임 상세",
-                    type = CustomTextType.title,
-                    color = CustomColor.textPrimary
-                )
-                Box(modifier = Modifier.size(48.dp))
-            }
-        }
-
-        // 컨텐츠
         when {
             isLoading -> {
                 Box(
@@ -100,78 +71,122 @@ fun MeetingDetailScreen(
             }
 
             errorMessage != null -> {
-                Box(
+                Column(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        CustomText(
-                            text = "오류가 발생했습니다",
-                            type = CustomTextType.title,
-                            color = CustomColor.textPrimary
-                        )
-                        CustomText(
-                            text = errorMessage ?: "",
-                            type = CustomTextType.body,
-                            color = CustomColor.textSecondary
-                        )
-                    }
+                    CustomText(
+                        text = "오류가 발생했습니다",
+                        type = CustomTextType.title,
+                        color = CustomColor.textPrimary
+                    )
+                    CustomText(
+                        text = errorMessage ?: "",
+                        type = CustomTextType.body,
+                        color = CustomColor.textSecondary,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
             }
 
             moimDetails != null -> {
-                MeetingDetailContent(moimDetails = moimDetails!!)
+                MeetingDetailContent(
+                    moimDetails = moimDetails!!,
+                    onBackClick = onBackClick
+                )
             }
         }
     }
 }
 
 @Composable
-private fun MeetingDetailContent(moimDetails: com.markoala.tomoandroid.data.model.moim.MoimDetails) {
+private fun MeetingDetailContent(
+    moimDetails: com.markoala.tomoandroid.data.model.moim.MoimDetails,
+    onBackClick: () -> Unit
+) {
     val createdDate = parseIsoToKoreanDate(moimDetails.createdAt)
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 모임 정보 섹션
+        // 뒤로가기 버튼
+        item {
+            IconButton(
+                onClick = onBackClick,
+                modifier = Modifier
+                    .padding(bottom = 4.dp)
+                    .size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
+                    contentDescription = "뒤로가기",
+                    tint = CustomColor.textPrimary,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+
+        // 모임 정보 Hero 카드
         item {
             Surface(
-                shape = RoundedCornerShape(24.dp),
-                color = CustomColor.surface
+                modifier = Modifier.shadow(
+                    elevation = 2.dp,
+                    shape = RoundedCornerShape(28.dp),
+                    spotColor = CustomColor.primary.copy(alpha = 0.1f),
+                    ambientColor = CustomColor.primary.copy(alpha = 0.05f)
+                ),
+                shape = RoundedCornerShape(28.dp),
+                color = CustomColor.primaryContainer
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(28.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    CustomText(
-                        text = moimDetails.title,
-                        type = CustomTextType.display,
-                        color = CustomColor.textPrimary
-                    )
-                    CustomText(
-                        text = moimDetails.description,
-                        type = CustomTextType.body,
-                        color = CustomColor.textSecondary
-                    )
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    // 제목과 설명
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_time),
-                            contentDescription = null,
-                            tint = CustomColor.textSecondary,
-                            modifier = Modifier.size(14.dp)
+                        CustomText(
+                            text = moimDetails.title,
+                            type = CustomTextType.display,
+                            color = CustomColor.primary
                         )
                         CustomText(
-                            text = "생성일: $createdDate",
-                            type = CustomTextType.bodySmall,
-                            color = CustomColor.textSecondary
+                            text = moimDetails.description,
+                            type = CustomTextType.body,
+                            color = CustomColor.primaryDim
+                        )
+                    }
+
+                    // 날짜 정보
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) {
+                        Surface(
+                            shape = CircleShape,
+                            color = CustomColor.primary.copy(alpha = 0.15f),
+                            modifier = Modifier.size(32.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_time),
+                                    contentDescription = null,
+                                    tint = CustomColor.primary,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                        CustomText(
+                            text = createdDate,
+                            type = CustomTextType.body,
+                            color = CustomColor.primaryDim
                         )
                     }
                 }
@@ -180,7 +195,10 @@ private fun MeetingDetailContent(moimDetails: com.markoala.tomoandroid.data.mode
 
         // 멤버 섹션 헤더
         item {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.padding(top = 12.dp)
+            ) {
                 CustomText(
                     text = "모임 멤버",
                     type = CustomTextType.title,
@@ -204,8 +222,13 @@ private fun MeetingDetailContent(moimDetails: com.markoala.tomoandroid.data.mode
 @Composable
 private fun MemberCard(member: Member) {
     Surface(
-        shape = RoundedCornerShape(16.dp),
-        color = CustomColor.surface
+        modifier = Modifier.shadow(
+            elevation = 1.dp,
+            shape = RoundedCornerShape(20.dp),
+            spotColor = CustomColor.gray900.copy(alpha = 0.05f)
+        ),
+        shape = RoundedCornerShape(20.dp),
+        color = CustomColor.white
     ) {
         Row(
             modifier = Modifier
@@ -221,42 +244,54 @@ private fun MemberCard(member: Member) {
                 // 아바타
                 Surface(
                     shape = CircleShape,
-                    color = if (member.leader) CustomColor.primary.copy(alpha = 0.2f) else CustomColor.secondary.copy(alpha = 0.2f),
+                    color = if (member.leader) {
+                        CustomColor.primaryContainer
+                    } else {
+                        CustomColor.gray100
+                    },
                     modifier = Modifier.size(48.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         CustomText(
-                            text = member.username.firstOrNull()?.toString() ?: "?",
+                            text = member.username.firstOrNull()?.uppercase() ?: "?",
                             type = CustomTextType.title,
-                            color = if (member.leader) CustomColor.primary else CustomColor.secondary
+                            color = if (member.leader) {
+                                CustomColor.primary
+                            } else {
+                                CustomColor.textSecondary
+                            }
                         )
                     }
                 }
 
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    CustomText(
-                        text = member.username,
-                        type = CustomTextType.body,
-                        color = CustomColor.textPrimary
-                    )
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CustomText(
+                            text = member.username,
+                            type = CustomTextType.body,
+                            color = CustomColor.textPrimary
+                        )
+                        if (member.leader) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = CustomColor.primary
+                            ) {
+                                CustomText(
+                                    text = "모임장",
+                                    type = CustomTextType.bodySmall,
+                                    color = CustomColor.white,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
                     CustomText(
                         text = member.email,
                         type = CustomTextType.bodySmall,
                         color = CustomColor.textSecondary
-                    )
-                }
-            }
-
-            if (member.leader) {
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = CustomColor.primary.copy(alpha = 0.12f)
-                ) {
-                    CustomText(
-                        text = "모임장",
-                        type = CustomTextType.bodySmall,
-                        color = CustomColor.primary,
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                     )
                 }
             }
