@@ -37,7 +37,6 @@ import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomButton
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
-import com.markoala.tomoandroid.ui.main.home.HomeViewModel
 import com.markoala.tomoandroid.ui.main.meeting.components.MeetingCard
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import kotlinx.coroutines.delay
@@ -47,16 +46,16 @@ fun MeetingScreen(
     paddingValues: PaddingValues,
     userName: String,
     onPlanMeetingClick: () -> Unit,
-    homeViewModel: HomeViewModel = viewModel()
+    meetingViewModel: MeetingViewModel = viewModel()
 ) {
-    val meetings by homeViewModel.meetings.collectAsState()
-    val isLoading by homeViewModel.isLoading.collectAsState()
+    val meetings by meetingViewModel.meetings.collectAsState()
+    val isLoading by meetingViewModel.isLoading.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                homeViewModel.fetchMeetings()
+                meetingViewModel.fetchMeetings()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

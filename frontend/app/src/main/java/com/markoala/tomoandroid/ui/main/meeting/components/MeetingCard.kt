@@ -21,13 +21,13 @@ import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.data.model.moim.MoimList
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
-import com.markoala.tomoandroid.ui.main.home.HomeViewModel
+import com.markoala.tomoandroid.ui.main.meeting.MeetingViewModel
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.util.parseIsoToKoreanDate
 
 @Composable
 fun MeetingCard(meeting: MoimList, modifier: Modifier = Modifier) {
-    val homeViewModel: HomeViewModel = viewModel()
+    val homeViewModel: MeetingViewModel = viewModel()
     val createdDate = parseIsoToKoreanDate(meeting.createdAt)
 
     Surface(
