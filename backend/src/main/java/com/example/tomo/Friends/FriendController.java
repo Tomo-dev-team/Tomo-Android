@@ -4,7 +4,7 @@ package com.example.tomo.Friends;
 import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
 import com.example.tomo.Users.UserService;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
-import com.example.tomo.Users.dtos.addFriendRequestDto;
+import com.example.tomo.Users.dtos.getFriendResponseDto;
 import com.example.tomo.global.ApiResponse;
 import com.example.tomo.global.NoDataApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -39,10 +39,10 @@ public class FriendController {
     @PostMapping("/friends")
     public ResponseEntity<ResponsePostUniformDto> addFriendsUsingEmail(
             @AuthenticationPrincipal String uid,
-            @RequestBody addFriendRequestDto dto) {
+            @RequestParam String query
+            ) {
         try {
-            dto.setUid(uid);
-            return ResponseEntity.status(HttpStatus.CREATED).body(userService.addFriends(dto));
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.addFriends(uid,query));
         } catch (EntityExistsException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new ResponsePostUniformDto(false, e.getMessage()));

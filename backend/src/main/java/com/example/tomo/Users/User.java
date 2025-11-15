@@ -21,11 +21,23 @@ public class User {
     @Column(name ="user_id")
     private Long id;
 
+    @Column(nullable = false)
     private String firebaseId;
+
+    @Column(nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
     private String phone;
+
+    @Column(nullable = false)
     private String refreshToken;
+
+    @Column(nullable = false)
+    private String inviteCode;
 
     public User(){}
 
