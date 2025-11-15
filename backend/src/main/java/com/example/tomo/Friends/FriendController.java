@@ -58,11 +58,9 @@ public class FriendController {
             }
     )
     @GetMapping("/friends")
-    public ResponseEntity<ApiResponse<ResponseFriendDetailDto>> getFriendsUsingEmail(
-            @AuthenticationPrincipal String uid,
-            @RequestParam String email) {
+    public ResponseEntity<ApiResponse<getFriendResponseDto>> getFriendsUsingEmail(@RequestParam String query) {
         try {
-            return ResponseEntity.ok(ApiResponse.success(friendService.getFriend(uid, email), "친구 조회 완료"));
+            return ResponseEntity.ok(ApiResponse.success(userService.getUserInfo(query), "친구 조회 완료"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(e.getMessage()));
         }

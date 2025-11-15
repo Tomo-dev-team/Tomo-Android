@@ -117,13 +117,10 @@ public class UserService {
     }
     ///  여기까지 수정이 요구
 
-    public getFriendResponseDto getUserInfo(String email){
+    public getFriendResponseDto getUserInfo(String query){
 
-        Optional<User> user = userRepository.findByEmail(email);
-        if(user.isEmpty()){
-             throw new EntityNotFoundException("존재하지 않는 사용자입니다");
-        }
-        return new getFriendResponseDto(user.get().getUsername(), user.get().getEmail());
+        User user = getUser(query);
+        return new getFriendResponseDto(user.getUsername(), user.getEmail());
     }
 
     public void saveRefreshToken(String uid, String refreshToken){
