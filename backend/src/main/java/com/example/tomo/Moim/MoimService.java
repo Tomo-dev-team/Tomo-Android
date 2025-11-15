@@ -2,7 +2,7 @@ package com.example.tomo.Moim;
 
 import com.example.tomo.Moim.dtos.addMoimRequestDto;
 import com.example.tomo.Moim.dtos.getDetailMoimDto;
-import com.example.tomo.Moim.dtos.getMoimResponseDTO;
+import com.example.tomo.Moim.dtos.getMoimResponseDto;
 import com.example.tomo.Moim.dtos.addMoimResponseDto;
 import com.example.tomo.Moim_people.MoimPeopleRepository;
 import com.example.tomo.Moim_people.Moim_people;
@@ -61,7 +61,7 @@ public class MoimService {
     }
 
     // 모임 단일 조회
-    public getMoimResponseDTO getMoim(Long moimId, String uid) {
+    public getMoimResponseDto getMoim(Long moimId, String uid) {
          Moim moim= moimRepository.findById(moimId).orElseThrow(
                  () -> new EntityNotFoundException("존재하지 않는 모임입니다")
          );
@@ -69,7 +69,7 @@ public class MoimService {
         // 모임의 리더 여부 출력
         Boolean moimLeader = moimPeopleRepository.findLeaderByMoimIdAndUserId(moim.getId(),id);
 
-        return new getMoimResponseDTO(
+        return new getMoimResponseDto(
                 moim.getTitle(),
                 moim.getDescription(),
                 moim.getMoimPeopleList().size(),
@@ -80,13 +80,13 @@ public class MoimService {
     // 모임 상세 조회
 
     @Transactional
-    public List<getMoimResponseDTO> getMoimList(String userId){
+    public List<getMoimResponseDto> getMoimList(String userId){
 
         User user = userRepository.findByFirebaseId(userId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 UID를 가진 사용자가 존재하지 않습니다."));
 
         List<Moim_people> moims = moimPeopleRepository.findByUserId(user.getId());
-        List<getMoimResponseDTO> moimResponseDTOList = new ArrayList<>();
+        List<getMoimResponseDto> moimResponseDTOList = new ArrayList<>();
 
         for(Moim_people moim_people : moims){
             moimResponseDTOList.add(this.getMoim(moim_people.getMoim().getId(), userId));

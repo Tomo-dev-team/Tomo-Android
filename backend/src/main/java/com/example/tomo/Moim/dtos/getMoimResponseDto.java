@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class getMoimResponseDTO {
+public class getMoimResponseDto {
 
     private String title;
     private String description;
@@ -15,7 +15,7 @@ public class getMoimResponseDTO {
     private Boolean leader;
     private LocalDate createdAt;
 
-    public getMoimResponseDTO(String title, String description,
+    public getMoimResponseDto(String title, String description,
                               Integer peopleCount, Boolean leader, LocalDate createdAt) {
         this.title = title;
         this.description = description;

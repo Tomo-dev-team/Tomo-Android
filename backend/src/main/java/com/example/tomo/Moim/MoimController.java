@@ -3,7 +3,7 @@ package com.example.tomo.Moim;
 import com.example.tomo.Moim.dtos.addMoimRequestDto;
 import com.example.tomo.Moim.dtos.addMoimResponseDto;
 import com.example.tomo.Moim.dtos.getDetailMoimDto;
-import com.example.tomo.Moim.dtos.getMoimResponseDTO;
+import com.example.tomo.Moim.dtos.getMoimResponseDto;
 import com.example.tomo.global.ReponseType.ApiResponse;
 import com.example.tomo.global.ReponseType.NoDataApiResponse;
 import com.example.tomo.global.Exception.NotLeaderUserException;
@@ -79,7 +79,7 @@ public class MoimController {
             }
     )
     @GetMapping("/moims/list")
-    public ResponseEntity<ApiResponse<List<getMoimResponseDTO>>> getAllMoims(
+    public ResponseEntity<ApiResponse<List<getMoimResponseDto>>> getAllMoims(
             @Parameter(description = "로그인한 사용자의 UUID", required = true)
             @AuthenticationPrincipal String uid) {
         try{
