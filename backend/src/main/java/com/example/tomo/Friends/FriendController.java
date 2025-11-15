@@ -2,6 +2,7 @@ package com.example.tomo.Friends;
 
 
 import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
+import com.example.tomo.Friends.dtos.ResponseGetFriendListDetailDto;
 import com.example.tomo.Users.UserService;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.Users.dtos.getFriendResponseDto;
@@ -65,6 +66,18 @@ public class FriendController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(e.getMessage()));
         }
     }
+    @GetMapping("/friends/detail")
+    public ResponseEntity<ApiResponse<ResponseFriendDetailDto>> getFriendsDetailUsingEmail(
+            @AuthenticationPrincipal String uid,
+            @RequestParam String query
+    ) {
+       try{
+           return ResponseEntity.status(200)
+                   .body(ApiResponse.success(friendService.getFriendDetail(uid,query), "조회 성공"));
+       }catch (EntityNotFoundException e){
+           return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure(e.getMessage()));
+       }
+    }
 
 
     @Operation(
@@ -76,7 +89,7 @@ public class FriendController {
             }
     )
     @GetMapping("/friends/list")
-    public ResponseEntity<ApiResponse<List<ResponseFriendDetailDto>>> getFriendDetails(
+    public ResponseEntity<ApiResponse<List<ResponseGetFriendListDetailDto>>> getFriendDetails(
             @AuthenticationPrincipal String uid) {
         try {
             return ResponseEntity.ok(ApiResponse.success(friendService.getFriends(uid), "성공"));

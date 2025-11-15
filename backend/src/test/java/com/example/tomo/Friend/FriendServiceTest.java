@@ -3,10 +3,12 @@ import com.example.tomo.Friends.Friend;
 import com.example.tomo.Friends.FriendRepository;
 import com.example.tomo.Friends.FriendService;
 import com.example.tomo.Friends.FriendShipPolicy;
+import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
 import com.example.tomo.Moim_people.MoimPeopleRepository;
 import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserRepository;
-import com.example.tomo.Friends.dtos.ResponseFriendDetailDto;
+import com.example.tomo.Friends.dtos.ResponseGetFriendListDetailDto;
+import com.example.tomo.Users.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,9 @@ class FriendServiceTest {
 
     @InjectMocks
     FriendService friendService;
+
+    @Mock
+    UserService userService;
 
     @Mock
     FriendRepository friendRepository;
@@ -98,19 +103,7 @@ class FriendServiceTest {
     }
 
 
-    @Test
-    void getFriend_shouldReturnFriendDto() {
-        when(userRepository.findByFirebaseId("uid123")).thenReturn(Optional.of(user));
-        when(userRepository.findByEmail("friend@test.com")).thenReturn(Optional.of(friendUser));
-        when(friendRepository.findByUserIdAndFriendId(user.getId(), friendUser.getId()))
-                .thenReturn(Optional.of(friendship));
 
-        ResponseFriendDetailDto dto = friendService.getFriend("uid123", "friend@test.com");
-
-        assertThat(dto.getEmail()).isEqualTo("friend@test.com");
-        assertThat(dto.getFriendship()).isEqualTo(friendship.getFriendship());
-        assertThat(dto.getCreatedAt()).isEqualTo(friendship.getCreated_at());
-    }
 
     @Test
     void getFriends_shouldReturnList() {
@@ -118,7 +111,7 @@ class FriendServiceTest {
         when(friendRepository.findAllByUserId(user.getId())).thenReturn(List.of(friendship));
         when(userRepository.findById(friendUser.getId())).thenReturn(Optional.of(friendUser));
 
-        List<ResponseFriendDetailDto> list = friendService.getFriends("uid123");
+        List<ResponseGetFriendListDetailDto> list = friendService.getFriends("uid123");
 
         assertThat(list).hasSize(1);
         assertThat(list.get(0).getEmail()).isEqualTo("friend@test.com");
@@ -146,4 +139,36 @@ class FriendServiceTest {
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("친구 관계가 아닙니다.");
     }
+    @Test
+    void getFriendDetail_shouldReturnResponse() {
+        // 로그인 유저 조회
+        when(userRepository.findByFirebaseId("uid123"))
+                .thenReturn(Optional.of(user));
+
+        // query → userService.getUser()
+        when(userService.getUser("friend@test.com"))
+                .thenReturn(friendUser);
+
+        // 친구 유저 조회
+        when(userRepository.findByEmail("friend@test.com"))
+                .thenReturn(Optional.of(friendUser));
+
+        // 친구 관계 조회
+        when(friendRepository.findByUserIdAndFriendId(
+                user.getId(),
+                friendUser.getId()
+        )).thenReturn(Optional.of(friendship));
+
+        // 실행
+        ResponseFriendDetailDto dto =
+                friendService.getFriendDetail("uid123", "friend@test.com");
+
+        // 검증
+        assertThat(dto.getEmail()).isEqualTo("friend@test.com");
+        assertThat(dto.getUsername()).isEqualTo("Friend");
+        assertThat(dto.getFriendship()).isEqualTo(10);
+        assertThat(dto.getCreatedAt()).isNotNull();
+    }
+
 }
+
