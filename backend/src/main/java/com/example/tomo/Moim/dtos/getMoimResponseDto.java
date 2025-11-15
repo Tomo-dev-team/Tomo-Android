@@ -9,14 +9,16 @@ import java.time.LocalDate;
 @Setter
 public class getMoimResponseDto {
 
+    private Long moimId;
     private String title;
     private String description;
     private Integer peopleCount;
     private Boolean leader;
     private LocalDate createdAt;
 
-    public getMoimResponseDto(String title, String description,
+    public getMoimResponseDto(Long moimId, String title, String description,
                               Integer peopleCount, Boolean leader, LocalDate createdAt) {
+        this.moimId = moimId;
         this.title = title;
         this.description = description;
         this.peopleCount = peopleCount;

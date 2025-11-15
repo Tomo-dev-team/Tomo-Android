@@ -70,6 +70,7 @@ public class MoimService {
         Boolean moimLeader = moimPeopleRepository.findLeaderByMoimIdAndUserId(moim.getId(),id);
 
         return new getMoimResponseDto(
+                moim.getId(),
                 moim.getTitle(),
                 moim.getDescription(),
                 moim.getMoimPeopleList().size(),
