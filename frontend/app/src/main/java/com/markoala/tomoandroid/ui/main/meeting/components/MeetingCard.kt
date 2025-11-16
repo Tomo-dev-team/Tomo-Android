@@ -9,9 +9,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -21,8 +26,10 @@ import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.data.model.moim.MoimList
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
+import com.markoala.tomoandroid.ui.components.DangerDialog
 import com.markoala.tomoandroid.ui.main.meeting.MeetingViewModel
 import com.markoala.tomoandroid.ui.theme.CustomColor
+import com.markoala.tomoandroid.util.getFriendshipDurationText
 import com.markoala.tomoandroid.util.parseIsoToKoreanDate
 
 @Composable
@@ -33,6 +40,8 @@ fun MeetingCard(
 ) {
     val homeViewModel: MeetingViewModel = viewModel()
     val createdDate = parseIsoToKoreanDate(meeting.createdAt)
+    val friendshipDuration = getFriendshipDurationText(meeting.createdAt ?: "")
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.clickable { onClick() },
@@ -49,12 +58,13 @@ fun MeetingCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.weight(1f)) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.weight(1f)) {
                     CustomText(
                         text = meeting.title,
                         type = CustomTextType.title,
                         color = CustomColor.textPrimary
                     )
+
                     CustomText(
                         text = meeting.description,
                         type = CustomTextType.bodySmall,
@@ -73,10 +83,19 @@ fun MeetingCard(
                     )
                 }
             }
+            HorizontalDivider(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            color = CustomColor.outline,
+                            thickness = 1.dp
+                        )
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                MetaRow(icon = R.drawable.ic_time, text = createdDate)
-                MetaRow(icon = R.drawable.ic_people, text = "${meeting.peopleCount}명 참여")
+                MetaRow( text = "$friendshipDuration 동안 함께하고 있어요")
+                MetaRow(icon = R.drawable.ic_time,text = "최초생성일: $createdDate")
+
+                MetaRow(icon = R.drawable.ic_people, text = "${meeting.peopleCount}명 참여 중")
             }
 
             Row(
@@ -84,39 +103,56 @@ fun MeetingCard(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier
-                        .clickable(onClick = { homeViewModel.deleteMeeting(meeting.title) }),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_trash),
-                        contentDescription = "모임 삭제",
-                        tint = CustomColor.textSecondary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    CustomText(
-                        text = "모임 삭제",
-                        type = CustomTextType.bodySmall,
-                        color = CustomColor.textSecondary
-                    )
+                if (meeting.leader) {
+                    Row(
+                        modifier = Modifier
+                            .clickable(onClick = { showDeleteDialog = true }),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_trash),
+                            contentDescription = "모임 삭제",
+                            tint = CustomColor.textSecondary,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        CustomText(
+                            text = "모임 삭제",
+                            type = CustomTextType.bodySmall,
+                            color = CustomColor.textSecondary
+                        )
+                    }
                 }
+            }
+            if (showDeleteDialog) {
+                DangerDialog(
+                    title = "모임 삭제",
+                    message = "정말로 '${meeting.title}' 모임을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
+                    confirmText = "삭제",
+                    dismissText = "취소",
+                    onConfirm = {
+                        homeViewModel.deleteMeeting(meeting.moimId)
+                        showDeleteDialog = false
+                    },
+                    onDismiss = { showDeleteDialog = false }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun MetaRow(icon: Int, text: String) {
+private fun MetaRow(icon: Int? = null, text: String) {
     if (text.isBlank()) return
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Icon(
-            painter = painterResource(id = icon),
-            contentDescription = null,
-            tint = CustomColor.textSecondary,
-            modifier = Modifier.size(14.dp)
-        )
+        if (icon != null) {
+            Icon(
+                painter = painterResource(id = icon),
+                contentDescription = null,
+                tint = CustomColor.textSecondary,
+                modifier = Modifier.size(14.dp)
+            )
+        }
         CustomText(
             text = text,
             type = CustomTextType.bodySmall,

@@ -14,8 +14,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -26,9 +24,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.runtime.LaunchedEffect
 import com.markoala.tomoandroid.data.model.friends.FriendSummary
 import com.markoala.tomoandroid.data.repository.friends.FriendsRepository
 import com.markoala.tomoandroid.ui.components.CustomText
@@ -46,7 +44,9 @@ private enum class AddFriendsTab { Search, Share }
 fun AddFriendsScreen(
     paddingValues: PaddingValues,
     userId: String,
-    onBackClick: () -> Unit
+    inviteCode: String? = null,
+    onBackClick: () -> Unit,
+    onInviteCodeConsumed: () -> Unit = {}
 ) {
     var searchText by rememberSaveable { mutableStateOf("") }
     var searchResults by remember { mutableStateOf<List<FriendSummary>>(emptyList()) }
@@ -103,6 +103,18 @@ fun AddFriendsScreen(
                 toastManager.showWarning(error)
             }
         )
+    }
+
+    // 친구 추가 페이지 진입(포커스) 시마다 searchText 초기화
+    LaunchedEffect(Unit) {
+        searchText = ""
+    }
+    // 초대코드가 전달되면 자동으로 검색 수행 (최초 진입 시 한 번만)
+    LaunchedEffect(inviteCode) {
+        if (inviteCode != null && inviteCode.isNotBlank()) {
+            searchText = inviteCode
+            onInviteCodeConsumed() // 초대코드 사용 후 초기화
+        }
     }
 
     Column(

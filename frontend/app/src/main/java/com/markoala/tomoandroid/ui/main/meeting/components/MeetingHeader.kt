@@ -3,11 +3,13 @@ package com.markoala.tomoandroid.ui.main.meeting.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -20,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.composed
 import androidx.compose.ui.unit.dp
+import com.markoala.tomoandroid.ui.components.CustomBack
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.theme.CustomColor
@@ -33,21 +36,10 @@ fun MeetingHeader(onBackClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Surface(
-            modifier = Modifier
-                .clip(CircleShape)
-                .height(40.dp)
-                .clickableWithoutRipple { onBackClick() },
-            color = CustomColor.surface,
-            shape = CircleShape
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                contentDescription = "뒤로가기",
-                tint = CustomColor.textPrimary,
-                modifier = Modifier.padding(8.dp)
-            )
-        }
+        CustomBack(
+            onClick = onBackClick,
+            modifier = Modifier.padding(bottom = 4.dp)
+        )
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             CustomText(text = "모임 생성", type = CustomTextType.title, color = CustomColor.textPrimary)
             CustomText(text = "정보를 입력하고 초대할 친구를 선택하세요", type = CustomTextType.bodySmall, color = CustomColor.textSecondary)

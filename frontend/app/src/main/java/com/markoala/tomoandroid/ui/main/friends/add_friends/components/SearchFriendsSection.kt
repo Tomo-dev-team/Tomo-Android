@@ -61,7 +61,7 @@ fun SearchFriendsSection(
                             .background(CustomColor.primary)
                     )
                     CustomText(
-                        text = "이메일로 검색",
+                        text = "친구 검색",
                         type = CustomTextType.body,
                         color = CustomColor.primary
                     )
@@ -70,7 +70,7 @@ fun SearchFriendsSection(
                 CustomTextField(
                     value = searchText,
                     onValueChange = onSearchTextChange,
-                    placeholder = "친구의 이메일을 입력하세요",
+                    placeholder = "이메일 또는 친구코드를 입력하세요",
                     enabled = !isSearching
                 )
 
@@ -135,7 +135,7 @@ fun SearchFriendsSection(
                             textAlign = TextAlign.Center
                         )
                         CustomText(
-                            text = "친구의 이메일을 입력하여\n새로운 친구를 추가할 수 있습니다",
+                            text = "친구의 이메일 또는 친구코드를 입력하여\n새로운 친구를 추가할 수 있습니다",
                             type = CustomTextType.bodySmall,
                             color = CustomColor.primaryDim,
                             textAlign = TextAlign.Center

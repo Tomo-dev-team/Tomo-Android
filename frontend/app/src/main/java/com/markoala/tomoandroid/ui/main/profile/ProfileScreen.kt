@@ -1,6 +1,10 @@
 package com.markoala.tomoandroid.ui.main.profile
 
+import android.content.ClipData
+import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomButton
@@ -30,8 +35,10 @@ import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextField
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.ProfileImage
+import com.markoala.tomoandroid.ui.components.LocalToastManager
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.util.generateInviteCode
+import com.markoala.tomoandroid.util.shareInviteCode
 
 @Composable
 fun ProfileScreen(
@@ -44,9 +51,24 @@ fun ProfileScreen(
 ) {
     var profileName by remember { mutableStateOf(name) }
     var profileEmail by remember { mutableStateOf(email) }
+    val context = LocalContext.current
+    val toastManager = LocalToastManager.current
 
     LaunchedEffect(name) { profileName = name }
     LaunchedEffect(email) { profileEmail = email }
+
+    val inviteCode = generateInviteCode(userId)
+
+    val onCopyInviteCode: () -> Unit = {
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val clip = ClipData.newPlainText("invite_code", inviteCode)
+        clipboard.setPrimaryClip(clip)
+        toastManager.showSuccess("초대 코드가 복사되었습니다.")
+    }
+
+    val onShareInviteCode: () -> Unit = {
+        shareInviteCode(context, inviteCode)
+    }
 
     Column(
         modifier = modifier
@@ -75,7 +97,7 @@ fun ProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(28.dp),
 
-        ) {
+            ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -98,10 +120,11 @@ fun ProfileScreen(
                     // 초대코드를 강조하는 배지 스타일
                     Surface(
                         shape = RoundedCornerShape(16.dp),
-                        color = CustomColor.primary.copy(alpha = 0.15f)
+                        color = CustomColor.primary.copy(alpha = 0.15f),
+                        modifier = Modifier.clickable { onCopyInviteCode() }
                     ) {
                         CustomText(
-                            text = "초대코드: ${generateInviteCode(userId)}",
+                            text = "초대코드: $inviteCode",
                             type = CustomTextType.bodySmall,
                             color = CustomColor.primary,
                             modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
@@ -175,7 +198,25 @@ fun ProfileScreen(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        // 버튼
+        // 버튼 - 초대코드 복사 및 공유 버튼 추가
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            CustomButton(
+                text = "초대 코드 복사",
+                onClick = onCopyInviteCode,
+                style = ButtonStyle.Secondary,
+                modifier = Modifier.weight(1f)
+            )
+            CustomButton(
+                text = "공유하기",
+                onClick = onShareInviteCode,
+                style = ButtonStyle.Primary,
+                modifier = Modifier.weight(1f)
+            )
+        }
+
         CustomButton(
             text = "닫기",
             onClick = onClose,

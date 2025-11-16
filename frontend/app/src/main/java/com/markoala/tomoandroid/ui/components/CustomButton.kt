@@ -26,7 +26,8 @@ import com.markoala.tomoandroid.ui.theme.CustomColor
 
 enum class ButtonStyle {
     Primary,
-    Secondary
+    Secondary,
+    Danger
 }
 
 @Composable
@@ -52,11 +53,13 @@ fun CustomButton(
     val contentColor = when (style) {
         ButtonStyle.Primary -> CustomColor.white
         ButtonStyle.Secondary -> CustomColor.textBody
+        ButtonStyle.Danger -> CustomColor.white
     }
 
     val disabledContentColor = when (style) {
         ButtonStyle.Primary -> CustomColor.white.copy(alpha = 0.6f)
         ButtonStyle.Secondary -> CustomColor.textSecondary
+        ButtonStyle.Danger -> CustomColor.white.copy(alpha = 0.6f)
     }
 
     val content: @Composable () -> Unit = {
@@ -93,6 +96,22 @@ fun CustomButton(
                 contentColor = contentColor,
                 disabledContentColor = disabledContentColor,
                 disabledContainerColor = CustomColor.primary.copy(alpha = 0.4f)
+            ),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp, pressedElevation = 4.dp),
+            interactionSource = interactionSource
+        ) { content() }
+
+        ButtonStyle.Danger -> Button(
+            onClick = onClick,
+            enabled = enabled,
+            modifier = scaledModifier,
+            shape = shape,
+            contentPadding = contentPadding,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = CustomColor.danger,
+                contentColor = contentColor,
+                disabledContentColor = disabledContentColor,
+                disabledContainerColor = CustomColor.danger.copy(alpha = 0.4f)
             ),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = 1.dp, pressedElevation = 4.dp),
             interactionSource = interactionSource

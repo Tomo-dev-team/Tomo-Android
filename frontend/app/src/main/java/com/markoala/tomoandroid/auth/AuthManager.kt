@@ -163,12 +163,53 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
         return tokenManager?.getAccessToken()
     }
 
-//    fun getStoredRefreshToken(): String? {
-//        return tokenManager?.getRefreshToken()
-//    }
+    fun getStoredRefreshToken(): String? {
+        return tokenManager?.getRefreshToken()
+    }
+
+    // 토큰 갱신 메서드 - 새 accessToken을 반환
+    suspend fun refreshAccessToken(): String? {
+        try {
+            val refreshToken = tokenManager?.getRefreshToken()
+            if (refreshToken == null) {
+                Log.e(TAG, "Refresh Token이 없습니다")
+                return null
+            }
+
+            val response = userApi.refreshToken(refreshToken)
+
+            if (response.isSuccessful) {
+                val responseBody = response.body()
+                val newAccessToken = responseBody?.data?.accessToken
+                val newRefreshToken = responseBody?.data?.refreshToken
+
+                if (newAccessToken != null && newRefreshToken != null) {
+                    val cleanAccess = newAccessToken.removePrefix("Bearer ")
+                    tokenManager?.saveTokens(cleanAccess, newRefreshToken)
+
+                    Log.d(TAG, "토큰 갱신 성공")
+                    return cleanAccess
+                } else {
+                    Log.e(TAG, "토큰 갱신 응답에서 토큰을 찾을 수 없습니다")
+                    return null
+                }
+            } else {
+                Log.e(TAG, "토큰 갱신 실패: ${response.code()}")
+                return null
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "토큰 갱신 중 오류 발생", e)
+            return null
+        }
+    }
 
     fun hasValidTokens(): Boolean {
         return tokenManager?.hasValidTokens() == true
+    }
+
+    // 토큰 삭제 메서드
+    fun clearTokens() {
+        tokenManager?.clearTokens()
     }
 
     suspend fun signOutSuspend(context: Context): Pair<Boolean, String?> {
@@ -195,6 +236,12 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
 
     fun setUnauthorizedCallback(callback: () -> Unit) {
         onUnauthorizedCallback = callback
+    }
+
+    // 419 에러 발생 시 로그아웃 트리거
+    fun triggerLogout() {
+        Log.w(TAG, "419 Authentication Timeout - 로그아웃 콜백 호출")
+        onUnauthorizedCallback?.invoke()
     }
 
     suspend fun handleUnauthorized(context: Context) {
@@ -332,5 +379,24 @@ object AuthManager { // 싱글톤 객체로 앱 전체에서 하나의 인스턴
             Log.e(TAG, "계정 삭제 중 오류 발생", e)
             Pair(false, e.localizedMessage)
         }
+    }
+
+    // ========== 테스트용 메서드 ==========
+
+    // 401 테스트: Access Token만 잘못된 값으로 설정
+    fun testInvalidAccessToken() {
+        val validRefreshToken = tokenManager?.getRefreshToken()
+        if (validRefreshToken != null) {
+            tokenManager?.saveTokens("invalid_access_token_for_test", validRefreshToken)
+            Log.d(TAG, "🧪 [테스트] Access Token을 잘못된 값으로 설정 완료")
+        } else {
+            Log.w(TAG, "🧪 [테스트] Refresh Token이 없어서 테스트 불가")
+        }
+    }
+
+    // 419 테스트: Access Token과 Refresh Token 모두 잘못된 값으로 설정
+    fun testInvalidBothTokens() {
+        tokenManager?.saveTokens("invalid_access_token", "invalid_refresh_token")
+        Log.d(TAG, "🧪 [테스트] Access Token과 Refresh Token을 잘못된 값으로 설정 완료")
     }
 }

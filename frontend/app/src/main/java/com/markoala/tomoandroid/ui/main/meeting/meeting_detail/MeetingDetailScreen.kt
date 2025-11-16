@@ -6,9 +6,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -17,11 +19,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,24 +33,30 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.R
-import com.markoala.tomoandroid.data.model.moim.Member
+import com.markoala.tomoandroid.data.model.friends.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
+import com.markoala.tomoandroid.ui.main.friends.components.FriendCard
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.util.parseIsoToKoreanDate
+import java.util.Locale
+import com.google.firebase.auth.FirebaseAuth
+import com.markoala.tomoandroid.ui.components.CustomBack
+import com.markoala.tomoandroid.util.getFriendshipDurationText
 
 @Composable
 fun MeetingDetailScreen(
-    moimTitle: String,
+    moimId: Int,
     onBackClick: () -> Unit,
     viewModel: MeetingDetailViewModel = viewModel()
 ) {
     val moimDetails by viewModel.moimDetails.collectAsState()
+    val membersWithProfiles by viewModel.membersWithProfiles.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
-    LaunchedEffect(moimTitle) {
-        viewModel.fetchMoimDetails(moimTitle)
+    LaunchedEffect(moimId) {
+        viewModel.fetchMoimDetails(moimId)
     }
 
     Box(
@@ -59,6 +64,7 @@ fun MeetingDetailScreen(
             .fillMaxSize()
             .background(CustomColor.background)
             .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(bottom = 30.dp) // 최하단 바텀 여백 추가
     ) {
         when {
             isLoading -> {
@@ -93,9 +99,11 @@ fun MeetingDetailScreen(
             moimDetails != null -> {
                 MeetingDetailContent(
                     moimDetails = moimDetails!!,
+                    membersWithProfiles = membersWithProfiles,
                     onBackClick = onBackClick
                 )
             }
+
         }
     }
 }
@@ -103,30 +111,25 @@ fun MeetingDetailScreen(
 @Composable
 private fun MeetingDetailContent(
     moimDetails: com.markoala.tomoandroid.data.model.moim.MoimDetails,
+    membersWithProfiles: List<MemberWithProfile>,
     onBackClick: () -> Unit
 ) {
     val createdDate = parseIsoToKoreanDate(moimDetails.createdAt)
+    val daysActive = getFriendshipDurationText(moimDetails.createdAt)
+    val averageFriendship = calculateAverageFriendship(membersWithProfiles)
+    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         // 뒤로가기 버튼
         item {
-            IconButton(
+            CustomBack(
                 onClick = onBackClick,
-                modifier = Modifier
-                    .padding(bottom = 4.dp)
-                    .size(40.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowBack,
-                    contentDescription = "뒤로가기",
-                    tint = CustomColor.textPrimary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
         }
 
         // 모임 정보 Hero 카드
@@ -145,7 +148,7 @@ private fun MeetingDetailContent(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(28.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     // 제목과 설명
                     Column(
@@ -163,33 +166,49 @@ private fun MeetingDetailContent(
                         )
                     }
 
-                    // 날짜 정보
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.padding(top = 4.dp)
+                    // 날짜 및 통계 정보
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Surface(
-                            shape = CircleShape,
-                            color = CustomColor.primary.copy(alpha = 0.15f),
-                            modifier = Modifier.size(32.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_time),
-                                    contentDescription = null,
-                                    tint = CustomColor.primary,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-                        CustomText(
-                            text = createdDate,
-                            type = CustomTextType.body,
-                            color = CustomColor.primaryDim
+                        // 생성일
+                        InfoRow(
+                            icon = R.drawable.ic_time,
+                            label = "생성일",
+                            value = createdDate
+                        )
+
+                        // 유지 일수
+                        InfoRow(
+                            icon = R.drawable.ic_time,
+                            label = "유지 일수",
+                            value = "${daysActive}째 진행 중"
                         )
                     }
                 }
+            }
+        }
+
+        // 통계 카드
+        item {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // 멤버 수
+                StatCard(
+                    modifier = Modifier.weight(1f),
+                    label = "멤버",
+                    value = "${moimDetails.members.size}명",
+                    icon = R.drawable.ic_people
+                )
+
+                // 평균 친밀도
+                StatCard(
+                    modifier = Modifier.weight(1f),
+                    label = "평균 친밀도",
+                    value = String.format(Locale.getDefault(), "%d점", averageFriendship.toInt()),
+                    icon = R.drawable.ic_favorite
+                )
             }
         }
 
@@ -197,7 +216,7 @@ private fun MeetingDetailContent(
         item {
             Column(
                 verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.padding(top = 12.dp)
+                modifier = Modifier.padding(top = 4.dp)
             ) {
                 CustomText(
                     text = "모임 멤버",
@@ -205,7 +224,7 @@ private fun MeetingDetailContent(
                     color = CustomColor.textPrimary
                 )
                 CustomText(
-                    text = "${moimDetails.members.size}명의 멤버",
+                    text = "함께하는 친구들의 상세 정보",
                     type = CustomTextType.bodySmall,
                     color = CustomColor.textSecondary
                 )
@@ -213,88 +232,140 @@ private fun MeetingDetailContent(
         }
 
         // 멤버 리스트
-        items(moimDetails.members) { member ->
-            MemberCard(member = member)
+        items(membersWithProfiles) { memberWithProfile ->
+            val profile = memberWithProfile.profile
+            val isCurrentUser = memberWithProfile.email == currentUserEmail
+
+            // 모든 멤버 표시 (프로필이 있는 경우에만)
+            if (profile != null) {
+                FriendCard(
+                    friend = FriendProfile(
+                        username = profile.username,
+                        email = memberWithProfile.email,
+                        friendship = profile.friendship,
+                        createdAt = profile.createdAt
+                    ),
+                    isLeader = memberWithProfile.leader,
+                    showDeleteButton = false,
+                    isCurrentUser = isCurrentUser
+                )
+            }
+        }
+
+        // 하단 여백 추가
+        item {
+            Spacer(modifier = Modifier.height(30.dp))
+        }
+
+    }
+}
+
+@Composable
+private fun InfoRow(
+    icon: Int,
+    label: String,
+    value: String
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = CustomColor.primary.copy(alpha = 0.15f),
+            modifier = Modifier.size(36.dp)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    tint = CustomColor.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+        }
+        Column(
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            CustomText(
+                text = label,
+                type = CustomTextType.bodySmall,
+                color = CustomColor.primaryDim.copy(alpha = 0.7f)
+            )
+            CustomText(
+                text = value,
+                type = CustomTextType.body,
+                color = CustomColor.primaryDim
+            )
         }
     }
 }
 
 @Composable
-private fun MemberCard(member: Member) {
+private fun StatCard(
+    modifier: Modifier = Modifier,
+    label: String,
+    value: String,
+    icon: Int
+) {
     Surface(
-        modifier = Modifier.shadow(
+        modifier = modifier.shadow(
             elevation = 1.dp,
             shape = RoundedCornerShape(20.dp),
-            spotColor = CustomColor.gray900.copy(alpha = 0.05f)
+            spotColor = CustomColor.primary.copy(alpha = 0.08f)
         ),
         shape = RoundedCornerShape(20.dp),
         color = CustomColor.white
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Surface(
+                shape = CircleShape,
+                color = CustomColor.primaryContainer,
+                modifier = Modifier.size(48.dp)
             ) {
-                // 아바타
-                Surface(
-                    shape = CircleShape,
-                    color = if (member.leader) {
-                        CustomColor.primaryContainer
-                    } else {
-                        CustomColor.gray100
-                    },
-                    modifier = Modifier.size(48.dp)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        CustomText(
-                            text = member.username.firstOrNull()?.uppercase() ?: "?",
-                            type = CustomTextType.title,
-                            color = if (member.leader) {
-                                CustomColor.primary
-                            } else {
-                                CustomColor.textSecondary
-                            }
-                        )
-                    }
-                }
-
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CustomText(
-                            text = member.username,
-                            type = CustomTextType.body,
-                            color = CustomColor.textPrimary
-                        )
-                        if (member.leader) {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = CustomColor.primary
-                            ) {
-                                CustomText(
-                                    text = "모임장",
-                                    type = CustomTextType.bodySmall,
-                                    color = CustomColor.white,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                                )
-                            }
-                        }
-                    }
-                    CustomText(
-                        text = member.email,
-                        type = CustomTextType.bodySmall,
-                        color = CustomColor.textSecondary
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        painter = painterResource(id = icon),
+                        contentDescription = null,
+                        tint = CustomColor.primary,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                CustomText(
+                    text = value,
+                    type = CustomTextType.title,
+                    color = CustomColor.textPrimary
+                )
+                CustomText(
+                    text = label,
+                    type = CustomTextType.bodySmall,
+                    color = CustomColor.textSecondary
+                )
+            }
         }
+    }
+}
+
+private fun calculateAverageFriendship(members: List<MemberWithProfile>): Double {
+    val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+    val friendships = members
+        .filter { it.email != currentUserEmail } // 본인 제외
+        .mapNotNull { it.profile?.friendship }
+        .map { it.toDouble() }
+    return if (friendships.isNotEmpty()) {
+        friendships.average()
+    } else {
+        0.0
     }
 }

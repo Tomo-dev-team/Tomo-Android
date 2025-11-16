@@ -1,6 +1,7 @@
 package com.markoala.tomoandroid.data.model.moim
 
 data class MoimList(
+    val moimId: Int, // 추가
     val title: String,
     val description: String,
     val peopleCount: Int = 1,
@@ -9,6 +10,7 @@ data class MoimList(
 )
 
 data class MoimListDTO(
+    val moimId: Int,
     val title: String,
     val description: String,
     val peopleCount: Int,
@@ -23,12 +25,12 @@ data class CreateMoimDTO(
 )
 
 data class Member(
-    val username: String,
     val email: String,
     val leader: Boolean
 )
 
 data class MoimDetails(
+    val moimId: Int,
     val title: String,
     val description: String,
     val members: List<Member>,

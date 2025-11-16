@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.markoala.tomoandroid.R
+import com.markoala.tomoandroid.navigation.Screen.MeetingDetail.createRoute
 import com.markoala.tomoandroid.ui.components.BottomNavigationBar
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
@@ -70,7 +71,9 @@ enum class BottomTab(val label: String, @param:DrawableRes val iconRes: Int) {
 @Composable
 fun MainScreen(
     navController: androidx.navigation.NavHostController,
-    onSignOut: () -> Unit
+    onSignOut: () -> Unit,
+    deepLinkInviteCode: String? = null,
+    onInviteCodeConsumed: () -> Unit = {}
 ) {
     val firebaseAuth = remember { FirebaseAuth.getInstance() }
     val firestore = remember { FirebaseFirestore.getInstance() }
@@ -91,6 +94,25 @@ fun MainScreen(
                     email = doc.getString("email") ?: ""
                     userId = doc.getString("uid") ?: ""
                 }
+        }
+    }
+
+    // 딥링크로 초대코드를 받았을 때 친구 추가 화면으로 이동
+    LaunchedEffect(deepLinkInviteCode) {
+        if (deepLinkInviteCode != null) {
+            routingAddFriends = true
+            selectedTab = BottomTab.Affinity
+            onInviteCodeConsumed() // 딥링크 코드 사용 후 초기화
+        }
+    }
+
+    // MeetingDetailScreen에서 뒤로가기(popBackStack) 시 selectedTab을 "모임"으로 복귀
+    LaunchedEffect(navController) {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.route?.contains("meetingDetail", ignoreCase = true) == false) {
+                // MeetingDetailScreen에서 벗어날 때 selectedTab을 "모임"으로 복귀
+                selectedTab = BottomTab.Meetings
+            }
         }
     }
 
@@ -137,7 +159,9 @@ fun MainScreen(
                     AddFriendsScreen(
                         paddingValues = screenPadding,
                         userId = userId,
-                        onBackClick = { routingAddFriends = false }
+                        inviteCode = deepLinkInviteCode,
+                        onBackClick = { routingAddFriends = false },
+                        onInviteCodeConsumed = onInviteCodeConsumed
                     )
                 }
 
@@ -162,9 +186,9 @@ fun MainScreen(
                                 paddingValues = screenPadding,
                                 userName = name,
                                 onPlanMeetingClick = { routingCreateMeeting = true },
-                                onMeetingClick = { moimTitle ->
+                                onMeetingClick = { moimId ->
                                     navController.navigate(
-                                        com.markoala.tomoandroid.navigation.Screen.MeetingDetail.createRoute(moimTitle)
+                                        createRoute(moimId)
                                     )
                                 }
                             )
