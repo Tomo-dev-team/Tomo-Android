@@ -1,5 +1,6 @@
 package com.markoala.tomoandroid.ui.main.friends.add_friends.components
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.markoala.tomoandroid.R
@@ -24,10 +26,15 @@ import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.util.generateInviteCode
+import com.markoala.tomoandroid.util.shareInviteCode
 
 @Composable
-fun ShareInviteSection(userId: String, onCopy: () -> Unit) {
+fun ShareInviteSection( userId: String, onCopy: () -> Unit) {
     val inviteCode = generateInviteCode(userId)
+    val context = LocalContext.current
+    val onShareInviteCode: () -> Unit = {
+        shareInviteCode(context, inviteCode)
+    }
     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
         // 초대 코드 표시 카드
         Surface(
@@ -109,6 +116,12 @@ fun ShareInviteSection(userId: String, onCopy: () -> Unit) {
                     text = "초대 코드 복사",
                     onClick = onCopy,
                     style = ButtonStyle.Primary,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                CustomButton(
+                    text = "공유하기",
+                    onClick = onShareInviteCode,
+                    style = ButtonStyle.Secondary,
                     modifier = Modifier.fillMaxWidth()
                 )
             }

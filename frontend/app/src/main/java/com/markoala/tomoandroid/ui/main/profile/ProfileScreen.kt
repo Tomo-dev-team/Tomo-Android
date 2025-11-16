@@ -38,6 +38,7 @@ import com.markoala.tomoandroid.ui.components.ProfileImage
 import com.markoala.tomoandroid.ui.components.LocalToastManager
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.util.generateInviteCode
+import com.markoala.tomoandroid.util.shareInviteCode
 
 @Composable
 fun ProfileScreen(
@@ -66,17 +67,7 @@ fun ProfileScreen(
     }
 
     val onShareInviteCode: () -> Unit = {
-        val deepLink = "tomoapp://invite/$inviteCode"
-        val shareText = "Tomo 앱에 초대합니다! 🎉\n초대 코드: $inviteCode\n\n초대하러 가기: $deepLink"
-
-        val sendIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, shareText)
-            type = "text/plain"
-        }
-
-        val shareIntent = Intent.createChooser(sendIntent, "초대 코드 공유")
-        context.startActivity(shareIntent)
+        shareInviteCode(context, inviteCode)
     }
 
     Column(
