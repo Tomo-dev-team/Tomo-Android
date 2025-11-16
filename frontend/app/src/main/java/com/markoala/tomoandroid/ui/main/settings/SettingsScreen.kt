@@ -14,11 +14,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -37,6 +34,7 @@ import com.markoala.tomoandroid.ui.components.CustomButton
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.LocalToastManager
+import com.markoala.tomoandroid.ui.components.DangerDialog
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import kotlinx.coroutines.launch
 
@@ -53,49 +51,27 @@ fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
 
     if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { if (!isDeleting) showDeleteDialog = false },
-            containerColor = CustomColor.white,
-            shape = RoundedCornerShape(24.dp),
-            title = {
-                CustomText(text = "계정 삭제", type = CustomTextType.title, color = CustomColor.textPrimary)
-            },
-            text = {
-                CustomText(
-                    text = "정말로 계정을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
-                    type = CustomTextType.body,
-                    color = CustomColor.textSecondary
-                )
-            },
-            confirmButton = {
-                if (isDeleting) {
-                    CircularProgressIndicator(color = CustomColor.danger)
-                } else {
-                    TextButton(onClick = {
-                        isDeleting = true
-                        coroutineScope.launch {
-                            val (success, error) = AuthManager.deleteAccount(context)
-                            isDeleting = false
-                            showDeleteDialog = false
-                            if (success) {
-                                toastManager.showSuccess("계정이 삭제되었습니다.")
-                                onDeleteAccount()
-                            } else {
-                                toastManager.showError(error ?: "계정 삭제에 실패했습니다.")
-                            }
-                        }
-                    }) {
-                        CustomText(text = "삭제", type = CustomTextType.button, color = CustomColor.danger)
+        DangerDialog(
+            title = "계정 삭제",
+            message = "정말로 계정을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
+            confirmText = "삭제",
+            dismissText = "취소",
+            isLoading = isDeleting,
+            onConfirm = {
+                isDeleting = true
+                coroutineScope.launch {
+                    val (success, error) = AuthManager.deleteAccount(context)
+                    isDeleting = false
+                    showDeleteDialog = false
+                    if (success) {
+                        toastManager.showSuccess("계정이 삭제되었습니다.")
+                        onDeleteAccount()
+                    } else {
+                        toastManager.showError(error ?: "계정 삭제에 실패했습니다.")
                     }
                 }
             },
-            dismissButton = {
-                if (!isDeleting) {
-                    TextButton(onClick = { showDeleteDialog = false }) {
-                        CustomText(text = "취소", type = CustomTextType.button, color = CustomColor.textSecondary)
-                    }
-                }
-            }
+            onDismiss = { showDeleteDialog = false }
         )
     }
 

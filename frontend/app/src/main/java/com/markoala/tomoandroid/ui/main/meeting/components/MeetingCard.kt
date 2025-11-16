@@ -13,6 +13,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -22,6 +26,7 @@ import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.data.model.moim.MoimList
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
+import com.markoala.tomoandroid.ui.components.DangerDialog
 import com.markoala.tomoandroid.ui.main.meeting.MeetingViewModel
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.util.getFriendshipDurationText
@@ -36,6 +41,7 @@ fun MeetingCard(
     val homeViewModel: MeetingViewModel = viewModel()
     val createdDate = parseIsoToKoreanDate(meeting.createdAt)
     val friendshipDuration = getFriendshipDurationText(meeting.createdAt ?: "")
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Surface(
         modifier = modifier.clickable { onClick() },
@@ -99,7 +105,7 @@ fun MeetingCard(
             ) {
                 Row(
                     modifier = Modifier
-                        .clickable(onClick = { homeViewModel.deleteMeeting(meeting.moimId) }),
+                        .clickable(onClick = { showDeleteDialog = true }),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
@@ -115,6 +121,19 @@ fun MeetingCard(
                         color = CustomColor.textSecondary
                     )
                 }
+            }
+            if (showDeleteDialog) {
+                DangerDialog(
+                    title = "모임 삭제",
+                    message = "정말로 '${meeting.title}' 모임을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.",
+                    confirmText = "삭제",
+                    dismissText = "취소",
+                    onConfirm = {
+                        homeViewModel.deleteMeeting(meeting.moimId)
+                        showDeleteDialog = false
+                    },
+                    onDismiss = { showDeleteDialog = false }
+                )
             }
         }
     }
