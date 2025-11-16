@@ -17,6 +17,17 @@ fun parseIsoToKoreanDate(iso: String?): String {
     }
     return try {
         Log.d(TAG, "raw createdAt: $iso")
+
+        // "2025-11-16" 형식인 경우 직접 파싱
+        if (iso.matches(Regex("\\d{4}-\\d{2}-\\d{2}"))) {
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            val date = LocalDate.parse(iso, formatter)
+            val out = date.format(DateTimeFormatter.ofPattern("yyyy년 M월 d일", Locale.KOREAN))
+            Log.d(TAG, "formatted date: $out")
+            return out
+        }
+
+        // ISO 8601 전체 형식 처리
         val instant = Instant.parse(iso)
         Log.d(TAG, "parsed Instant (UTC): $instant")
         val zoned = instant.atZone(ZoneId.of("Asia/Seoul"))

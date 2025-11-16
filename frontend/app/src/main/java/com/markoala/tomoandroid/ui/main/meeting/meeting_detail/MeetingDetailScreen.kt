@@ -239,8 +239,8 @@ private fun MeetingDetailContent(
             val profile = memberWithProfile.profile
             val isCurrentUser = memberWithProfile.email == currentUserEmail
 
-            // 본인이 아니고 프로필이 있는 경우에만 표시
-            if (!isCurrentUser && profile != null) {
+            // 모든 멤버 표시 (프로필이 있는 경우에만)
+            if (profile != null) {
                 FriendCard(
                     friend = FriendProfile(
                         username = profile.username,
@@ -249,7 +249,8 @@ private fun MeetingDetailContent(
                         createdAt = profile.createdAt
                     ),
                     isLeader = memberWithProfile.leader,
-                    showDeleteButton = false
+                    showDeleteButton = false,
+                    isCurrentUser = isCurrentUser
                 )
             }
         }

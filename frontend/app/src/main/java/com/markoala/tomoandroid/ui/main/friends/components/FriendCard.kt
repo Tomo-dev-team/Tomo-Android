@@ -45,6 +45,7 @@ fun FriendCard(
     friend: FriendProfile,
     isLeader: Boolean = false,
     showDeleteButton: Boolean = true,
+    isCurrentUser: Boolean = false,
     onFriendDeleted: (() -> Unit)? = null
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
@@ -130,88 +131,90 @@ fun FriendCard(
                 }
             }
 
-            // 친밀도 정보
-            Column(
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                // 친밀도 점수 카드
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = CustomColor.primaryContainer
+            // 친밀도 정보 (본인이 아닐 때만 표시)
+            if (!isCurrentUser) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
+                    // 친밀도 점수 카드
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = CustomColor.primaryContainer
                     ) {
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Surface(
-                                shape = CircleShape,
-                                color = CustomColor.primary.copy(alpha = 0.2f),
-                                modifier = Modifier.size(40.dp)
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        painter = painterResource(id = R.drawable.ic_favorite),
-                                        contentDescription = null,
-                                        tint = CustomColor.primary,
-                                        modifier = Modifier.size(20.dp)
+                                Surface(
+                                    shape = CircleShape,
+                                    color = CustomColor.primary.copy(alpha = 0.2f),
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_favorite),
+                                            contentDescription = null,
+                                            tint = CustomColor.primary,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                }
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    CustomText(
+                                        text = "친밀도 점수",
+                                        type = CustomTextType.bodySmall,
+                                        color = CustomColor.primaryDim
+                                    )
+                                    CustomText(
+                                        text = "${friend.friendship} 점",
+                                        type = CustomTextType.title,
+                                        color = CustomColor.primary
                                     )
                                 }
                             }
-                            Column(
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
+
+                            // 친밀도 레벨 표시
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = getFriendshipLevelColor(friend.friendship)
                             ) {
                                 CustomText(
-                                    text = "친밀도 점수",
+                                    text = getFriendshipLevel(friend.friendship),
                                     type = CustomTextType.bodySmall,
-                                    color = CustomColor.primaryDim
-                                )
-                                CustomText(
-                                    text = "${friend.friendship} 점",
-                                    type = CustomTextType.title,
-                                    color = CustomColor.primary
+                                    color = CustomColor.white,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                                 )
                             }
                         }
+                    }
 
-                        // 친밀도 레벨 표시
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = getFriendshipLevelColor(friend.friendship)
+                    // 친구 된 날짜
+                    if (friend.createdAt.isNotEmpty()) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_time),
+                                contentDescription = null,
+                                tint = CustomColor.textSecondary.copy(alpha = 0.7f),
+                                modifier = Modifier.size(14.dp)
+                            )
                             CustomText(
-                                text = getFriendshipLevel(friend.friendship),
+                                text = "친구 된 날짜: ${parseIsoToKoreanDate(friend.createdAt)}",
                                 type = CustomTextType.bodySmall,
-                                color = CustomColor.white,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                color = CustomColor.textSecondary
                             )
                         }
-                    }
-                }
-
-                // 친구 된 날짜
-                if (friend.createdAt.isNotEmpty()) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_time),
-                            contentDescription = null,
-                            tint = CustomColor.textSecondary.copy(alpha = 0.7f),
-                            modifier = Modifier.size(14.dp)
-                        )
-                        CustomText(
-                            text = "친구 된 날짜: ${parseIsoToKoreanDate(friend.createdAt)}",
-                            type = CustomTextType.bodySmall,
-                            color = CustomColor.textSecondary
-                        )
                     }
                 }
             }
