@@ -1,0 +1,66 @@
+package com.example.tomo.Promise;
+
+import com.example.tomo.Moim.Moim;
+import com.example.tomo.Moim.MoimRepository;
+import com.example.tomo.Users.dtos.ResponsePostUniformDto;
+import com.example.tomo.global.Exception.DuplicatedException;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+@Service
+@RequiredArgsConstructor
+public class PromiseService {
+
+    private final PromiseRepository promiseRepository;
+    private final MoimRepository moimRepository;
+
+
+    // 약속 생성하기
+    // 같은 날짜 같은 시간에 약속 존재 시에도 오류 발생
+    public ResponsePostUniformDto addPromise(addPromiseRequestDTO dto){
+
+        Moim moim = moimRepository.findByTitle(dto.getTitle())
+                .orElseThrow(() -> new EntityNotFoundException("모임 생성 후 약속을 만들어 주세요"));
+
+         if(promiseRepository.existsByPromiseName(dto.getPromiseName()) &&
+                 promiseRepository.existsByPromiseDateAndPromiseTime(dto.getPromiseDate(),dto.getPromiseTime())) {
+             throw new DuplicatedException("이미 존재하는 약속입니다");
+         }
+
+         Promise promise = new Promise(
+                 dto.getPromiseName(),
+                 dto.getPlace(),
+                 dto.getPromiseTime(),
+                 dto.getPromiseDate());
+
+         promise.setMoimBasedPromise(moim);
+
+         promiseRepository.save(promise);
+         return new ResponsePostUniformDto(true , promise.getPromiseName() + " 약속이 생성되었습니다");
+    }
+
+    // 약속 단일 조회하기 promise_name
+    public ResponseGetPromiseDto getPromise(String promiseName){
+        Promise promise = promiseRepository.findByPromiseName(promiseName)
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 약속입니다"));
+
+        return new ResponseGetPromiseDto(promise.getPromiseName(),promise.getPromiseDate(),
+        promise.getPromiseTime(),promise.getLocation());
+
+
+    }
+    public List<ResponseGetPromiseDto> getAllPromise(String title){
+        Optional<Moim> moim = moimRepository.findByTitle(title);
+        if(moim.isPresent()){
+            return promiseRepository.findByMoimId(moim.get().getId());
+        }
+        else{
+            throw new EntityNotFoundException("모임에 약속이 존재하지 않습니다");
+        }
+    }
+
+}
