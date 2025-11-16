@@ -19,7 +19,7 @@ interface FriendsApi {
 
     @GET("/public/friends")
     fun getFriends(
-        @Query("email") email: String
+        @Query("query") email: String
     ): Call<BaseResponse<FriendSummary>>
 
     @DELETE("/public/friends")
