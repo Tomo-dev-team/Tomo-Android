@@ -110,12 +110,40 @@ fun FriendCard(
                             if (isLeader) {
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
-                                    color = CustomColor.primary
+                                    color = CustomColor.secondary
                                 ) {
                                     CustomText(
                                         text = "모임장",
                                         type = CustomTextType.bodySmall,
                                         color = CustomColor.white,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                            // 본인 뱃지
+                            if (isCurrentUser) {
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = CustomColor.primary
+                                ) {
+                                    CustomText(
+                                        text = "본인",
+                                        type = CustomTextType.bodySmall,
+                                        color = CustomColor.white,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                            // 친구 아님 뱃지 (본인이 아니고 친밀도가 0인 경우)
+                            if (!isCurrentUser && friend.friendship == 0) {
+                                Surface(
+                                    shape = RoundedCornerShape(8.dp),
+                                    color = CustomColor.textSecondary.copy(alpha = 0.2f)
+                                ) {
+                                    CustomText(
+                                        text = "친구아님",
+                                        type = CustomTextType.bodySmall,
+                                        color = CustomColor.textSecondary,
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                     )
                                 }

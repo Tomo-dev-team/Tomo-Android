@@ -69,6 +69,7 @@ fun MeetingDetailScreen(
             .fillMaxSize()
             .background(CustomColor.background)
             .windowInsetsPadding(WindowInsets.statusBars)
+            .padding(bottom = 30.dp) // 최하단 바텀 여백 추가
     ) {
         when {
             isLoading -> {
@@ -107,6 +108,7 @@ fun MeetingDetailScreen(
                     onBackClick = onBackClick
                 )
             }
+
         }
     }
 }
@@ -255,10 +257,11 @@ private fun MeetingDetailContent(
             }
         }
 
-        // 하단 여백
+        // 하단 여백 추가
         item {
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(30.dp))
         }
+
     }
 }
 
