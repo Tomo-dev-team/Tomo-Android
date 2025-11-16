@@ -44,7 +44,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.NavDestination
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.markoala.tomoandroid.R
@@ -102,6 +102,16 @@ fun MainScreen(
         if (deepLinkInviteCode != null) {
             routingAddFriends = true
             selectedTab = BottomTab.Affinity
+        }
+    }
+
+    // MeetingDetailScreen에서 뒤로가기(popBackStack) 시 selectedTab을 "모임"으로 복귀
+    LaunchedEffect(navController) {
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.route?.contains("meetingDetail", ignoreCase = true) == false) {
+                // MeetingDetailScreen에서 벗어날 때 selectedTab을 "모임"으로 복귀
+                selectedTab = BottomTab.Meetings
+            }
         }
     }
 
