@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.markoala.tomoandroid.auth.AuthManager
+import com.markoala.tomoandroid.auth.AuthManager.FirebaseSignInResult
+import com.markoala.tomoandroid.auth.AuthManager.ServerLoginResult
 import com.markoala.tomoandroid.data.repository.AuthRepository
 import com.markoala.tomoandroid.data.repository.UserRepository
 import com.markoala.tomoandroid.ui.components.ToastManager
@@ -51,11 +53,10 @@ object GoogleSignInCoordinator {
 
             is GoogleIdTokenResult.Success -> {
                 coroutineScope.launch {
-                    proceedWithFirebase(
-                        idToken = tokenResult.idToken,
+                    handleFirebaseAndServerLogin(
+                        googleIdToken = tokenResult.idToken,
                         context = context,
                         toastManager = toastManager,
-                        coroutineScope = coroutineScope,
                         setLoading = setLoading,
                         onSignedIn = onSignedIn
                     )
@@ -64,49 +65,80 @@ object GoogleSignInCoordinator {
         }
     }
 
-    private suspend fun proceedWithFirebase(
-        idToken: String,
+    private suspend fun handleFirebaseAndServerLogin(
+        googleIdToken: String,
         context: Context,
         toastManager: ToastManager,
-        coroutineScope: CoroutineScope,
         setLoading: (Boolean) -> Unit,
         onSignedIn: () -> Unit
     ) {
-        AuthManager.firebaseAuthWithGoogle(idToken, context) { success, error ->
-            if (success) {
-                coroutineScope.launch {
-                    try {
-                        val userProfile = AuthRepository.getCurrentUserProfile()
-                        if (userProfile == null) {
-                            toastManager.showError("사용자 프로필을 가져올 수 없습니다")
-                            return@launch
+        try {
+            when (val firebaseResult = AuthManager.signInWithGoogleIdToken(googleIdToken)) {
+                is FirebaseSignInResult.Success -> {
+                    val firebaseToken = firebaseResult.firebaseIdToken
+                    when (val serverResult = AuthManager.loginWithFirebaseToken(firebaseToken, context)) {
+                        ServerLoginResult.Success -> {
+                            toastManager.showSuccess("로그인 성공")
+                            onSignedIn()
                         }
 
-                        val exists = AuthRepository.checkUserExists(userProfile.uuid)
-                        if (!exists) {
-                            AuthRepository.signUp(userProfile)
-                            UserRepository.saveUserToFirestore(userProfile)
-                            toastManager.showSuccess("회원가입 성공")
-                        } else {
-                            toastManager.showSuccess("로그인 성공")
+                        ServerLoginResult.NeedsSignup -> {
+                            handleServerSignupAndRetry(
+                                firebaseToken = firebaseToken,
+                                context = context,
+                                toastManager = toastManager,
+                                onSignedIn = onSignedIn
+                            )
                         }
-                        onSignedIn()
-                    } catch (e: Exception) {
-                        Log.e(TAG, "사용자 프로필 처리 실패: ${e.message}", e)
-                        toastManager.showError("사용자 프로필 처리 실패: ${e.message}")
-                    } finally {
-                        setLoading(false)
+
+                        is ServerLoginResult.Failure -> {
+                            toastManager.showError(serverResult.message ?: "서버 로그인에 실패했습니다")
+                        }
                     }
                 }
-            } else {
-                Log.e(TAG, "Firebase 인증 또는 토큰 교환 실패: $error")
-                val errorMessage = when (error) {
-                    "TOKEN_EXPIRED" -> "Google 로그인 세션이 만료되었습니다. 다시 시도해주세요."
-                    else -> "로그인 실패: $error"
+
+                FirebaseSignInResult.CredentialExpired -> {
+                    toastManager.showError("Google 로그인 세션이 만료되었습니다. 다시 시도해주세요.")
                 }
-                toastManager.showError(errorMessage)
-                setLoading(false)
+
+                is FirebaseSignInResult.Failure -> {
+                    toastManager.showError(firebaseResult.message ?: "Firebase 로그인에 실패했습니다")
+                }
             }
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    private suspend fun handleServerSignupAndRetry(
+        firebaseToken: String,
+        context: Context,
+        toastManager: ToastManager,
+        onSignedIn: () -> Unit
+    ) {
+        val userProfile = AuthRepository.getCurrentUserProfile()
+        if (userProfile == null) {
+            toastManager.showError("사용자 프로필을 가져올 수 없습니다")
+            return
+        }
+
+        try {
+            val signupResponse = AuthRepository.signUp(userProfile)
+            if (signupResponse.isSuccessful) {
+                UserRepository.saveUserToFirestore(userProfile)
+                val retryResult = AuthManager.loginWithFirebaseToken(firebaseToken, context)
+                if (retryResult is ServerLoginResult.Success) {
+                    toastManager.showSuccess("회원가입 성공")
+                    onSignedIn()
+                } else if (retryResult is ServerLoginResult.Failure) {
+                    toastManager.showError(retryResult.message ?: "회원가입 후 로그인에 실패했습니다")
+                }
+            } else {
+                toastManager.showError("회원가입에 실패했습니다: ${signupResponse.code()}")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "회원가입 처리 실패", e)
+            toastManager.showError("회원가입 처리 실패: ${e.localizedMessage}")
         }
     }
 }
