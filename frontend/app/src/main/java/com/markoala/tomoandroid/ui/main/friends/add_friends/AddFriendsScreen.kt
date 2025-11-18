@@ -83,8 +83,14 @@ fun AddFriendsScreen(
             },
             onError = { error ->
                 searchResults = emptyList()
-                errorMessage = error
-                toastManager.showWarning(error)
+                // 404 에러 메시지에 대한 사용자 친화적 안내
+                if (error.contains("404")) {
+                    errorMessage = "해당 사용자를 찾을 수 없습니다."
+                    toastManager.showInfo("해당 사용자를 찾을 수 없습니다.")
+                } else {
+                    errorMessage = error
+                    toastManager.showWarning(error)
+                }
             }
         )
     }
