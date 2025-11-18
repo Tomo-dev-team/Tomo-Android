@@ -83,13 +83,20 @@ fun AddFriendsScreen(
             },
             onError = { error ->
                 searchResults = emptyList()
-                // 404 에러 메시지에 대한 사용자 친화적 안내
-                if (error.contains("404")) {
-                    errorMessage = "해당 사용자를 찾을 수 없습니다."
-                    toastManager.showInfo("해당 사용자를 찾을 수 없습니다.")
-                } else {
-                    errorMessage = error
-                    toastManager.showWarning(error)
+                when {
+                    error.contains("404") -> {
+                        errorMessage = "해당 사용자를 찾을 수 없습니다."
+                        toastManager.showInfo("해당 사용자를 찾을 수 없습니다.")
+                    }
+                    error.contains("400") -> {
+                        val backendMessage = "이메일 또는 초대코드 중 하나는 반드시 입력해야 합니다."
+                        errorMessage = backendMessage
+                        toastManager.showInfo(backendMessage)
+                    }
+                    else -> {
+                        errorMessage = error
+                        toastManager.showWarning(error)
+                    }
                 }
             }
         )
