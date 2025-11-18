@@ -105,7 +105,7 @@ fun MainScreen(
 
     fun pop() {
         if (backStack.size > 1) {
-            backStack.removeLast()
+            backStack.removeAt(backStack.lastIndex)
         }
     }
 
