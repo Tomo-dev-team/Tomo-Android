@@ -17,7 +17,7 @@ class FriendsRepository {
         email: String,
         onLoading: (Boolean) -> Unit,
         onSuccess: (List<FriendSummary>) -> Unit,
-        onError: (String) -> Unit
+        onError: (statusCode: Int?, message: String) -> Unit
     ) {
         Log.d("FriendsRepository", "getFriends 시작 - 입력된 이메일: $email")
 
@@ -57,7 +57,7 @@ class FriendsRepository {
                         onSuccess(listOf(result.data)) // 단일 객체를 리스트로 변환
                     } else {
                         Log.w("FriendsRepository", "친구 검색 실패")
-                        onError(result?.message ?: "친구를 찾을 수 없습니다")
+                        onError(response.code(), result?.message ?: "친구를 찾을 수 없습니다")
                     }
                 } else {
                     Log.e("FriendsRepository", "HTTP 응답 실패 - 코드: ${response.code()}")
@@ -66,14 +66,14 @@ class FriendsRepository {
 
                     // HTTP 상태 코드에 따른 구체적인 에러 메시지 생성
                     val errorResult = ErrorHandler.handleHttpError(response.code(), errorBody)
-                    onError(errorResult.message)
+                    onError(response.code(), errorResult.message)
                 }
             }
 
             override fun onFailure(call: Call<BaseResponse<FriendSummary>>, t: Throwable) {
                 Log.e("FriendsRepository", "getFriends API 요청 실패", t)
                 onLoading(false)
-                onError("네트워크 오류가 발생했습니다")
+                onError(null, "네트워크 오류가 발생했습니다")
             }
         })
     }
