@@ -165,19 +165,7 @@ fun FriendCard(
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                     )
                                 }
-                                Surface(
-                                    shape = RoundedCornerShape(8.dp),
-                                    color = CustomColor.primary.copy(alpha = 0.8f),
-                                    modifier = Modifier
-                                        .clickable { addFriend(friend.email) }
-                                ) {
-                                    CustomText(
-                                        text = "친구추가",
-                                        type = CustomTextType.bodySmall,
-                                        color = CustomColor.white,
-                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
-                                    )
-                                }
+
                             }
                         }
                         CustomText(
@@ -302,6 +290,28 @@ fun FriendCard(
                     }
                 }
             }
+            if (!isCurrentUser && friend.createdAt.isEmpty()) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = CustomColor.primary.copy(alpha = 0.8f),
+                        modifier = Modifier.clickable { addFriend(friend.email) }
+                    ) {
+                        CustomText(
+                            text = "친구추가",
+                            type = CustomTextType.bodySmall,
+                            color = CustomColor.white,
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+
+                    }
+                }
+            }
+
         }
     }
 
