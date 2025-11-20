@@ -81,10 +81,23 @@ fun AddFriendsScreen(
                     toastManager.showSuccess("사용자를 찾았습니다.")
                 }
             },
-            onError = { error ->
+            onError = { statusCode, error ->
                 searchResults = emptyList()
-                errorMessage = error
-                toastManager.showWarning(error)
+                when (statusCode) {
+                    400 -> {
+                        errorMessage = "입력한 값이 정확하지 않습니다."
+                        toastManager.showInfo("이메일 또는 초대코드 중 하나는 반드시 입력해야 합니다.")
+                    }
+                    404 -> {
+                        val message = "해당 사용자를 찾을 수 없습니다."
+                        errorMessage = message
+                        toastManager.showInfo(message)
+                    }
+                    else -> {
+                        errorMessage = error
+                        toastManager.showError(error)
+                    }
+                }
             }
         )
     }
