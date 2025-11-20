@@ -369,11 +369,11 @@ private fun getFriendshipLevel(score: Int): String {
 // 친밀도 레벨에 따른 색상 반환
 private fun getFriendshipLevelColor(score: Int): Color {
     return when {
-        score >= 200 -> Color(0xFFD97A7A) // 따뜻한 로즈 (최고의 친구)
-        score >= 100 -> Color(0xFFE89A67) // 피치 코랄 (절친)
-        score >= 30 -> Color(0xFFD9B559) // 허니 머스터드 (좋은 친구)
-        score >= 20 -> Color(0xFFA6C48A) // 소프트 올리브 그린 (친구)
-        score >= 10 -> Color(0xFF9FBFAD) // 세이지 미스트 (아는 사이)
+        score >= 100 -> Color(0xFFD97A7A) // 따뜻한 로즈 (최고의 친구)
+        score >= 50 -> Color(0xFFE89A67) // 피치 코랄 (절친)
+        score >= 20 -> Color(0xFFD9B559) // 허니 머스터드 (좋은 친구)
+        score >= 10 -> Color(0xFFA6C48A) // 소프트 올리브 그린 (친구)
+        score >= 5 -> Color(0xFF9FBFAD) // 세이지 미스트 (아는 사이)
         else -> Color(0xFFC9C5C1) // 웜 라이트 그레이 (새로운 친구)
     }
 }
