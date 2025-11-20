@@ -30,6 +30,7 @@ import com.markoala.tomoandroid.data.api.friendsApi
 import com.markoala.tomoandroid.data.model.friends.FriendProfile
 import com.markoala.tomoandroid.data.model.friends.FriendSummary
 import com.markoala.tomoandroid.data.model.user.BaseResponse
+import com.markoala.tomoandroid.data.repository.friends.FriendsRepository
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.LocalToastManager
@@ -49,6 +50,21 @@ fun FriendCard(
 ) {
     var showDeleteDialog by remember { mutableStateOf(false) }
     val toastManager = LocalToastManager.current
+
+    val friendsRepository = remember { FriendsRepository() }
+
+    fun addFriend(email: String) {
+        friendsRepository.postFriends(
+            email = email,
+            onLoading = { loading -> loading },
+            onSuccess = {
+                toastManager.showSuccess("친구가 성공적으로 추가되었습니다!")
+            },
+            onError = { error ->
+                toastManager.showWarning(error)
+            }
+        )
+    }
 
     Surface(
         modifier = Modifier.shadow(
@@ -124,7 +140,7 @@ fun FriendCard(
                             if (isCurrentUser) {
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
-                                    color = CustomColor.primary
+                                    color = CustomColor.primary.copy(alpha = 0.5f)
                                 ) {
                                     CustomText(
                                         text = "본인",
@@ -149,12 +165,14 @@ fun FriendCard(
                                 }
                                 Surface(
                                     shape = RoundedCornerShape(8.dp),
-                                    color = CustomColor.textSecondary.copy(alpha = 0.2f)
+                                    color = CustomColor.primary.copy(alpha = 0.8f),
+                                    modifier = Modifier
+                                        .clickable { addFriend(friend.email) }
                                 ) {
                                     CustomText(
                                         text = "친구추가",
                                         type = CustomTextType.bodySmall,
-                                        color = CustomColor.textSecondary,
+                                        color = CustomColor.white,
                                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                                     )
                                 }
