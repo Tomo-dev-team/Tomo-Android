@@ -42,6 +42,7 @@ import com.markoala.tomoandroid.util.parseIsoToKoreanDate
 import java.util.Locale
 import com.google.firebase.auth.FirebaseAuth
 import com.markoala.tomoandroid.ui.components.CustomBack
+import com.markoala.tomoandroid.ui.components.LoadingDialog
 import com.markoala.tomoandroid.util.getFriendshipDurationText
 
 @Composable
@@ -72,12 +73,7 @@ fun MeetingDetailScreen(
     ) {
         when {
             isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = CustomColor.primary)
-                }
+                LoadingDialog()
             }
 
             errorMessage != null -> {
