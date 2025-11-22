@@ -7,6 +7,8 @@ import com.markoala.tomoandroid.ui.main.BottomTab
 import com.markoala.tomoandroid.ui.main.MainNavigator
 import com.markoala.tomoandroid.ui.main.MainStackEntry
 import com.markoala.tomoandroid.ui.main.MainViewModel
+import com.markoala.tomoandroid.ui.main.calendar.CalendarScreen
+import com.markoala.tomoandroid.ui.main.calendar.calendar_detail.CalendarDetailScreen
 import com.markoala.tomoandroid.ui.main.friends.AddFriendsScreen
 import com.markoala.tomoandroid.ui.main.home.HomeScreen
 import com.markoala.tomoandroid.ui.main.friends.FriendsScreen
@@ -28,6 +30,7 @@ fun MainScreenRenderer(
 ) {
     when (entry) {
 
+
         is MainStackEntry.Tab -> when (entry.tab) {
 
             BottomTab.Home -> HomeScreen(
@@ -46,6 +49,14 @@ fun MainScreenRenderer(
                 onPlanMeetingClick = { navigator.push(MainStackEntry.CreateMeeting) },
                 onMeetingClick = { moimId -> navigator.push(MainStackEntry.MeetingDetail(moimId)) }
             )
+            BottomTab.Calendar -> CalendarScreen(
+                paddingValues = padding,
+                onEventClick = { eventId ->
+                    navigator.push(MainStackEntry.CalendarDetail(eventId))
+                }
+            )
+
+
 
             BottomTab.Affinity -> FriendsScreen(
                 paddingValues = padding,
@@ -89,5 +100,12 @@ fun MainScreenRenderer(
             userId = userInfo.userId,
             onClose = { navigator.pop() }
         )
+
+        is MainStackEntry.CalendarDetail -> CalendarDetailScreen(
+            eventId = entry.eventId,
+            onBackClick = { navigator.pop() }
+        )
+
+
     }
 }

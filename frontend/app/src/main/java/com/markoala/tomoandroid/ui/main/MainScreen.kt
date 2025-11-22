@@ -17,6 +17,7 @@ import com.markoala.tomoandroid.ui.main.components.MainScreenRenderer
 enum class BottomTab(val label: String, @param:DrawableRes val iconRes: Int) {
     Home("홈", R.drawable.ic_home),
     Meetings("모임", R.drawable.ic_friends),
+    Calendar("캘린더", R.drawable.ic_timeline),
     Affinity("친구", R.drawable.ic_profile),
     Settings("설정", R.drawable.ic_setting)
 }
@@ -78,6 +79,7 @@ fun MainScreen(
 sealed interface MainStackEntry {
     data class Tab(val tab: BottomTab) : MainStackEntry
     data class MeetingDetail(val moimId: Int) : MainStackEntry
+    data class CalendarDetail(val eventId: Int) : MainStackEntry
     data class AddFriends(val inviteCode: String? = null) : MainStackEntry
     object CreateMeeting : MainStackEntry
     object Profile : MainStackEntry
