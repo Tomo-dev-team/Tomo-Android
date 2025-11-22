@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.markoala.tomoandroid.R
+import com.markoala.tomoandroid.ui.components.LoadingDialog
 import com.markoala.tomoandroid.ui.components.LocalToastManager
 import com.markoala.tomoandroid.utils.auth.GoogleSignInCoordinator
 import kotlinx.coroutines.launch
@@ -49,6 +50,10 @@ fun GoogleSignUpButton(onSignedIn: () -> Unit) {
                 onSignedIn = onSignedIn
             )
         }
+    }
+
+    if (isLoading) {
+        LoadingDialog()
     }
 
     // Google 버튼 가이드라인 색상 (라이트 테마 기준) :contentReference[oaicite:2]{index=2}
