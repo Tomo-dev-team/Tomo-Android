@@ -3,7 +3,6 @@ package com.markoala.tomoandroid.ui.main.meeting
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.markoala.tomoandroid.data.api.MoimsApiService
-import com.markoala.tomoandroid.data.model.moim.MoimList
 import com.markoala.tomoandroid.data.model.moim.MoimListDTO
 import com.markoala.tomoandroid.data.model.user.BaseResponse
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,8 +11,8 @@ import kotlinx.coroutines.launch
 import retrofit2.awaitResponse
 
 class MeetingViewModel : ViewModel() {
-    private val _meetings = MutableStateFlow<List<MoimList>>(emptyList())
-    val meetings: StateFlow<List<MoimList>> = _meetings
+    private val _meetings = MutableStateFlow<List<MoimListDTO>>(emptyList())
+    val meetings: StateFlow<List<MoimListDTO>> = _meetings
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -31,7 +30,7 @@ class MeetingViewModel : ViewModel() {
                     val body: BaseResponse<List<MoimListDTO>>? = response.body()
                     val meetings = body?.data ?: emptyList()
                     _meetings.value = meetings.map {
-                        MoimList(
+                        MoimListDTO(
                             moimId = it.moimId, // 추가
                             title = it.title,
                             description = it.description,

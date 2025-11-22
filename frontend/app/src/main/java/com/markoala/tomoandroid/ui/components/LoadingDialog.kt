@@ -19,33 +19,32 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.window.Popup
 
 @Composable
 fun LoadingDialog() {
-    Dialog(
-        onDismissRequest = {},
-        properties = androidx.compose.ui.window.DialogProperties(
-            usePlatformDefaultWidth = false
-        )
+    Popup(
+        alignment = Alignment.Center,
+        onDismissRequest = { /* ignore */ }
     ) {
-        // 🔥 전체를 아주 은은하게 어둡게 처리
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color(0x08000000)), // 훨씬 연한 dim
+                .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            MorphingDots() // 🔥 점만 단독 표시
+            MorphingDots()
         }
     }
 }
+
 
 /**
  * 부드럽게 크기가 변하면서 이어지는 3개의 점 애니메이션
  * Vibrant / fluid / smooth 느낌
  */
 @Composable
-private fun MorphingDots() {
+fun MorphingDots() {
     val infiniteTransition = rememberInfiniteTransition(label = "dots")
 
     val scale1 by infiniteTransition.animateFloat(

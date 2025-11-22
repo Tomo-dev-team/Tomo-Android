@@ -1,14 +1,5 @@
 package com.markoala.tomoandroid.data.model.moim
 
-data class MoimList(
-    val moimId: Int, // 추가
-    val title: String,
-    val description: String,
-    val peopleCount: Int = 1,
-    val leader: Boolean,
-    val createdAt: String?,
-)
-
 data class MoimListDTO(
     val moimId: Int,
     val title: String,
