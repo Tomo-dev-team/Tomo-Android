@@ -1,39 +1,18 @@
 package com.markoala.tomoandroid.ui.main
 
 import androidx.annotation.DrawableRes
-import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScaffoldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.activity.compose.BackHandler
 import androidx.navigation.NavHostController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.markoala.tomoandroid.R
-import com.markoala.tomoandroid.ui.main.components.BottomNavigationBar
 import com.markoala.tomoandroid.ui.main.components.ChromeScaffold
-import com.markoala.tomoandroid.ui.main.components.MainHeader
 import com.markoala.tomoandroid.ui.main.components.MainScreenRenderer
-import com.markoala.tomoandroid.ui.main.friends.AddFriendsScreen
-import com.markoala.tomoandroid.ui.main.friends.FriendsScreen
-import com.markoala.tomoandroid.ui.main.home.HomeScreen
-import com.markoala.tomoandroid.ui.main.meeting.create_meeting.CreateMeetingScreen
-import com.markoala.tomoandroid.ui.main.meeting.MeetingScreen
-import com.markoala.tomoandroid.ui.main.meeting.meeting_detail.MeetingDetailScreen
-import com.markoala.tomoandroid.ui.main.profile.ProfileScreen
-import com.markoala.tomoandroid.ui.main.settings.SettingsScreen
-import com.markoala.tomoandroid.ui.theme.CustomColor
 
 enum class BottomTab(val label: String, @param:DrawableRes val iconRes: Int) {
     Home("홈", R.drawable.ic_home),

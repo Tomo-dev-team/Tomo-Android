@@ -16,9 +16,7 @@ import com.google.firebase.ktx.Firebase
 import com.markoala.tomoandroid.data.api.userApi
 import com.markoala.tomoandroid.data.repository.AuthRepository
 import com.markoala.tomoandroid.utils.auth.TokenManager
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 
