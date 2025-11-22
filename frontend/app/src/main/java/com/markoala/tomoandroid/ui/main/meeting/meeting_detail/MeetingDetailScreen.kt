@@ -1,6 +1,7 @@
 package com.markoala.tomoandroid.ui.main.meeting.meeting_detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,7 +68,7 @@ fun MeetingDetailScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CustomColor.background)
+            .background(CustomColor.white)
             .windowInsetsPadding(WindowInsets.statusBars)
             .padding(bottom = 30.dp)
     ) {
@@ -198,7 +199,11 @@ private fun MeetingDetailContent(
             ) {
                 // 멤버 수
                 StatCard(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).border(
+                        width = 1.dp,
+                        color = CustomColor.gray200,
+                        shape = RoundedCornerShape(24.dp)
+                    ),
                     label = "멤버",
                     value = "${moimDetails.members.size}명",
                     icon = R.drawable.ic_people
@@ -206,7 +211,11 @@ private fun MeetingDetailContent(
 
                 // 평균 친밀도
                 StatCard(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).border(
+                        width = 1.dp,
+                        color = CustomColor.gray200,
+                        shape = RoundedCornerShape(24.dp)
+                    ),
                     label = "평균 친밀도",
                     value = String.format(Locale.getDefault(), "%d점", averageFriendship.toInt()),
                     icon = R.drawable.ic_favorite
