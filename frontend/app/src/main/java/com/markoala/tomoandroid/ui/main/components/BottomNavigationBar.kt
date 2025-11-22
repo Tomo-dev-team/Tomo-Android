@@ -1,4 +1,4 @@
-package com.markoala.tomoandroid.ui.components
+package com.markoala.tomoandroid.ui.main.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Icon
@@ -11,6 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.markoala.tomoandroid.ui.components.CustomText
+import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.main.BottomTab
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
