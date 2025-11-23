@@ -47,25 +47,20 @@ import java.time.YearMonth
 
 @Composable
 fun TomoCalendar(
+    events: Map<LocalDate, List<MoimListDTO>>,
     currentMonth: YearMonth,
     selectedDate: LocalDate,
-    primaryBrown: Color,
-    espressoText: Color,
-    secondaryText: Color,
-    primary200: Color,
-    primary400: Color,
-    cardIvory: Color,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onDateSelected: (LocalDate) -> Unit,
-    events: Map<LocalDate, List<MoimListDTO>>,
+
 ){
     Surface(
         modifier = Modifier
             .fillMaxWidth()
             .padding(top = 12.dp)
             .border(1.dp, CustomColor.primary100, RoundedCornerShape(20.dp)),
-        color = cardIvory,
+        color = Color(0xFFFAF7F4),
         shape = RoundedCornerShape(20.dp),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -73,27 +68,23 @@ fun TomoCalendar(
 
             MonthHeader(
                 currentMonth = currentMonth,
-                primaryBrown = primaryBrown,
-                espressoText = espressoText,
+                primaryBrown = CustomColor.primary,
+                espressoText = CustomColor.primaryDim,
                 onPreviousMonth = onPreviousMonth,
                 onNextMonth = onNextMonth
             )
 
             Spacer(Modifier.height(16.dp))
-            WeekdayHeader(secondaryText = secondaryText, primaryBrown = primaryBrown)
+            WeekdayHeader(secondaryText = CustomColor.gray300, primaryBrown = CustomColor.primaryDim)
             Spacer(Modifier.height(12.dp))
 
 
             MonthlyCalendarGrid(
+                events = events,
                 currentMonth = currentMonth,
                 selectedDate = selectedDate,
-                primaryBrown = primaryBrown,
-                primary200 = primary200,
-                primary400 = primary400,
-                espressoText = espressoText,
-                secondaryText = secondaryText,
                 onDateSelected = onDateSelected,
-                events = events,
+
             )
         }
     }
@@ -177,11 +168,6 @@ private fun WeekdayHeader(secondaryText: Color, primaryBrown: Color) {
 private fun MonthlyCalendarGrid(
     currentMonth: YearMonth,
     selectedDate: LocalDate,
-    primaryBrown: Color,
-    primary200: Color,
-    primary400: Color,
-    espressoText: Color,
-    secondaryText: Color,
     onDateSelected: (LocalDate) -> Unit,
     events: Map<LocalDate, List<MoimListDTO>>,
 ) {
@@ -205,7 +191,6 @@ private fun MonthlyCalendarGrid(
                         isCurrentMonth = inMonth,
                         isToday = isToday,
                         isWeekend = isWeekend,
-                        hasEvent = hasEvent,
                         events = events[date],   // ⬅️ 해당 날짜의 모임 데이터 전달
                         onClick = { if (inMonth) onDateSelected(date) }
 
@@ -222,7 +207,6 @@ private fun RowScope.CalendarDayCell(
     isCurrentMonth: Boolean,
     isToday: Boolean,
     isWeekend: Boolean,
-    hasEvent: Boolean,
     events: List<MoimListDTO>?,
     onClick: () -> Unit
 ) {
@@ -234,9 +218,8 @@ private fun RowScope.CalendarDayCell(
         label = "scale"
     )
 
-    val dayCircleSize = 28.dp  // ⬅ 날짜 원 크기統一 (가로=세로)
+    val dayCircleSize = 28.dp
 
-    // 글자 색
     val textColor =
         when {
             isToday -> CustomColor.white
@@ -244,9 +227,11 @@ private fun RowScope.CalendarDayCell(
             else -> CustomColor.textPrimary
         }
 
-    // 모임명 4글자 추출
-    val eventTitle = events?.firstOrNull()?.title
-    val badgeLabel = eventTitle?.take(4)
+    // ⬅ 여러개 모임 처리: 최대 3개, 앞 4글자 제한
+    val badges = events
+        ?.take(3)
+        ?.map { it.title.take(4) }
+        ?: emptyList()
 
     Column(
         modifier = Modifier
@@ -262,10 +247,10 @@ private fun RowScope.CalendarDayCell(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        // 날짜 숫자 원형 배경
+        // 날짜 원
         Box(
             modifier = Modifier
-                .size(dayCircleSize)                                   // ⬅ 모든 날짜 동일한 원 크기
+                .size(dayCircleSize)
                 .background(
                     if (isToday) CustomColor.primary300 else Color.Transparent,
                     CircleShape
@@ -280,8 +265,9 @@ private fun RowScope.CalendarDayCell(
             )
         }
 
-        // badge
-        if (hasEvent && badgeLabel != null) {
+        // 뱃지 렌더링 (여러개)
+        badges.forEach { label ->
+            Spacer(modifier = Modifier.height(2.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -290,15 +276,13 @@ private fun RowScope.CalendarDayCell(
                 contentAlignment = Alignment.Center
             ) {
                 CustomText(
-                    text = badgeLabel,
+                    text = label,
                     color = CustomColor.primary400,
                     fontSize = 10.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(all= 2.dp)
+                    modifier = Modifier.padding(vertical = 2.dp),
+                    textAlign = TextAlign.Center
                 )
             }
         }
     }
 }
-
-

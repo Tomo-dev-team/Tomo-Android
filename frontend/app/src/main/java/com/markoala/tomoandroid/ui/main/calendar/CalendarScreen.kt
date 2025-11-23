@@ -33,13 +33,6 @@ fun CalendarScreen(
     onEventClick: (Int) -> Unit = {}
 ) {
     val cardIvory = Color(0xFFFAF7F4)
-    val primaryBrown = Color(0xFF9A775A)
-
-    val espressoText = CustomColor.textPrimary
-    val secondaryText = Color(0xFF8F8A85)
-
-    val primary200 = CustomColor.primary200
-    val primary400 = CustomColor.primary400
 
     val today = LocalDate.now()
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
@@ -58,6 +51,14 @@ fun CalendarScreen(
                 }.getOrNull()
             }
             .groupBy({ it.first }, { it.second })
+    }
+
+
+    LaunchedEffect(eventMap) {
+        println("🔥 eventMap =")
+        eventMap.forEach { (date, list) ->
+            println("$date -> ${list.map { it.title }}")
+        }
     }
 
 
@@ -90,12 +91,6 @@ fun CalendarScreen(
         TomoCalendar(
             currentMonth = currentMonth,
             selectedDate = selectedDate,
-            primaryBrown = primaryBrown,
-            espressoText = espressoText,
-            secondaryText = secondaryText,
-            primary200 = primary200,
-            primary400 = primary400,
-            cardIvory = cardIvory,
             onPreviousMonth = {
                 currentMonth = currentMonth.minusMonths(1)
                 selectedDate = currentMonth.atDay(1)
