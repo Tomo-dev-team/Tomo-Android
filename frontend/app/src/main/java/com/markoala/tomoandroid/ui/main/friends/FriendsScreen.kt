@@ -36,6 +36,7 @@ import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomButton
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
+import com.markoala.tomoandroid.ui.components.LoadingDialog
 import com.markoala.tomoandroid.ui.main.friends.components.FriendCard
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import kotlinx.coroutines.delay
@@ -57,7 +58,7 @@ fun FriendsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(CustomColor.background)
+            .background(CustomColor.white)
             .padding(paddingValues)
             .padding(horizontal = 24.dp, vertical = 16.dp)
     ) {
@@ -66,12 +67,7 @@ fun FriendsScreen(
 
         when {
             isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = CustomColor.primary)
-                }
+                LoadingDialog()
             }
 
             error != null -> {
