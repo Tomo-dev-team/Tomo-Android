@@ -9,8 +9,7 @@ object CustomColor {
     val primary200 = Color(0xFFE4D2C4)
     val primary300 = Color(0xFFD1B89F)
     val primary400 = Color(0xFFBE9E7B)
-    val primary500 = Color(0xFFB08564)
-        // Brand colors
+    val primary450 = Color(0xFFB08564)
     val primary = Color(0xFFA17353)
     val primaryDim = Color(0xFF80583F)
     val primaryContainer = Color(0xFFF4E6DB)
