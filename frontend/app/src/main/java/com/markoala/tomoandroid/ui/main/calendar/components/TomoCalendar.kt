@@ -6,6 +6,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,6 +36,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.markoala.tomoandroid.data.model.moim.MoimListDTO
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.theme.CustomColor
@@ -54,7 +57,8 @@ fun TomoCalendar(
     cardIvory: Color,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
-    onDateSelected: (LocalDate) -> Unit
+    onDateSelected: (LocalDate) -> Unit,
+    events: Map<LocalDate, List<MoimListDTO>>,
 ){
     Surface(
         modifier = Modifier
@@ -88,7 +92,8 @@ fun TomoCalendar(
                 primary400 = primary400,
                 espressoText = espressoText,
                 secondaryText = secondaryText,
-                onDateSelected = onDateSelected
+                onDateSelected = onDateSelected,
+                events = events,
             )
         }
     }
@@ -177,32 +182,33 @@ private fun MonthlyCalendarGrid(
     primary400: Color,
     espressoText: Color,
     secondaryText: Color,
-    onDateSelected: (LocalDate) -> Unit
+    onDateSelected: (LocalDate) -> Unit,
+    events: Map<LocalDate, List<MoimListDTO>>,
 ) {
+
+
     val today = LocalDate.now()
     val weeks = remember(currentMonth) { generateCalendarMatrix(currentMonth) }
 
     Column(Modifier.fillMaxWidth()) {
         weeks.forEach { week ->
-            Row(Modifier.fillMaxWidth()) {
+            Row(Modifier.fillMaxWidth().height(80.dp) ) {
                 week.forEachIndexed { index, date ->
                     val inMonth = date.month == currentMonth.month
                     val selected = date == selectedDate
                     val isToday = date == today
                     val isWeekend = index == 0 || index == 6     // 일=0, 토=6
+                    val hasEvent = events[date]?.isNotEmpty() == true
 
                     CalendarDayCell(
                         date = date,
                         isCurrentMonth = inMonth,
-                        isSelected = selected,
                         isToday = isToday,
                         isWeekend = isWeekend,
-                        primaryBrown = primaryBrown,
-                        primary200 = primary200,
-                        primary400 = primary400,
-                        espressoText = espressoText,
-                        secondaryText = secondaryText,
+                        hasEvent = hasEvent,
+                        events = events[date],   // ⬅️ 해당 날짜의 모임 데이터 전달
                         onClick = { if (inMonth) onDateSelected(date) }
+
                     )
                 }
             }
@@ -214,14 +220,10 @@ private fun MonthlyCalendarGrid(
 private fun RowScope.CalendarDayCell(
     date: LocalDate,
     isCurrentMonth: Boolean,
-    isSelected: Boolean,
     isToday: Boolean,
     isWeekend: Boolean,
-    primaryBrown: Color,
-    primary200: Color,
-    primary400: Color,
-    espressoText: Color,
-    secondaryText: Color,
+    hasEvent: Boolean,
+    events: List<MoimListDTO>?,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -232,50 +234,67 @@ private fun RowScope.CalendarDayCell(
         label = "scale"
     )
 
+    val dayCircleSize = 28.dp  // ⬅ 날짜 원 크기統一 (가로=세로)
+
+    // 글자 색
     val textColor =
         when {
-            isSelected -> Color.White
-            !isCurrentMonth -> secondaryText.copy(alpha = 0.35f)
-            isToday -> CustomColor.primary
-            isWeekend -> primary400     // 토/일 → 강조색
-            else -> espressoText
+            isToday -> CustomColor.white
+            isWeekend -> CustomColor.primary400
+            else -> CustomColor.textPrimary
         }
 
-    val backgroundModifier =
-        when {
-            isSelected -> Modifier.size(36.dp).background(primaryBrown, CircleShape)
-            isToday -> Modifier.size(36.dp).background(primary200, CircleShape)
-            else -> Modifier
-        }
+    // 모임명 4글자 추출
+    val eventTitle = events?.firstOrNull()?.title
+    val badgeLabel = eventTitle?.take(4)
 
-    Box(
+    Column(
         modifier = Modifier
             .weight(1f)
             .aspectRatio(1f)
-            .padding(6.dp),
-        contentAlignment = Alignment.Center
+            .graphicsLayer(scaleX = scale, scaleY = scale)
+            .clickable(
+                enabled = isCurrentMonth,
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = { }
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
+        // 날짜 숫자 원형 배경
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .graphicsLayer(scaleX = scale, scaleY = scale)
-                .clickable(
-                    enabled = isCurrentMonth,
-                    interactionSource = interactionSource,
-                    indication = null,
-                    onClick = onClick
+                .size(dayCircleSize)                                   // ⬅ 모든 날짜 동일한 원 크기
+                .background(
+                    if (isToday) CustomColor.primary300 else Color.Transparent,
+                    CircleShape
                 ),
             contentAlignment = Alignment.Center
         ) {
+            CustomText(
+                text = "${date.dayOfMonth}",
+                type = CustomTextType.body,
+                color = textColor,
+                textAlign = TextAlign.Center
+            )
+        }
+
+        // badge
+        if (hasEvent && badgeLabel != null) {
             Box(
-                modifier = backgroundModifier,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 3.dp)
+                    .background(CustomColor.primary100, RoundedCornerShape(3.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 CustomText(
-                    text = "${date.dayOfMonth}",
-                    type = CustomTextType.body,
-                    color = textColor,
-                    textAlign = TextAlign.Center
+                    text = badgeLabel,
+                    color = CustomColor.primary400,
+                    fontSize = 10.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(all= 2.dp)
                 )
             }
         }
