@@ -1,6 +1,7 @@
 package com.markoala.tomoandroid.ui.main.profile
 
 import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,7 +53,6 @@ fun ProfileScreen(
     name: String,
     email: String,
     userId: String,
-    paddingValues: PaddingValues,
     modifier: Modifier = Modifier,
     onClose: () -> Unit = {}
 ) {
@@ -67,7 +67,7 @@ fun ProfileScreen(
     val inviteCode = generateInviteCode(userId)
 
     val onCopyInviteCode: () -> Unit = {
-        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         val clip = ClipData.newPlainText("invite_code", inviteCode)
         clipboard.setPrimaryClip(clip)
         toastManager.showSuccess("초대 코드가 복사되었습니다.")
@@ -90,7 +90,10 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(CustomColor.background)
-                    .padding(horizontal = 24.dp)
+                    .padding(top = 0.dp, bottom = 16.dp,
+                        start = 24.dp,
+                        end = 24.dp,
+                    )
                     .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom)),
             ) {
                 CustomButton(
@@ -126,8 +129,9 @@ fun ProfileScreen(
 
             // 프로필 카드 - 그라데이션 배경 추가
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().background(CustomColor.white, shape = RoundedCornerShape(28.dp)),
                 shape = RoundedCornerShape(28.dp),
+                color = CustomColor.white,    // 🔥 Surface 자체에 배경색 적용
 
                 ) {
                 Column(
@@ -152,7 +156,7 @@ fun ProfileScreen(
                         // 초대코드를 강조하는 배지 스타일
                         Surface(
                             shape = RoundedCornerShape(16.dp),
-                            color = CustomColor.primary.copy(alpha = 0.15f),
+                            color = CustomColor.primary50,
                             modifier = Modifier.clickable { onCopyInviteCode() }
                         ) {
                             CustomText(

@@ -37,7 +37,11 @@ import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomButton
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
+import com.markoala.tomoandroid.ui.components.LoadingDialog
+import com.markoala.tomoandroid.ui.components.MorphingDots
+import com.markoala.tomoandroid.ui.main.meeting.components.GreetingCard
 import com.markoala.tomoandroid.ui.main.meeting.components.MeetingCard
+import com.markoala.tomoandroid.ui.main.meeting.components.MeetingListContent
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import kotlinx.coroutines.delay
 
@@ -53,6 +57,7 @@ fun MeetingScreen(
     val isLoading by meetingViewModel.isLoading.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
 
+    // Lifecycle: 화면 복귀 시 데이터 다시 불러오기
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -63,123 +68,16 @@ fun MeetingScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    val modifier = Modifier
-        .fillMaxSize()
-        .background(CustomColor.background)
-        .padding(paddingValues)
-
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        item { GreetingBlock(userName) }
-        item {
-            CustomButton(
-                text = "새 모임 만들기",
-                onClick = onPlanMeetingClick,
-                style = ButtonStyle.Primary
-            )
-        }
-        item {
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                CustomText(
-                    text = "모임 타임라인",
-                    type = CustomTextType.title,
-                    color = CustomColor.textPrimary
-                )
-                CustomText(
-                    text = "완료된 모임과 예정된 모임을 한눈에",
-                    type = CustomTextType.bodySmall,
-                    color = CustomColor.textSecondary
-                )
-            }
-        }
-
-        when {
-            isLoading -> {
-                item {
-                    BoxedState {
-                        CircularProgressIndicator(color = CustomColor.primary)
-                    }
-                }
-            }
-
-            meetings.isEmpty() -> {
-                item {
-                    BoxedState {
-                        CustomText(
-                            text = "생성된 모임이 없습니다.",
-                            type = CustomTextType.body,
-                            color = CustomColor.textSecondary
-                        )
-                    }
-                }
-            }
-
-            else -> {
-                itemsIndexed(meetings) { index, meeting ->
-                    AnimatedMeetingCard(index = index) {
-                        MeetingCard(
-                            meeting = meeting,
-                            modifier = Modifier.fillMaxWidth(),
-                            onClick = { onMeetingClick(meeting.moimId) }
-                        )
-                    }
-                }
-            }
-        }
+    // 🔥 로딩 다이얼로그 표시
+    if (isLoading) {
+        MorphingDots()
     }
-}
 
-@Composable
-private fun GreetingBlock(userName: String) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        CustomText(
-            text = if (userName.isNotBlank()) "안녕하세요, $userName 님" else "오늘은 어떤 추억을 남길까요?",
-            type = CustomTextType.display,
-            color = CustomColor.textPrimary
-        )
-        CustomText(
-            text = "따뜻한 우정을 기록해 보세요",
-            type = CustomTextType.body,
-            color = CustomColor.textSecondary
-        )
-    }
-}
-
-@Composable
-private fun BoxedState(content: @Composable () -> Unit) {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(160.dp),
-        shape = RoundedCornerShape(24.dp),
-        color = CustomColor.surface
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            content()
-        }
-    }
-}
-
-@Composable
-private fun AnimatedMeetingCard(index: Int, content: @Composable () -> Unit) {
-    var visible by remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        delay(index * 40L)
-        visible = true
-    }
-    AnimatedVisibility(
-        visible = visible,
-        enter = fadeIn(animationSpec = tween(durationMillis = 250)) +
-            slideInVertically(initialOffsetY = { it / 4 }, animationSpec = tween(durationMillis = 250)),
-        exit = fadeOut()
-    ) {
-        content()
-    }
+    MeetingListContent(
+        paddingValues = paddingValues,
+        userName = userName,
+        meetings = meetings,
+        onPlanMeetingClick = onPlanMeetingClick,
+        onMeetingClick = onMeetingClick
+    )
 }
