@@ -178,7 +178,7 @@ private fun MonthlyCalendarGrid(
 
     Column(Modifier.fillMaxWidth()) {
         weeks.forEach { week ->
-            Row(Modifier.fillMaxWidth().height(80.dp) ) {
+            Row(Modifier.fillMaxWidth().padding(vertical = 6.dp).height(100.dp) ) {
                 week.forEachIndexed { index, date ->
                     val inMonth = date.month == currentMonth.month
                     val selected = date == selectedDate
@@ -236,7 +236,6 @@ private fun RowScope.CalendarDayCell(
     Column(
         modifier = Modifier
             .weight(1f)
-            .aspectRatio(1f)
             .graphicsLayer(scaleX = scale, scaleY = scale)
             .clickable(
                 enabled = isCurrentMonth,
@@ -267,7 +266,7 @@ private fun RowScope.CalendarDayCell(
 
         // 뱃지 렌더링 (여러개)
         badges.forEach { label ->
-            Spacer(modifier = Modifier.height(2.dp))
+            Spacer(modifier = Modifier.height(4.dp))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
