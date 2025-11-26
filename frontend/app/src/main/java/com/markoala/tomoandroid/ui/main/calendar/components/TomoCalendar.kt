@@ -85,7 +85,9 @@ fun TomoCalendar(
                 currentMonth = currentMonth,
                 selectedDate = selectedDate,
                 onDateSelected = onDateSelected,
-                onDayClick = onDayClick
+                onDayClick = onDayClick,
+                onPreviousMonth = onPreviousMonth,
+                onNextMonth = onNextMonth,
             )
         }
     }
@@ -172,6 +174,8 @@ private fun MonthlyCalendarGrid(
     onDateSelected: (LocalDate) -> Unit,
     onDayClick: (LocalDate, List<MoimListDTO>) -> Unit,
     events: Map<LocalDate, List<MoimListDTO>>,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
 ) {
 
 
@@ -193,11 +197,27 @@ private fun MonthlyCalendarGrid(
                         isWeekend = isWeekend,
                         events = events[date],
                         onClick = {
-                            if (inMonth) {
-                                onDayClick(date, events[date] ?: emptyList())  // dialog 띄우는 용도
-                                onDateSelected(date)                           // 선택 표시 용도
+                            when {
+                                // 현재 달 날짜
+                                inMonth -> {
+                                    onDayClick(date, events[date] ?: emptyList())
+                                    onDateSelected(date)
+                                }
+
+                                // 지난달 날짜 → 이전 달로 이동
+                                date.isBefore(currentMonth.atDay(1)) -> {
+                                    onPreviousMonth()
+                                }
+
+                                // 다음달 날짜 → 다음 달로 이동
+                                date.isAfter(currentMonth.atEndOfMonth()) -> {
+                                    onNextMonth()
+                                }
                             }
-                        }
+
+
+                }
+
                     )
                 }
             }
@@ -223,6 +243,7 @@ private fun RowScope.CalendarDayCell(
     )
 
     val dayCircleSize = 28.dp
+    val alpha = if (isCurrentMonth) 1f else 0.3f
 
     val textColor =
         when {
@@ -240,9 +261,13 @@ private fun RowScope.CalendarDayCell(
     Column(
         modifier = Modifier
             .weight(1f)
-            .graphicsLayer(scaleX = scale, scaleY = scale)
+            .graphicsLayer(
+                scaleX = scale,
+                scaleY = scale,
+                alpha = if (isCurrentMonth) 1f else 0.3f  // 투명도 적용
+            )
             .clickable(
-                enabled = isCurrentMonth,
+                enabled = true,
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
