@@ -2,10 +2,12 @@ package com.markoala.tomoandroid.ui.main.calendar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -17,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.markoala.tomoandroid.data.model.moim.MoimListDTO
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.MorphingDots
@@ -41,6 +44,8 @@ fun CalendarScreen(
     val meetings by meetingViewModel.meetings.collectAsState()
     val isLoading by meetingViewModel.isLoading.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+    var dialogEvents by remember { mutableStateOf<List<MoimListDTO>?>(null) }
+
 
     val eventMap = remember(meetings) {
         meetings
@@ -79,6 +84,33 @@ fun CalendarScreen(
         MorphingDots()
     }
 
+    if (dialogEvents != null) {
+        AlertDialog(
+            onDismissRequest = { dialogEvents = null },
+            confirmButton = {},
+            title = {
+                CustomText("모임 목록")
+            },
+            text = {
+                Column {
+                    dialogEvents!!.forEach { moim ->
+                        CustomText(
+                            text = moim.title,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    dialogEvents = null
+                                    onEventClick(moim.moimId)
+                                }
+                                .padding(12.dp)
+                        )
+                    }
+                }
+            }
+        )
+    }
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -100,7 +132,11 @@ fun CalendarScreen(
                 selectedDate = currentMonth.atDay(1)
             },
             onDateSelected = { selectedDate = it },
-            events = eventMap
+            events = eventMap,
+            onDayClick = { date, items ->
+                selectedDate = date
+                dialogEvents = items
+            },
         )
         Spacer(Modifier.height(20.dp))
 

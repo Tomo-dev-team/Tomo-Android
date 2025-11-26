@@ -53,6 +53,7 @@ fun TomoCalendar(
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onDateSelected: (LocalDate) -> Unit,
+    onDayClick: (LocalDate, List<MoimListDTO>) -> Unit
 
 ){
     Surface(
@@ -84,7 +85,7 @@ fun TomoCalendar(
                 currentMonth = currentMonth,
                 selectedDate = selectedDate,
                 onDateSelected = onDateSelected,
-
+                onDayClick = onDayClick
             )
         }
     }
@@ -169,6 +170,7 @@ private fun MonthlyCalendarGrid(
     currentMonth: YearMonth,
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
+    onDayClick: (LocalDate, List<MoimListDTO>) -> Unit,
     events: Map<LocalDate, List<MoimListDTO>>,
 ) {
 
@@ -181,19 +183,21 @@ private fun MonthlyCalendarGrid(
             Row(Modifier.fillMaxWidth().padding(vertical = 6.dp).height(100.dp) ) {
                 week.forEachIndexed { index, date ->
                     val inMonth = date.month == currentMonth.month
-                    val selected = date == selectedDate
                     val isToday = date == today
-                    val isWeekend = index == 0 || index == 6     // 일=0, 토=6
-                    val hasEvent = events[date]?.isNotEmpty() == true
+                    val isWeekend = index == 0 || index == 6
 
                     CalendarDayCell(
                         date = date,
                         isCurrentMonth = inMonth,
                         isToday = isToday,
                         isWeekend = isWeekend,
-                        events = events[date],   // ⬅️ 해당 날짜의 모임 데이터 전달
-                        onClick = { if (inMonth) onDateSelected(date) }
-
+                        events = events[date],
+                        onClick = {
+                            if (inMonth) {
+                                onDayClick(date, events[date] ?: emptyList())  // dialog 띄우는 용도
+                                onDateSelected(date)                           // 선택 표시 용도
+                            }
+                        }
                     )
                 }
             }
@@ -241,7 +245,7 @@ private fun RowScope.CalendarDayCell(
                 enabled = isCurrentMonth,
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = { }
+                onClick = onClick
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top

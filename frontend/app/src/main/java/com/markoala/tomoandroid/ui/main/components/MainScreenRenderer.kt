@@ -51,8 +51,8 @@ fun MainScreenRenderer(
             )
             BottomTab.Calendar -> CalendarScreen(
                 paddingValues = padding,
-                onEventClick = { eventId ->
-                    navigator.push(MainStackEntry.CalendarDetail(eventId))
+                onEventClick = { moimId ->
+                    navigator.push(MainStackEntry.MeetingDetail(moimId))
                 }
             )
 
