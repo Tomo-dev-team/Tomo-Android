@@ -100,12 +100,11 @@ dependencies {
     implementation(libs.coil.compose)
 
     // Security Crypto for encrypted shared preferences
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
-    implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
+    implementation(libs.androidx.security.crypto)
+    implementation(libs.retrofit2.converter.scalars)
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
 
-    // OkHttp for HTTP client
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
-    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
