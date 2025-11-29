@@ -83,6 +83,8 @@ dependencies {
     // Firebase Authentication (버전 명시 X → BoM이 관리)
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
+    implementation(libs.firebase.messaging)
+
 
     // Android Credential Manager
     implementation(libs.androidx.credentials)
