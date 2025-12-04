@@ -2,7 +2,12 @@ package com.markoala.tomoandroid.ui.main.components
 
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.PaddingValues
+import com.markoala.tomoandroid.data.api.GeocodeAddress
 import com.markoala.tomoandroid.ui.main.BottomTab
 import com.markoala.tomoandroid.ui.main.MainNavigator
 import com.markoala.tomoandroid.ui.main.MainStackEntry
@@ -17,6 +22,7 @@ import com.markoala.tomoandroid.ui.main.meeting.MeetingScreen
 import com.markoala.tomoandroid.ui.main.meeting.meeting_detail.MeetingDetailScreen
 import com.markoala.tomoandroid.ui.main.profile.ProfileScreen
 import com.markoala.tomoandroid.ui.main.map.MapScreen
+import com.markoala.tomoandroid.ui.main.map.map_search.MapSearchScreen
 
 @Composable
 fun MainScreenRenderer(
@@ -28,6 +34,9 @@ fun MainScreenRenderer(
     onInviteCodeConsumed: () -> Unit,
     onSignOut: () -> Unit
 ) {
+    var selectedAddress by remember { mutableStateOf<GeocodeAddress?>(null) }
+    var selectedQuery by remember { mutableStateOf<String?>(null) }
+
     when (entry) {
 
 
@@ -64,7 +73,10 @@ fun MainScreenRenderer(
             )
 
             BottomTab.Map -> MapScreen(
-                paddingValues = padding
+                paddingValues = padding,
+                selectedAddress = selectedAddress,
+                selectedQuery = selectedQuery,
+                onSearchClick = { navigator.push(MainStackEntry.MapSearch(selectedQuery)) }
             )
         }
 
@@ -103,6 +115,17 @@ fun MainScreenRenderer(
         is MainStackEntry.CalendarDetail -> CalendarDetailScreen(
             eventId = entry.eventId,
             onBackClick = { navigator.pop() }
+        )
+
+        is MainStackEntry.MapSearch -> MapSearchScreen(
+            paddingValues = padding,
+            initialQuery = entry.initialQuery,
+            onBackClick = { navigator.pop() },
+            onSelect = { query, address ->
+                selectedQuery = query
+                selectedAddress = address
+                navigator.pop()
+            }
         )
 
 

@@ -83,4 +83,5 @@ sealed interface MainStackEntry {
     data class AddFriends(val inviteCode: String? = null) : MainStackEntry
     object CreateMeeting : MainStackEntry
     object Profile : MainStackEntry
+    data class MapSearch(val initialQuery: String? = null) : MainStackEntry
 }
