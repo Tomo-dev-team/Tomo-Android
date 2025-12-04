@@ -2,7 +2,12 @@ package com.markoala.tomoandroid.ui.main.components
 
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.PaddingValues
+import com.markoala.tomoandroid.data.api.GeocodeAddress
 import com.markoala.tomoandroid.ui.main.BottomTab
 import com.markoala.tomoandroid.ui.main.MainNavigator
 import com.markoala.tomoandroid.ui.main.MainStackEntry
@@ -16,7 +21,8 @@ import com.markoala.tomoandroid.ui.main.meeting.create_meeting.CreateMeetingScre
 import com.markoala.tomoandroid.ui.main.meeting.MeetingScreen
 import com.markoala.tomoandroid.ui.main.meeting.meeting_detail.MeetingDetailScreen
 import com.markoala.tomoandroid.ui.main.profile.ProfileScreen
-import com.markoala.tomoandroid.ui.main.settings.SettingsScreen
+import com.markoala.tomoandroid.ui.main.map.MapScreen
+import com.markoala.tomoandroid.ui.main.map.map_search.MapSearchScreen
 
 @Composable
 fun MainScreenRenderer(
@@ -28,6 +34,9 @@ fun MainScreenRenderer(
     onInviteCodeConsumed: () -> Unit,
     onSignOut: () -> Unit
 ) {
+    var selectedAddress by remember { mutableStateOf<GeocodeAddress?>(null) }
+    var selectedQuery by remember { mutableStateOf<String?>(null) }
+
     when (entry) {
 
 
@@ -63,10 +72,11 @@ fun MainScreenRenderer(
                 onAddFriendsClick = { navigator.push(MainStackEntry.AddFriends()) }
             )
 
-            BottomTab.Settings -> SettingsScreen(
+            BottomTab.Map -> MapScreen(
                 paddingValues = padding,
-                onSignOut = onSignOut,
-                onDeleteAccount = onSignOut
+                selectedAddress = selectedAddress,
+                selectedQuery = selectedQuery,
+                onSearchClick = { navigator.push(MainStackEntry.MapSearch(selectedQuery)) }
             )
         }
 
@@ -98,12 +108,24 @@ fun MainScreenRenderer(
             name = userInfo.name,
             email = userInfo.email,
             userId = userInfo.userId,
+            onSignOut = onSignOut,
             onClose = { navigator.pop() }
         )
 
         is MainStackEntry.CalendarDetail -> CalendarDetailScreen(
             eventId = entry.eventId,
             onBackClick = { navigator.pop() }
+        )
+
+        is MainStackEntry.MapSearch -> MapSearchScreen(
+            paddingValues = padding,
+            initialQuery = entry.initialQuery,
+            onBackClick = { navigator.pop() },
+            onSelect = { query, address ->
+                selectedQuery = query
+                selectedAddress = address
+                navigator.pop()
+            }
         )
 
 
