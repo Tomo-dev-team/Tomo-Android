@@ -2,6 +2,7 @@ package com.markoala.tomoandroid.ui.main.map
 
 import android.Manifest
 import android.content.Context
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -88,10 +89,11 @@ fun MapScreen(
         }
 
         val clientId = BuildConfig.NAVER_MAP_CLIENT_ID
+        Log.d("MapScreen", "Naver Map Client ID: $clientId")
         if (clientId.isNotBlank()) {
             @Suppress("DEPRECATION")
             NaverMapSdk.getInstance(appContext).client =
-                NaverMapSdk.NaverCloudPlatformClient(clientId)
+                NaverMapSdk.NcpKeyClient(clientId)
         } else {
             toastManager.showInfo("네이버 지도 클라이언트 ID가 설정되지 않았어요.")
         }

@@ -165,7 +165,7 @@ dependencies {
     implementation(libs.firebase.firestore)
 
     // ⭐️ Naver Maps SDK
-    implementation("com.naver.maps:map-sdk:3.17.0")
+    implementation("com.naver.maps:map-sdk:3.23.0")
     implementation("io.github.fornewid:naver-map-compose:1.9.0")  // 혹은 최신 stable 버전
 
 // 위치 권한 + GPS 기반 현재위치 얻기 위해
