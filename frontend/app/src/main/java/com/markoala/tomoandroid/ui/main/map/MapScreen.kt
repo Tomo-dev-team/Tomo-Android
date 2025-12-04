@@ -47,6 +47,8 @@ import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.MapProperties
 import com.naver.maps.map.compose.MapUiSettings
 import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.rememberMarkerState
 import com.naver.maps.map.compose.rememberCameraPositionState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -119,7 +121,14 @@ fun MapScreen(
             cameraPositionState = cameraState,
             properties = MapProperties(),
             uiSettings = MapUiSettings()
-        )
+        ) {
+            selectedAddress?.toLatLng()?.let { latLng ->
+                Marker(
+                    state = rememberMarkerState(position = latLng),
+                    captionText = selectedAddress.displayTitle()
+                )
+            }
+        }
 
         Surface(
             modifier = Modifier
@@ -163,14 +172,21 @@ fun MapScreen(
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    val title = address.roadAddress?.takeIf { it.isNotBlank() }
-                        ?: address.jibunAddress?.takeIf { it.isNotBlank() }
-                        ?: "선택한 장소 정보를 불러올 수 없어요."
+                    val title = address.displayTitle()
                     CustomText(
                         text = title,
                         type = CustomTextType.body,
                         color = CustomColor.textPrimary
                     )
+                    address.roadAddress
+                        ?.takeIf { it.isNotBlank() && it != title }
+                        ?.let {
+                            CustomText(
+                                text = it,
+                                type = CustomTextType.bodySmall,
+                                color = CustomColor.textSecondary
+                            )
+                        }
                     address.jibunAddress
                         ?.takeIf { it.isNotBlank() && it != title }
                         ?.let {
@@ -237,6 +253,14 @@ private fun GeocodeAddress.toLatLng(): LatLng? {
     } else {
         null
     }
+}
+
+private fun GeocodeAddress.displayTitle(): String {
+    return name?.takeIf { it.isNotBlank() }
+        ?: roadAddress?.takeIf { it.isNotBlank() }
+        ?: jibunAddress?.takeIf { it.isNotBlank() }
+        ?: englishAddress?.takeIf { it.isNotBlank() }
+        ?: "선택한 장소 정보를 불러올 수 없어요."
 }
 
 private fun checkLocationPermission(context: Context): Boolean {

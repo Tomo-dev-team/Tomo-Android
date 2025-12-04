@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.markoala.tomoandroid.BuildConfig
 import com.markoala.tomoandroid.data.api.GeocodeAddress
 import com.markoala.tomoandroid.data.api.GeocodeResponse
+import com.markoala.tomoandroid.data.api.NaverLocalSearchClient
 import com.markoala.tomoandroid.data.api.NaverMapGeocodeClient
 import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomBack
@@ -56,10 +57,7 @@ fun MapSearchScreen(
         if (!initialQuery.isNullOrBlank() && geocodeAvailable) {
             isSearching = true
             try {
-                val response = geocodeAddress(initialQuery.trim())
-                if (response.status == "OK") {
-                    results = response.addresses.orEmpty()
-                }
+                results = searchPlaces(initialQuery.trim())
             } catch (_: Exception) {
                 toastManager.showInfo("주소 검색 중 문제가 발생했어요.")
             } finally {
@@ -110,18 +108,9 @@ fun MapSearchScreen(
                 scope.launch {
                     isSearching = true
                     try {
-                        val response = geocodeAddress(
-                            query = searchQuery.trim()
-                        )
-                        if (response.status == "OK") {
-                            results = response.addresses.orEmpty()
-                            if (results.isEmpty()) {
-                                toastManager.showInfo("검색 결과가 없어요.")
-                            }
-                        } else {
-                            val message = response.errorMessage?.ifBlank { null }
-                                ?: "주소 검색에 실패했어요."
-                            toastManager.showInfo(message)
+                        results = searchPlaces(searchQuery.trim())
+                        if (results.isEmpty()) {
+                            toastManager.showInfo("검색 결과가 없어요.")
                         }
                     } catch (e: Exception) {
                         toastManager.showInfo("주소 검색 중 문제가 발생했어요.")
@@ -212,7 +201,8 @@ private fun GeocodeResultItem(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            val title = address.roadAddress?.takeIf { it.isNotBlank() }
+            val title = address.name?.takeIf { it.isNotBlank() }
+                ?: address.roadAddress?.takeIf { it.isNotBlank() }
                 ?: address.jibunAddress?.takeIf { it.isNotBlank() }
                 ?: "주소 정보를 불러올 수 없어요."
             CustomText(
@@ -220,6 +210,15 @@ private fun GeocodeResultItem(
                 type = CustomTextType.body,
                 color = CustomColor.textPrimary
             )
+            address.roadAddress
+                ?.takeIf { it.isNotBlank() && it != title }
+                ?.let {
+                    CustomText(
+                        text = it,
+                        type = CustomTextType.bodySmall,
+                        color = CustomColor.textSecondary
+                    )
+                }
             address.jibunAddress
                 ?.takeIf { it.isNotBlank() && it != title }
                 ?.let {
@@ -240,13 +239,73 @@ private fun GeocodeResultItem(
     }
 }
 
-private suspend fun geocodeAddress(
+private suspend fun searchPlaces(
     query: String
-): GeocodeResponse = withContext(Dispatchers.IO) {
-    NaverMapGeocodeClient.api.geocode(
-        query = query,
-        language = "kor",
-        page = 1,
-        count = 15
-    )
+): List<GeocodeAddress> = withContext(Dispatchers.IO) {
+    val collected = mutableListOf<GeocodeAddress>()
+
+    runCatching {
+        NaverLocalSearchClient.api.searchPlaces(
+            clientId = BuildConfig.NAVER_MAP_CLIENT_ID,
+            clientSecret = BuildConfig.NAVER_MAP_CLIENT_SECRET,
+            query = query,
+            display = 10
+        )
+    }.onSuccess { response ->
+        response.items.orEmpty().forEach { item ->
+            val baseAddress = item.toGeocodeAddress()
+            val enriched = (item.roadAddress ?: item.address)?.let { addr ->
+                geocodeSingle(addr)
+            }
+            collected += baseAddress.copy(
+                x = enriched?.x ?: baseAddress.x,
+                y = enriched?.y ?: baseAddress.y,
+                roadAddress = baseAddress.roadAddress ?: enriched?.roadAddress,
+                jibunAddress = baseAddress.jibunAddress ?: enriched?.jibunAddress,
+                englishAddress = baseAddress.englishAddress ?: enriched?.englishAddress,
+                addressElements = baseAddress.addressElements ?: enriched?.addressElements
+            )
+        }
+    }
+
+    runCatching {
+        NaverMapGeocodeClient.api.localSearch(
+            query = query,
+            language = "ko",
+            page = 1,
+            count = 15
+        )
+    }.onSuccess { response ->
+        if (response.status == "OK") {
+            collected += response.places.orEmpty().map { it.toGeocodeAddress() }
+        }
+    }
+
+    runCatching {
+        NaverMapGeocodeClient.api.geocode(
+            query = query,
+            language = "kor",
+            page = 1,
+            count = 15
+        )
+    }.onSuccess { response: GeocodeResponse ->
+        if (response.status == "OK") {
+            collected += response.addresses.orEmpty()
+        }
+    }
+
+    collected.distinctBy { "${it.x}|${it.y}|${it.roadAddress}|${it.jibunAddress}|${it.name}" }
+}
+
+private suspend fun geocodeSingle(query: String): GeocodeAddress? {
+    return runCatching {
+        NaverMapGeocodeClient.api.geocode(
+            query = query,
+            language = "kor",
+            page = 1,
+            count = 1
+        )
+    }.getOrNull()
+        ?.addresses
+        ?.firstOrNull()
 }
