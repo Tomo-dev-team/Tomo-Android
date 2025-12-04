@@ -67,6 +67,17 @@ android {
             "FCM_CLIENT_ID",
             "\"${localProperties.getProperty("fcm_client_id", "")}\""
         )
+        buildConfigField(
+            "String",
+            "NAVER_MAP_CLIENT_ID",
+            "\"${localProperties.getProperty("naver_map_client_id", "")}\""
+        )
+        buildConfigField(
+            "String",
+            "NAVER_MAP_CLIENT_SECRET",
+            "\"${localProperties.getProperty("naver_map_client_secret", "")}\""
+        )
+        manifestPlaceholders["NAVER_MAP_CLIENT_ID"] = localProperties.getProperty("naver_map_client_id", "")
     }
 
     buildTypes {
@@ -152,4 +163,11 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.firebase.firestore)
+
+    // ⭐️ Naver Maps SDK
+    implementation("com.naver.maps:map-sdk:3.17.0")
+    implementation("io.github.fornewid:naver-map-compose:1.9.0")  // 혹은 최신 stable 버전
+
+// 위치 권한 + GPS 기반 현재위치 얻기 위해
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 }

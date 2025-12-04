@@ -11,11 +11,15 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+
+        // ⭐️ Naver Maps SDK 저장소 추가
+        maven("https://repository.map.naver.com/archive/maven")
     }
 }
 
