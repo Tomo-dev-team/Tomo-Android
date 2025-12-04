@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -117,120 +115,105 @@ fun MapScreen(
         }
     }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(CustomColor.white)
             .padding(paddingValues)
-            .padding(horizontal = 24.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        CustomText(
-            text = "지도",
-            type = CustomTextType.headline,
-            color = CustomColor.textPrimary
-        )
-        CustomText(
-            text = "네이버 지도로 모임 위치를 탐색할 수 있도록 준비했어요.",
-            type = CustomTextType.bodySmall,
-            color = CustomColor.textSecondary
-        )
-        CustomText(
-            text = "Geocoding은 VPC 환경에서 이용 가능하며, 입력한 주소와 연관된 주소 정보를 검색해요.",
-            type = CustomTextType.bodySmall,
-            color = CustomColor.textSecondary
+        NaverMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraState,
+            properties = MapProperties(),
+            uiSettings = MapUiSettings()
         )
 
-        CustomTextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            placeholder = "검색할 주소를 입력하세요",
-            supportingText = "예) 분당구 불정로 6",
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        CustomButton(
-            text = if (isSearching) "검색 중..." else "주소 검색",
-            onClick = {
-                if (!geocodeAvailable) {
-                    toastManager.showInfo("지오코딩 키가 설정되지 않았어요.")
-                    return@CustomButton
-                }
-                if (searchQuery.isBlank()) {
-                    toastManager.showInfo("검색할 주소를 입력해주세요.")
-                    return@CustomButton
-                }
-                scope.launch {
-                    isSearching = true
-                    try {
-                        val response = geocodeAddress(
-                            query = searchQuery.trim(),
-                            coordinate = cameraState.position.target
-                        )
-                        if (response.status == "OK") {
-                            geocodeResults = response.addresses.orEmpty()
-                            if (geocodeResults.isEmpty()) {
-                                toastManager.showInfo("검색 결과가 없어요.")
-                            }
-                        } else {
-                            val message = response.errorMessage?.ifBlank { null }
-                                ?: "주소 검색에 실패했어요."
-                            toastManager.showInfo(message)
-                        }
-                    } catch (e: Exception) {
-                        Log.w("MapScreen", "Geocode request failed", e)
-                        toastManager.showInfo("주소 검색 중 문제가 발생했어요.")
-                    } finally {
-                        isSearching = false
-                    }
-                }
-            },
-            enabled = searchQuery.isNotBlank() && !isSearching && geocodeAvailable,
-            style = ButtonStyle.Secondary,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Surface(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f),
-            shape = RoundedCornerShape(28.dp),
-            color = CustomColor.background
+                .align(Alignment.TopCenter)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(20.dp),
-                contentAlignment = Alignment.Center
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = CustomColor.white
             ) {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    shape = RoundedCornerShape(20.dp),
-                    color = CustomColor.white
+                Column(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    NaverMap(
-                        modifier = Modifier.fillMaxSize(),
-                        cameraPositionState = cameraState,
-                        properties = MapProperties(),
-                        uiSettings = MapUiSettings()
+                    CustomText(
+                        text = "모임을 가질 장소를 검색해보세요.",
+                        type = CustomTextType.body,
+                        color = CustomColor.textPrimary
+                    )
+                    CustomTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        placeholder = "검색할 주소를 입력하세요",
+                        supportingText = "예) 분당구 불정로 6",
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    CustomButton(
+                        text = if (isSearching) "검색 중..." else "주소 검색",
+                        onClick = {
+                            if (!geocodeAvailable) {
+                                toastManager.showInfo("지오코딩 키가 설정되지 않았어요.")
+                                return@CustomButton
+                            }
+                            if (searchQuery.isBlank()) {
+                                toastManager.showInfo("검색할 주소를 입력해주세요.")
+                                return@CustomButton
+                            }
+                            scope.launch {
+                                isSearching = true
+                                try {
+                                    val response = geocodeAddress(
+                                        query = searchQuery.trim(),
+                                        coordinate = cameraState.position.target
+                                    )
+                                    if (response.status == "OK") {
+                                        geocodeResults = response.addresses.orEmpty()
+                                        if (geocodeResults.isEmpty()) {
+                                            toastManager.showInfo("검색 결과가 없어요.")
+                                        }
+                                    } else {
+                                        val message = response.errorMessage?.ifBlank { null }
+                                            ?: "주소 검색에 실패했어요."
+                                        toastManager.showInfo(message)
+                                    }
+                                } catch (e: Exception) {
+                                    Log.w("MapScreen", "Geocode request failed", e)
+                                    toastManager.showInfo("주소 검색 중 문제가 발생했어요.")
+                                } finally {
+                                    isSearching = false
+                                }
+                            }
+                        },
+                        enabled = searchQuery.isNotBlank() && !isSearching && geocodeAvailable,
+                        style = ButtonStyle.Secondary,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 }
             }
-        }
 
-        GeocodeResultSection(
-            results = geocodeResults,
-            isSearching = isSearching,
-            onSelect = { address ->
-                val target = address.toLatLng()
-                if (target != null) {
-                    cameraState.move(CameraUpdate.scrollTo(target))
-                    cameraState.move(CameraUpdate.zoomTo(16.0))
-                } else {
-                    toastManager.showInfo("좌표 정보를 불러올 수 없어요.")
+            GeocodeResultSection(
+                results = geocodeResults,
+                isSearching = isSearching,
+                onSelect = { address ->
+                    val target = address.toLatLng()
+                    if (target != null) {
+                        cameraState.move(CameraUpdate.scrollTo(target))
+                        cameraState.move(CameraUpdate.zoomTo(16.0))
+                    } else {
+                        toastManager.showInfo("좌표 정보를 불러올 수 없어요.")
+                    }
                 }
-            }
-        )
+            )
+        }
 
         CustomButton(
             text = if (hasLocationPermission) "현재 위치로 이동" else "위치 권한 요청",
@@ -260,10 +243,11 @@ fun MapScreen(
                 }
             },
             style = ButtonStyle.Primary,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .padding(horizontal = 16.dp, vertical = 12.dp)
         )
-
-        Spacer(modifier = Modifier.height(4.dp))
     }
 }
 
