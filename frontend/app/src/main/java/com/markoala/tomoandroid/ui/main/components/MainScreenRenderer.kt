@@ -117,8 +117,8 @@ fun MainScreenRenderer(
         is MainStackEntry.MeetingDetail -> MeetingDetailScreen(
             moimId = entry.moimId,
             onBackClick = { navigator.pop() },
-            onPromiseListClick = { moimId, moimName ->
-                navigator.push(MainStackEntry.PromiseList(moimId, moimName))
+            onPromiseListClick = { moimId, moimName, isLeader ->
+                navigator.push(MainStackEntry.PromiseList(moimId, moimName, isLeader))
             }
         )
 
@@ -141,6 +141,7 @@ fun MainScreenRenderer(
             onBackClick = { navigator.pop() },
             initialAddress = entry.initialAddress,
             initialQuery = entry.initialQuery,
+            initialMoimId = entry.initialMoimId,
             onSuccess = {
                 navigator.pop()
                 navigator.openTab(BottomTab.Calendar)
@@ -159,8 +160,18 @@ fun MainScreenRenderer(
         )
 
         is MainStackEntry.PromiseList -> MeetingPromiseListScreen(
+            moimId = entry.moimId,
             moimName = entry.moimName,
-            onBackClick = { navigator.pop() }
+            isLeader = entry.isLeader,
+            onBackClick = { navigator.pop() },
+            onCreatePromiseClick = { moimId, _ ->
+                navigator.push(
+                    MainStackEntry.CreatePromise(
+                        selectedDate = LocalDate.now(),
+                        initialMoimId = moimId
+                    )
+                )
+            }
         )
 
 

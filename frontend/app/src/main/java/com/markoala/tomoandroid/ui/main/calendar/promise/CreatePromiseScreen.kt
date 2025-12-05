@@ -58,7 +58,8 @@ fun CreatePromiseScreen(
     onBackClick: () -> Unit,
     onSuccess: () -> Unit = {},
     initialAddress: GeocodeAddress? = null,
-    initialQuery: String? = null
+    initialQuery: String? = null,
+    initialMoimId: Int? = null
 ) {
     val viewModel: CreatePromiseViewModel = viewModel()
     val moims by viewModel.moims.collectAsState()
@@ -79,6 +80,7 @@ fun CreatePromiseScreen(
     val scrollState = rememberScrollState()
     val context = LocalContext.current
     var showMapSearch by remember { mutableStateOf(false) }
+    var hasAppliedInitialMoim by remember(initialMoimId) { mutableStateOf(false) }
     fun GeocodeAddress.displayLabel(): String {
         return listOfNotNull(name, roadAddress, jibunAddress, englishAddress)
             .firstOrNull { it.isNotBlank() }
@@ -103,6 +105,13 @@ fun CreatePromiseScreen(
         if (initialAddress != null) {
             val label = initialQuery?.takeIf { it.isNotBlank() } ?: initialAddress.displayLabel()
             viewModel.updateLocation(label, initialAddress)
+        }
+    }
+
+    LaunchedEffect(initialMoimId, moims) {
+        if (!hasAppliedInitialMoim && initialMoimId != null && moims.isNotEmpty()) {
+            moims.find { it.moimId == initialMoimId }?.let { viewModel.selectMoim(it) }
+            hasAppliedInitialMoim = true
         }
     }
 

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -90,8 +91,11 @@ class MeetingPromiseListViewModel : ViewModel() {
 
 @Composable
 fun MeetingPromiseListScreen(
+    moimId: Int,
     moimName: String,
+    isLeader: Boolean = false,
     onBackClick: () -> Unit,
+    onCreatePromiseClick: (moimId: Int, moimName: String) -> Unit = { _, _ -> },
     viewModel: MeetingPromiseListViewModel = viewModel()
 )
 {
@@ -113,9 +117,16 @@ fun MeetingPromiseListScreen(
             LoadingDialog()
         }
 
+        val bottomPadding = if (isLeader) 100.dp else 24.dp
+
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+            contentPadding = PaddingValues(
+                start = 24.dp,
+                end = 24.dp,
+                top = 16.dp,
+                bottom = bottomPadding
+            ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
@@ -226,18 +237,31 @@ fun MeetingPromiseListScreen(
 
                 else -> {
                     items(
-                    items = promises,
-                    key = { promise ->
-                        val safeLocation = promise.resolvedLocation
-                        "${promise.promiseName}-${promise.promiseDate}-${promise.promiseTime}-${safeLocation}"
+                        items = promises,
+                        key = { promise ->
+                            val safeLocation = promise.resolvedLocation
+                            "${promise.promiseName}-${promise.promiseDate}-${promise.promiseTime}-${safeLocation}"
+                        }
+                    ) { promise ->
+                        PromiseItemCard(promise)
                     }
-                ) { promise ->
-                    PromiseItemCard(promise)
                 }
-            }
             }
 
             item { Spacer(modifier = Modifier.height(12.dp)) }
+        }
+
+        if (isLeader) {
+            CustomButton(
+                text = "약속 잡기",
+                onClick = { onCreatePromiseClick(moimId, moimName) },
+                style = ButtonStyle.Primary,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+            )
         }
     }
 }

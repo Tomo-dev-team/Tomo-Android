@@ -80,12 +80,13 @@ fun MainScreen(
 sealed interface MainStackEntry {
     data class Tab(val tab: BottomTab) : MainStackEntry
     data class MeetingDetail(val moimId: Int) : MainStackEntry
-    data class PromiseList(val moimId: Int, val moimName: String) : MainStackEntry
+    data class PromiseList(val moimId: Int, val moimName: String, val isLeader: Boolean) : MainStackEntry
     data class CalendarDetail(val eventId: Int) : MainStackEntry
     data class CreatePromise(
         val selectedDate: LocalDate,
         val initialAddress: GeocodeAddress? = null,
-        val initialQuery: String? = null
+        val initialQuery: String? = null,
+        val initialMoimId: Int? = null
     ) : MainStackEntry
     data class AddFriends(val inviteCode: String? = null) : MainStackEntry
     object CreateMeeting : MainStackEntry

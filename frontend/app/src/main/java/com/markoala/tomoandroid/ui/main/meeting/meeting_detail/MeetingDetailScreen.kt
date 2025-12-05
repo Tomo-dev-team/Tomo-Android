@@ -50,7 +50,7 @@ import com.markoala.tomoandroid.utils.getFriendshipDurationText
 fun MeetingDetailScreen(
     moimId: Int,
     onBackClick: () -> Unit,
-    onPromiseListClick: (moimId: Int, moimName: String) -> Unit,
+    onPromiseListClick: (moimId: Int, moimName: String, isLeader: Boolean) -> Unit,
     viewModel: MeetingDetailViewModel = viewModel()
 ) {
     val moimDetails by viewModel.moimDetails.collectAsState()
@@ -118,11 +118,12 @@ private fun MeetingDetailContent(
     membersWithProfiles: List<MemberWithProfile>,
     onBackClick: () -> Unit,
     onRefetchMembers: () -> Unit, // 추가
-    onPromiseListClick: (moimId: Int, moimName: String) -> Unit
+    onPromiseListClick: (moimId: Int, moimName: String, isLeader: Boolean) -> Unit
 ) {
     val createdDate = parseIsoToKoreanDate(moimDetails.createdAt)
     val daysActive = getFriendshipDurationText(moimDetails.createdAt)
     val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
+    val isLeader = moimDetails.members.any { it.email == currentUserEmail && it.leader }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -215,7 +216,7 @@ private fun MeetingDetailContent(
 
                 PromiseActionCard(
                     modifier = Modifier.weight(1f),
-                    onClick = { onPromiseListClick(moimDetails.moimId, moimDetails.title) }
+                    onClick = { onPromiseListClick(moimDetails.moimId, moimDetails.title, isLeader) }
                 )
             }
         }
