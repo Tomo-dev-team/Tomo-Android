@@ -28,9 +28,9 @@ import androidx.compose.ui.unit.dp
 import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.auth.AuthManager.getStoredAccessToken
 import com.markoala.tomoandroid.data.api.friendsApi
-import com.markoala.tomoandroid.data.model.friends.FriendProfile
-import com.markoala.tomoandroid.data.model.friends.FriendSummary
-import com.markoala.tomoandroid.data.model.user.BaseResponse
+import com.markoala.tomoandroid.data.model.FriendProfile
+import com.markoala.tomoandroid.data.model.FriendSummary
+import com.markoala.tomoandroid.data.model.BaseResponse
 import com.markoala.tomoandroid.data.repository.friends.FriendsRepository
 import com.markoala.tomoandroid.ui.components.CustomDialog
 import com.markoala.tomoandroid.ui.components.CustomText

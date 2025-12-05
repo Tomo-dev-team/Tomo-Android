@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -34,7 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.R
-import com.markoala.tomoandroid.data.model.friends.FriendProfile
+import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.main.friends.components.FriendCard
@@ -42,6 +41,7 @@ import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.util.parseIsoToKoreanDate
 import java.util.Locale
 import com.google.firebase.auth.FirebaseAuth
+import com.markoala.tomoandroid.data.model.MoimDetails
 import com.markoala.tomoandroid.ui.components.CustomBack
 import com.markoala.tomoandroid.ui.components.LoadingDialog
 import com.markoala.tomoandroid.util.getFriendshipDurationText
@@ -112,7 +112,7 @@ fun MeetingDetailScreen(
 
 @Composable
 private fun MeetingDetailContent(
-    moimDetails: com.markoala.tomoandroid.data.model.moim.MoimDetails,
+    moimDetails: MoimDetails,
     membersWithProfiles: List<MemberWithProfile>,
     onBackClick: () -> Unit,
     onRefetchMembers: () -> Unit // 추가
