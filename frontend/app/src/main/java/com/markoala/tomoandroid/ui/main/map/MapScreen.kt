@@ -290,8 +290,12 @@ fun MapScreen(
             }
         }
 
+
+
+
+
         selectedAddress?.let { address ->
-            val bottomPadding = if (showCurrentLocationButton) 72.dp else 16.dp
+            val bottomPadding = if (showCurrentLocationButton) 82.dp else 16.dp
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -341,7 +345,6 @@ fun MapScreen(
                 }
             }
         }
-
         if (showCurrentLocationButton) {
 
             // hasLocationPermission == true → 아이콘 버튼 표시
