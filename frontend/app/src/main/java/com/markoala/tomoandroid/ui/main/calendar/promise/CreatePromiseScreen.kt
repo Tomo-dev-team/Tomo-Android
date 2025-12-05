@@ -1,5 +1,6 @@
 package com.markoala.tomoandroid.ui.main.calendar.promise
 
+import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
@@ -156,6 +157,19 @@ fun CreatePromiseScreen(
             true
         ).show()
     }
+    fun openDatePicker() {
+        val initialDate = runCatching { LocalDate.parse(promiseDate.ifBlank { selectedDate.toString() }) }
+            .getOrElse { selectedDate }
+        DatePickerDialog(
+            context,
+            { _, year, month, dayOfMonth ->
+                viewModel.setSelectedDate(LocalDate.of(year, month + 1, dayOfMonth))
+            },
+            initialDate.year,
+            initialDate.monthValue - 1,
+            initialDate.dayOfMonth
+        ).show()
+    }
 
     Box(
         modifier = Modifier
@@ -191,7 +205,9 @@ fun CreatePromiseScreen(
             }
 
             Surface(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { openDatePicker() },
                 shape = RoundedCornerShape(16.dp),
                 color = CustomColor.primary50
             ) {
@@ -210,7 +226,7 @@ fun CreatePromiseScreen(
                         color = CustomColor.primary400
                     )
                     CustomText(
-                        text = "시간은 아래에서 선택할 수 있어요.",
+                        text = "날짜를 눌러 변경할 수 있어요. 시간은 아래에서 선택해요.",
                         type = CustomTextType.bodySmall,
                         color = CustomColor.gray500
                     )
