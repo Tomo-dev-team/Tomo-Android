@@ -156,13 +156,10 @@ fun SettingsContent(
             .fillMaxSize()
             .background(CustomColor.white)
             .padding(contentPadding)
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .padding( vertical = 16.dp)
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        CustomText(text = "설정", type = CustomTextType.headline, color = CustomColor.textPrimary)
-        CustomText(text = "로그인 상태를 관리할 수 있어요", type = CustomTextType.bodySmall, color = CustomColor.textSecondary)
-
         Spacer(modifier = Modifier.height(8.dp))
 
         Surface(
