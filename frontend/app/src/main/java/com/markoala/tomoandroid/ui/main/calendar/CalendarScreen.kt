@@ -19,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.markoala.tomoandroid.data.api.PromiseApiService
 import com.markoala.tomoandroid.data.model.MoimListDTO
 import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomButton
@@ -26,8 +27,13 @@ import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.MorphingDots
 import com.markoala.tomoandroid.ui.main.calendar.components.TomoCalendar
+import com.markoala.tomoandroid.ui.main.calendar.model.CalendarEvent
+import com.markoala.tomoandroid.ui.main.calendar.model.CalendarEventType
 import com.markoala.tomoandroid.ui.main.meeting.MeetingViewModel
 import com.markoala.tomoandroid.ui.theme.CustomColor
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import retrofit2.awaitResponse
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -47,28 +53,36 @@ fun CalendarScreen(
     val meetings by meetingViewModel.meetings.collectAsState()
     val isLoading by meetingViewModel.isLoading.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
-    var dailySchedules by remember { mutableStateOf<List<MoimListDTO>?>(null) }
+    var dailySchedules by remember { mutableStateOf<List<CalendarEvent>?>(null) }
+    var promiseEvents by remember { mutableStateOf<List<CalendarEvent>>(emptyList()) }
+    var isPromiseLoading by remember { mutableStateOf(false) }
 
-
-    val eventMap = remember(meetings) {
-        meetings
-            .mapNotNull { moim ->
-                runCatching {
-                    val date = LocalDate.parse(moim.createdAt.substring(0, 10))
-                    date to moim
-                }.getOrNull()
-            }
-            .groupBy({ it.first }, { it.second })
-    }
-
-
-    LaunchedEffect(eventMap) {
-        println("🔥 eventMap =")
-        eventMap.forEach { (date, list) ->
-            println("$date -> ${list.map { it.title }}")
+    val meetingEvents = remember(meetings) {
+        meetings.mapNotNull { moim ->
+            runCatching {
+                val date = LocalDate.parse(moim.createdAt.substring(0, 10))
+                CalendarEvent(
+                    id = "moim-${moim.moimId}-${moim.title}-${moim.createdAt}",
+                    date = date,
+                    title = moim.title,
+                    description = moim.description,
+                    type = CalendarEventType.MOIM,
+                    moimId = moim.moimId,
+                    moimTitle = moim.title
+                )
+            }.getOrNull()
         }
     }
 
+    LaunchedEffect(meetings) {
+        isPromiseLoading = true
+        promiseEvents = runCatching { fetchPromiseEvents(meetings) }.getOrDefault(emptyList())
+        isPromiseLoading = false
+    }
+
+    val eventMap = remember(meetingEvents, promiseEvents) {
+        (meetingEvents + promiseEvents).groupBy { it.date }
+    }
 
 
     // Lifecycle: 화면 복귀 시 데이터 다시 불러오기
@@ -83,7 +97,7 @@ fun CalendarScreen(
     }
 
     // 🔥 로딩 다이얼로그 표시
-    if (isLoading) {
+    if (isLoading || isPromiseLoading) {
         MorphingDots()
     }
 
@@ -142,19 +156,31 @@ fun CalendarScreen(
                     ) {
                         dailySchedules!!.forEach { schedule ->
 
-                            // 일정 타입 (현재는 모두 모임 생성으로 표시)
-                            val scheduleType = "최초 생성"
+                            val isPromise = schedule.type == CalendarEventType.PROMISE
+                            val badgeLabel = if (isPromise) "약속" else "모임"
+                            val secondaryText = if (isPromise) {
+                                listOfNotNull(schedule.moimTitle, schedule.promiseTime).joinToString(" · ")
+                            } else {
+                                schedule.description
+                            }
+                            val placeText = if (isPromise && !schedule.place.isNullOrBlank()) {
+                                schedule.place
+                            } else null
 
                             Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 6.dp)
-                                    .clickable {
-                                        dailySchedules = null
-                                        onEventClick(schedule.moimId)
+                                    .let { base ->
+                                        if (!isPromise && schedule.moimId != null) {
+                                            base.clickable {
+                                                dailySchedules = null
+                                                onEventClick(schedule.moimId)
+                                            }
+                                        } else base
                                     },
                                 shape = RoundedCornerShape(12.dp),
-                                color = CustomColor.primary50,   // 너무 튀지 않는 배경색
+                                color = if (isPromise) CustomColor.primary100 else CustomColor.primary50,
                                 tonalElevation = 1.dp
                             ) {
 
@@ -168,11 +194,11 @@ fun CalendarScreen(
                                     // ------------------------
                                     Box(
                                         modifier = Modifier
-                                            .background(CustomColor.primary100, RoundedCornerShape(6.dp))
+                                            .background(CustomColor.primary200, RoundedCornerShape(6.dp))
                                             .padding(horizontal = 8.dp, vertical = 4.dp)
                                     ) {
                                         CustomText(
-                                            text = scheduleType,
+                                            text = badgeLabel,
                                             color = CustomColor.primary
                                         )
                                     }
@@ -191,13 +217,23 @@ fun CalendarScreen(
                                     Spacer(Modifier.height(4.dp))
 
                                     // ------------------------
-                                    // 보조 정보 (예: 생성일, 추후 장소, 메모 등)
+                                    // 보조 정보
                                     // ------------------------
-                                    CustomText(
-                                        text = "설명:  ${schedule.description}",
-                                        type= CustomTextType.bodySmall,
-                                        color = CustomColor.gray500
-                                    )
+                                    secondaryText?.let {
+                                        CustomText(
+                                            text = it,
+                                            type= CustomTextType.bodySmall,
+                                            color = CustomColor.gray500
+                                        )
+                                    }
+                                    placeText?.let {
+                                        Spacer(Modifier.height(2.dp))
+                                        CustomText(
+                                            text = "장소: $it",
+                                            type = CustomTextType.bodySmall,
+                                            color = CustomColor.gray500
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -273,7 +309,7 @@ fun CalendarScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CustomText(
-                    text = "조금만 기다려 주세요, \n약속 기능이 곧 열릴 거예요!",
+                    text = "날짜를 눌러 모임과 약속을 확인하고 관리하세요.",
                     type = CustomTextType.body,
                     color = CustomColor.primary400,
                     textAlign = TextAlign.Center
@@ -281,4 +317,34 @@ fun CalendarScreen(
             }
         }
     }
+}
+
+private suspend fun fetchPromiseEvents(meetings: List<MoimListDTO>): List<CalendarEvent> = withContext(Dispatchers.IO) {
+    val formatter = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
+    val collected = mutableListOf<CalendarEvent>()
+    meetings.filter { it.leader }.forEach { moim ->
+        runCatching {
+            PromiseApiService.getPromisesList(moim.title).awaitResponse()
+        }.onSuccess { response ->
+            if (response.isSuccessful) {
+                response.body()?.data.orEmpty().forEach { promise ->
+                    val date = runCatching { LocalDate.parse(promise.promiseDate.take(10), formatter) }.getOrNull()
+                    if (date != null) {
+                        collected += CalendarEvent(
+                            id = "promise-${moim.moimId}-${promise.promiseName}-${promise.promiseDate}-${promise.promiseTime}",
+                            date = date,
+                            title = promise.promiseName,
+                            description = moim.title,
+                            type = CalendarEventType.PROMISE,
+                            moimId = moim.moimId,
+                            promiseTime = promise.promiseTime,
+                            place = promise.place,
+                            moimTitle = moim.title
+                        )
+                    }
+                }
+            }
+        }
+    }
+    collected
 }

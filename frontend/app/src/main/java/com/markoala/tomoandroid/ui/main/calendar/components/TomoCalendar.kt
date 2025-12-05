@@ -30,7 +30,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import com.markoala.tomoandroid.data.model.MoimListDTO
+import com.markoala.tomoandroid.ui.main.calendar.model.CalendarEvent
+import com.markoala.tomoandroid.ui.main.calendar.model.CalendarEventType
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.ui.components.CustomText
 import com.markoala.tomoandroid.ui.components.CustomTextType
@@ -41,13 +42,13 @@ import java.time.YearMonth
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TomoCalendar(
-    events: Map<LocalDate, List<MoimListDTO>>,
+    events: Map<LocalDate, List<CalendarEvent>>,
     currentMonth: YearMonth,
     selectedDate: LocalDate,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
     onDateSelected: (LocalDate) -> Unit,
-    onDayClick: (LocalDate, List<MoimListDTO>) -> Unit
+    onDayClick: (LocalDate, List<CalendarEvent>) -> Unit
 ) {
     var monthOffset by remember { mutableStateOf(0) }
 
@@ -168,9 +169,9 @@ private fun WeekdayHeader() {
 private fun CalendarContentGrid(
     currentMonth: YearMonth,
     selectedDate: LocalDate,
-    events: Map<LocalDate, List<MoimListDTO>>,
+    events: Map<LocalDate, List<CalendarEvent>>,
     onDateSelected: (LocalDate) -> Unit,
-    onDayClick: (LocalDate, List<MoimListDTO>) -> Unit,
+    onDayClick: (LocalDate, List<CalendarEvent>) -> Unit,
     onPreviousMonth: () -> Unit,
     onNextMonth: () -> Unit,
 ) {
@@ -250,7 +251,7 @@ private fun RowScope.CalendarDayCell(
     isCurrentMonth: Boolean,
     isToday: Boolean,
     isWeekend: Boolean,
-    events: List<MoimListDTO>?,
+    events: List<CalendarEvent>?,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -303,16 +304,18 @@ private fun RowScope.CalendarDayCell(
         // 뱃지 3개까지
         events?.take(3)?.forEach { item ->
             Spacer(Modifier.height(3.dp))
+            val badgeColor = if (item.type == CalendarEventType.PROMISE) CustomColor.primary400 else CustomColor.primary100
+            val textColor = if (item.type == CalendarEventType.PROMISE) CustomColor.white else CustomColor.primary400
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 3.dp)
-                    .background(CustomColor.primary100, RoundedCornerShape(3.dp)),
+                    .background(badgeColor, RoundedCornerShape(3.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 CustomText(
                     text = item.title.take(4),
-                    color = CustomColor.primary400,
+                    color = textColor,
                     fontSize = 10.sp,
                     modifier = Modifier.padding(vertical = 2.dp)
                 )
