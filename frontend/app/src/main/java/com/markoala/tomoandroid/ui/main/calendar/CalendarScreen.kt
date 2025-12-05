@@ -328,7 +328,7 @@ fun CalendarScreen(
 private suspend fun fetchPromiseEvents(meetings: List<MoimListDTO>): List<CalendarEvent> = withContext(Dispatchers.IO) {
     val formatter = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
     val collected = mutableListOf<CalendarEvent>()
-    meetings.filter { it.leader }.forEach { moim ->
+    meetings.forEach { moim ->
         runCatching {
             PromiseApiService.getPromisesList(moim.title).awaitResponse()
         }.onSuccess { response ->
