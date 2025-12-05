@@ -1,9 +1,23 @@
 package com.markoala.tomoandroid.data.model
 
-data class CreatePromiseDTO(
-    val title: String,
-    val promiseName: String,
-    val promiseDate: String,   // "2025-10-11"
-    val promiseTime: String,   // "10:30:00"
+interface PromiseBase {
+    val promiseName: String
+    val promiseDate: String
+    val promiseTime: String
     val place: String
-)
+}
+
+data class PromiseResponseDTO(
+    override val promiseName: String,
+    override val promiseDate: String,
+    override val promiseTime: String,
+    override val place: String
+) : PromiseBase
+
+data class PromiseDTO(
+    val title: String,
+    override val promiseName: String,
+    override val promiseDate: String,
+    override val promiseTime: String,
+    override val place: String
+) : PromiseBase
