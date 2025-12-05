@@ -53,9 +53,11 @@ fun CalendarScreen(
     val meetings by meetingViewModel.meetings.collectAsState()
     val isLoading by meetingViewModel.isLoading.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
+    val meetingsState = rememberUpdatedState(meetings)
     var dailySchedules by remember { mutableStateOf<List<CalendarEvent>?>(null) }
     var promiseEvents by remember { mutableStateOf<List<CalendarEvent>>(emptyList()) }
     var isPromiseLoading by remember { mutableStateOf(false) }
+    var hasFetchedPromises by remember { mutableStateOf(false) }
 
     val meetingEvents = remember(meetings) {
         meetings.mapNotNull { moim ->
@@ -74,14 +76,16 @@ fun CalendarScreen(
         }
     }
 
-    LaunchedEffect(meetings) {
+    LaunchedEffect(meetings, hasFetchedPromises) {
+        if (hasFetchedPromises || meetings.isEmpty()) return@LaunchedEffect
         isPromiseLoading = true
         promiseEvents = runCatching { fetchPromiseEvents(meetings) }.getOrDefault(emptyList())
+        hasFetchedPromises = true
         isPromiseLoading = false
     }
 
-    val eventMap = remember(meetingEvents, promiseEvents) {
-        (meetingEvents + promiseEvents).groupBy { it.date }
+    val eventMap by remember(meetingEvents, promiseEvents) {
+        derivedStateOf { (meetingEvents + promiseEvents).groupBy { it.date } }
     }
 
 
@@ -89,7 +93,9 @@ fun CalendarScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                meetingViewModel.fetchMeetings()
+                if (meetingsState.value.isEmpty()) {
+                    meetingViewModel.fetchMeetings()
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

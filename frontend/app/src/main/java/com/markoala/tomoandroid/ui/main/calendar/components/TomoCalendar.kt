@@ -1,13 +1,7 @@
 package com.markoala.tomoandroid.ui.main.calendar.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.*
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.togetherWith
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,7 +33,6 @@ import com.markoala.tomoandroid.util.generateCalendarMatrix
 import java.time.LocalDate
 import java.time.YearMonth
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TomoCalendar(
     events: Map<LocalDate, List<CalendarEvent>>,
@@ -50,8 +43,6 @@ fun TomoCalendar(
     onDateSelected: (LocalDate) -> Unit,
     onDayClick: (LocalDate, List<CalendarEvent>) -> Unit
 ) {
-    var monthOffset by remember { mutableStateOf(0) }
-
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -68,11 +59,9 @@ fun TomoCalendar(
             MonthHeader(
                 currentMonth = currentMonth,
                 onPreviousMonth = {
-                    monthOffset = -1
                     onPreviousMonth()
                 },
                 onNextMonth = {
-                    monthOffset = 1
                     onNextMonth()
                 }
             )
@@ -82,35 +71,15 @@ fun TomoCalendar(
 
             Spacer(Modifier.height(12.dp))
 
-            // -----------------------------------
-            // 1) 슬라이드 애니메이션 적용
-            // -----------------------------------
-            AnimatedContent(
-                targetState = currentMonth,
-                transitionSpec = {
-                    slideInHorizontally(initialOffsetX = { fullWidth ->
-                        if (monthOffset == 1) fullWidth else -fullWidth
-                    }) + fadeIn() togetherWith
-                            slideOutHorizontally(targetOffsetX = { fullWidth ->
-                                if (monthOffset == 1) -fullWidth else fullWidth
-                            }) + fadeOut()
-                }
-            ) { animatedMonth ->
-
+            Crossfade(targetState = currentMonth) { animatedMonth ->
                 CalendarContentGrid(
                     currentMonth = animatedMonth,
                     selectedDate = selectedDate,
                     events = events,
                     onDateSelected = onDateSelected,
                     onDayClick = onDayClick,
-                    onPreviousMonth = {
-                        monthOffset = -1
-                        onPreviousMonth()
-                    },
-                    onNextMonth = {
-                        monthOffset = 1
-                        onNextMonth()
-                    }
+                    onPreviousMonth = onPreviousMonth,
+                    onNextMonth = onNextMonth
                 )
             }
         }
