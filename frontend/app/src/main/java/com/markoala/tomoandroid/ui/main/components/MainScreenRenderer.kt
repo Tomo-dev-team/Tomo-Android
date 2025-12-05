@@ -23,6 +23,9 @@ import com.markoala.tomoandroid.ui.main.meeting.meeting_detail.MeetingDetailScre
 import com.markoala.tomoandroid.ui.main.profile.ProfileScreen
 import com.markoala.tomoandroid.ui.main.map.MapScreen
 import com.markoala.tomoandroid.ui.main.map.map_search.MapSearchScreen
+import com.markoala.tomoandroid.ui.main.calendar.promise.CreatePromiseScreen
+import com.markoala.tomoandroid.ui.main.meeting.meeting_detail.MeetingPromiseListScreen
+import java.time.LocalDate
 
 @Composable
 fun MainScreenRenderer(
@@ -62,6 +65,9 @@ fun MainScreenRenderer(
                 paddingValues = padding,
                 onEventClick = { moimId ->
                     navigator.push(MainStackEntry.MeetingDetail(moimId))
+                },
+                onAddPromiseClick = { date ->
+                    navigator.push(MainStackEntry.CreatePromise(date))
                 }
             )
 
@@ -76,7 +82,16 @@ fun MainScreenRenderer(
                 paddingValues = padding,
                 selectedAddress = selectedAddress,
                 selectedQuery = selectedQuery,
-                onSearchClick = { navigator.push(MainStackEntry.MapSearch(selectedQuery)) }
+                onSearchClick = { navigator.push(MainStackEntry.MapSearch(selectedQuery)) },
+                onCreatePromiseWithLocation = { address, query ->
+                    navigator.push(
+                        MainStackEntry.CreatePromise(
+                            selectedDate = LocalDate.now(),
+                            initialAddress = address,
+                            initialQuery = query
+                        )
+                    )
+                }
             )
         }
 
@@ -101,7 +116,10 @@ fun MainScreenRenderer(
 
         is MainStackEntry.MeetingDetail -> MeetingDetailScreen(
             moimId = entry.moimId,
-            onBackClick = { navigator.pop() }
+            onBackClick = { navigator.pop() },
+            onPromiseListClick = { moimId, moimName, isLeader ->
+                navigator.push(MainStackEntry.PromiseList(moimId, moimName, isLeader))
+            }
         )
 
         is MainStackEntry.Profile -> ProfileScreen(
@@ -117,6 +135,19 @@ fun MainScreenRenderer(
             onBackClick = { navigator.pop() }
         )
 
+        is MainStackEntry.CreatePromise -> CreatePromiseScreen(
+            paddingValues = padding,
+            selectedDate = entry.selectedDate,
+            onBackClick = { navigator.pop() },
+            initialAddress = entry.initialAddress,
+            initialQuery = entry.initialQuery,
+            initialMoimId = entry.initialMoimId,
+            onSuccess = {
+                navigator.pop()
+                navigator.openTab(BottomTab.Calendar)
+            }
+        )
+
         is MainStackEntry.MapSearch -> MapSearchScreen(
             paddingValues = padding,
             initialQuery = entry.initialQuery,
@@ -125,6 +156,21 @@ fun MainScreenRenderer(
                 selectedQuery = query
                 selectedAddress = address
                 navigator.pop()
+            }
+        )
+
+        is MainStackEntry.PromiseList -> MeetingPromiseListScreen(
+            moimId = entry.moimId,
+            moimName = entry.moimName,
+            isLeader = entry.isLeader,
+            onBackClick = { navigator.pop() },
+            onCreatePromiseClick = { moimId, _ ->
+                navigator.push(
+                    MainStackEntry.CreatePromise(
+                        selectedDate = LocalDate.now(),
+                        initialMoimId = moimId
+                    )
+                )
             }
         )
 
