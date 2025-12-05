@@ -1,5 +1,6 @@
 package com.markoala.tomoandroid.ui.main.calendar
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -7,11 +8,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -19,6 +22,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.data.api.PromiseApiService
 import com.markoala.tomoandroid.data.model.MoimListDTO
 import com.markoala.tomoandroid.ui.components.ButtonStyle
@@ -115,7 +119,6 @@ fun CalendarScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp)
                     .heightIn(max = 500.dp),
                 shape = RoundedCornerShape(20.dp),
                 color = Color.White,
@@ -146,8 +149,13 @@ fun CalendarScreen(
                                 dailySchedules = null
                                 onAddPromiseClick(selectedDate)
                             },
-                            modifier = Modifier.height(50.dp)
+                            modifier = Modifier.height(40.dp),
+
+                            // 🔥 글자·패딩 줄이기
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                            textStyle = CustomTextType.bodySmall
                         )
+
                     }
 
                     Spacer(Modifier.height(16.dp))
@@ -177,11 +185,15 @@ fun CalendarScreen(
                             Surface(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 6.dp),
+                                    .padding(vertical = 6.dp)
+                                    .clickable {
+                                        dailySchedules = null
+                                        schedule.moimId?.let(onEventClick)
+                                    },
                                 shape = RoundedCornerShape(12.dp),
                                 color = if (isPromise) CustomColor.primary100 else CustomColor.primary50,
                                 tonalElevation = 1.dp
-                            ) {
+                            ){
                                 Column(
                                     modifier = Modifier.padding(16.dp),
                                     verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -199,20 +211,51 @@ fun CalendarScreen(
                                         )
                                     }
 
-                                    // 🔥 모임 제목
-                                    InfoRow(label = "모임명", value = schedule.moimTitle ?: "-")
-
-                                    // 🔥 약속 제목 또는 생성 이벤트 제목
-                                    InfoRow(label = "약속", value = schedule.title)
-
-                                    // 🔥 약속 시간 (약속일 때만 표시)
                                     if (isPromise) {
-                                        InfoRow(label = "약속 시간", value = formatTimeWithoutSeconds(schedule.promiseTime))
-                                    }
+                                        val moimName = schedule.moimTitle ?: "-"
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.Top
+                                        ) {
+                                            Column(
+                                                modifier = Modifier.weight(1f),
+                                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                                            ) {
+                                                CustomText(
+                                                    text = schedule.title,
+                                                    type = CustomTextType.title,
+                                                    color = CustomColor.textPrimary
+                                                )
+                                                PromiseMetaRow(
+                                                    icon = R.drawable.ic_time,
+                                                    text = formatTimeWithoutSeconds(schedule.promiseTime)
+                                                )
+                                                if (!placeText.isNullOrBlank()) {
+                                                    PromiseMetaRow(
+                                                        icon = R.drawable.ic_location,
+                                                        text = placeText
+                                                    )
+                                                }
+                                            }
+                                            Surface(
+                                                color = CustomColor.primary400,
+                                                border = BorderStroke(1.dp, CustomColor.outline),
+                                                shape = RoundedCornerShape(10.dp)
+                                            ) {
+                                                CustomText(
+                                                    text = moimName,
+                                                    type = CustomTextType.bodySmall,
+                                                    color = CustomColor.white,
+                                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
+                                                )
+                                            }
+                                        }
+                                    } else {
+                                        // 🔥 모임 제목
+                                        InfoRow(label = "모임명", value = schedule.moimTitle ?: "-")
+                                        InfoRow(label = "설명", value = schedule.description ?: "-")
 
-                                    // 🔥 장소가 있는 경우만 표시
-                                    if (isPromise && !placeText.isNullOrBlank()) {
-                                        InfoRow(label = "장소", value = placeText)
                                     }
                                 }
                             }
@@ -350,3 +393,23 @@ private fun InfoRow(label: String, value: String) {
     }
 }
 
+@Composable
+private fun PromiseMetaRow(icon: Int, text: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            painter = painterResource(id = icon),
+            contentDescription = null,
+            tint = CustomColor.primary,
+            modifier = Modifier.size(18.dp)
+        )
+        CustomText(
+            text = text,
+            type = CustomTextType.body,
+            color = CustomColor.textSecondary
+        )
+    }
+}
