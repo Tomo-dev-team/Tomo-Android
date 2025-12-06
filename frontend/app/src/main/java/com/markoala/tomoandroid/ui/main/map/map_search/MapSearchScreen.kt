@@ -1,5 +1,6 @@
 package com.markoala.tomoandroid.ui.main.map.map_search
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -66,6 +67,7 @@ fun MapSearchScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(CustomColor.white)
             .padding(paddingValues)
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
