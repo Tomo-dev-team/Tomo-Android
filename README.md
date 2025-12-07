@@ -3,7 +3,7 @@
 > 토모(Tomo)는 친구와의 순간을 기록하고, 모임을 관리하며, 친밀도를 확인할 수 있는 **Android 앱**입니다.  
 
 ---
-링크: https://play.google.com/store/apps/details?id=com.markoala.tomoandroid&pcampaignid=web_share
+[PlayStore 링크](https://play.google.com/store/apps/details?id=com.markoala.tomoandroid&pcampaignid=web_share)
 
 주요 기능
 - 모임 생성 & 관리 — 제목·설명만 입력하면 쉽게 모임 생성! 친구를 초대하고, 생성일·참여 인원·진행 기간까지 한눈에 관리하세요.
