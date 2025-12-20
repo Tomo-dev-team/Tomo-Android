@@ -19,52 +19,68 @@ public class PromiseService {
     private final PromiseRepository promiseRepository;
     private final MoimRepository moimRepository;
 
-
-    // 약속 생성하기
-    // 같은 날짜 같은 시간에 약속 존재 시에도 오류 발생
+    //약속 생성
     @Transactional
     public ResponsePostUniformDto addPromise(addPromiseRequestDTO dto){
 
         Moim moim = moimRepository.findByTitle(dto.getTitle())
-                .orElseThrow(() -> new EntityNotFoundException("모임 생성 후 약속을 만들어 주세요"));
+                .orElseThrow(() ->
+                        new PromiseException(PromiseErrorCode.MOIM_NOT_FOUND)
+                );
 
-         if(promiseRepository.existsByPromiseName(dto.getPromiseName()) &&
-                 promiseRepository.existsByPromiseDateAndPromiseTime(dto.getPromiseDate(),dto.getPromiseTime())) {
-             throw new DuplicatedException("이미 존재하는 약속입니다");
-         }
+        boolean duplicated =
+                promiseRepository.existsByPromiseName(dto.getPromiseName()) &&
+                        promiseRepository.existsByPromiseDateAndPromiseTime(
+                                dto.getPromiseDate(),
+                                dto.getPromiseTime()
+                        );
 
-         Promise promise = new Promise(
-                 dto.getPromiseName(),
-                 dto.getPlace(),
-                 dto.getPromiseTime(),
-                 dto.getPromiseDate());
+        if (duplicated) {
+            throw new PromiseException(PromiseErrorCode.PROMISE_ALREADY_EXISTS);
+        }
 
-         promise.setMoimBasedPromise(moim);
+        Promise promise = new Promise(
+                dto.getPromiseName(),
+                dto.getPlace(),
+                dto.getPromiseTime(),
+                dto.getPromiseDate()
+        );
 
-         promiseRepository.save(promise);
-         return new ResponsePostUniformDto(true , promise.getPromiseName() + " 약속이 생성되었습니다");
+        promise.setMoimBasedPromise(moim);
+        promiseRepository.save(promise);
+
+        return new ResponsePostUniformDto(
+                true,
+                promise.getPromiseName() + " 약속이 생성되었습니다"
+        );
     }
 
-    // 약속 단일 조회하기 promise_name
+    // 약속 단일 조회
     @Transactional(readOnly = true)
     public ResponseGetPromiseDto getPromise(String promiseName){
+
         Promise promise = promiseRepository.findByPromiseName(promiseName)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 약속입니다"));
+                .orElseThrow(() ->
+                        new PromiseException(PromiseErrorCode.PROMISE_NOT_FOUND)
+                );
 
-        return new ResponseGetPromiseDto(promise.getPromiseName(),promise.getPromiseDate(),
-        promise.getPromiseTime(),promise.getLocation());
-
-
+        return new ResponseGetPromiseDto(
+                promise.getPromiseName(),
+                promise.getPromiseDate(),
+                promise.getPromiseTime(),
+                promise.getLocation()
+        );
     }
+
+    //모임의 모든 약속 조회
     @Transactional(readOnly = true)
     public List<ResponseGetPromiseDto> getAllPromise(String title){
-        Optional<Moim> moim = moimRepository.findByTitle(title);
-        if(moim.isPresent()){
-            return promiseRepository.findByMoimId(moim.get().getId());
-        }
-        else{
-            throw new EntityNotFoundException("모임에 약속이 존재하지 않습니다");
-        }
-    }
 
+        Moim moim = moimRepository.findByTitle(title)
+                .orElseThrow(() ->
+                        new PromiseException(PromiseErrorCode.MOIM_NOT_FOUND)
+                );
+
+        return promiseRepository.findByMoimId(moim.getId());
+    }
 }
