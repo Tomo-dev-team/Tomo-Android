@@ -11,9 +11,9 @@ import com.example.tomo.Users.UserRepository;
 import com.example.tomo.Users.dtos.userSimpleDto;
 import com.example.tomo.global.Exception.NotLeaderUserException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +61,7 @@ public class MoimService {
     }
 
     // 모임 단일 조회
+    @Transactional(readOnly = true)
     public getMoimResponseDto getMoim(Long moimId, String uid) {
          Moim moim= moimRepository.findById(moimId).orElseThrow(
                  () -> new EntityNotFoundException("존재하지 않는 모임입니다")
@@ -80,7 +81,7 @@ public class MoimService {
     }
     // 모임 상세 조회
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<getMoimResponseDto> getMoimList(String userId){
 
         User user = userRepository.findByFirebaseId(userId)
@@ -96,7 +97,7 @@ public class MoimService {
         return moimResponseDTOList;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public getDetailMoimDto getMoimDetail(Long moimId){
         // 1. 모임명을 입력받아, 모임의 ID 알아내기 없다면 예외
         Moim find = moimRepository.findById(moimId).orElseThrow(EntityNotFoundException::new);

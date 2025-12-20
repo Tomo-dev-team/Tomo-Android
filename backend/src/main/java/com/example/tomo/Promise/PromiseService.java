@@ -7,6 +7,7 @@ import com.example.tomo.global.Exception.DuplicatedException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,7 @@ public class PromiseService {
 
     // 약속 생성하기
     // 같은 날짜 같은 시간에 약속 존재 시에도 오류 발생
+    @Transactional
     public ResponsePostUniformDto addPromise(addPromiseRequestDTO dto){
 
         Moim moim = moimRepository.findByTitle(dto.getTitle())
@@ -44,6 +46,7 @@ public class PromiseService {
     }
 
     // 약속 단일 조회하기 promise_name
+    @Transactional(readOnly = true)
     public ResponseGetPromiseDto getPromise(String promiseName){
         Promise promise = promiseRepository.findByPromiseName(promiseName)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 약속입니다"));
@@ -53,6 +56,7 @@ public class PromiseService {
 
 
     }
+    @Transactional(readOnly = true)
     public List<ResponseGetPromiseDto> getAllPromise(String title){
         Optional<Moim> moim = moimRepository.findByTitle(title);
         if(moim.isPresent()){

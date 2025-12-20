@@ -6,10 +6,10 @@ import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserRepository;
 import com.example.tomo.Users.UserService;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -66,7 +66,7 @@ public class FriendService {
         friendRepository.findByUserAndFriend(friend, user)
                 .ifPresent(friendRepository::delete);
     }
-    @Transactional
+    @Transactional(readOnly = true)
     public ResponseFriendDetailDto getFriendDetail(String uid, String query){
         User user = userService.getUser(query);
         Friend friend = this.getFriendByUidAndEmail(uid,user.getEmail());
@@ -79,7 +79,7 @@ public class FriendService {
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<ResponseFriendDetailDto> getFriends(String uid){
         User user = userRepository.findByFirebaseId(uid)
                 .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다"));
@@ -100,7 +100,7 @@ public class FriendService {
     }
 
 
-
+    @Transactional(readOnly = true)
     public Friend getFriendByUidAndEmail(String uid, String email){
         User me = userRepository.findByFirebaseId(uid)
                 .orElseThrow(()->new EntityNotFoundException("존재하지 않는 사용자 입니다"));

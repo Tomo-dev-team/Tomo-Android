@@ -10,9 +10,10 @@ import com.example.tomo.Users.dtos.getFriendResponseDto;
 import com.example.tomo.global.SelfFriendRequestException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -100,7 +101,7 @@ public class UserService {
         return userRepository.findByFirebaseId(dto.getUuid()).isEmpty();
     }
 
-
+    @Transactional
     public ResponsePostUniformDto signUser(RequestUserSignDto dto){
 
 
@@ -116,13 +117,13 @@ public class UserService {
 
     }
     ///  여기까지 수정이 요구
-
+    @Transactional
     public getFriendResponseDto getUserInfo(String query){
 
         User user = getUser(query);
         return new getFriendResponseDto(user.getUsername(), user.getEmail());
     }
-
+    @Transactional
     public void saveRefreshToken(String uid, String refreshToken){
         User user = userRepository.findByFirebaseId(uid)
                 .orElseThrow(() -> new EntityNotFoundException("로그인 되지 않은 사용자입니다."));
@@ -157,6 +158,7 @@ public class UserService {
         // 사용자 삭제
         userRepository.delete(user);
     }
+    @Transactional
     public void logout(String uid) {
         User user = userRepository.findByFirebaseId(uid)
                 .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
