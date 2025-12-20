@@ -115,10 +115,10 @@ public class UserController {
             return ResponseEntity.ok(ApiResponse.success(tokens, "로그인 성공"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(ApiResponse.failure("회원가입 먼저 진행해 주세요"));
+                    .body(ApiResponse.failure("code","회원가입 먼저 진행해 주세요"));
         } catch (Exception e) {
             return ResponseEntity.status(HttpServletResponse.SC_INTERNAL_SERVER_ERROR)
-                    .body(ApiResponse.failure("Internal server error"));
+                    .body(ApiResponse.failure("code","Internal server error"));
         }
     }
 
@@ -139,10 +139,10 @@ public class UserController {
             return ResponseEntity.ok(ApiResponse.success(tokens, "Access token 재발급 성공"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(401)
-                    .body(ApiResponse.failure("리프레쉬 토큰이 올바르지 않습니다. 다시 로그인해 주세요"));
+                    .body(ApiResponse.failure("code","리프레쉬 토큰이 올바르지 않습니다. 다시 로그인해 주세요"));
         } catch (Exception e) {
             return ResponseEntity.status(419)
-                    .body(ApiResponse.failure("Internal server error"));
+                    .body(ApiResponse.failure("code","Internal server error"));
         }
     }
 

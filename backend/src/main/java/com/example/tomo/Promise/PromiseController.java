@@ -61,7 +61,7 @@ public class PromiseController {
             return ResponseEntity.ok(ApiResponse.success(promiseService.getPromise(promiseName), "약속 조회 성공"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.failure("존재하지 않는 약속을 조회했습니다"));
+                    .body(ApiResponse.failure("code","존재하지 않는 약속을 조회했습니다"));
         }
     }
 
@@ -81,7 +81,7 @@ public class PromiseController {
             return ResponseEntity.ok(ApiResponse.success(promiseService.getAllPromise(moimName), "성공"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.failure("해당 모임이 존재하지 않습니다"));
+                    .body(ApiResponse.failure("code","해당 모임이 존재하지 않습니다"));
         }
     }
 }

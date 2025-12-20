@@ -47,7 +47,7 @@ public class MoimController {
                     .body(ApiResponse.success(moimService.addMoim(uid, dto),"모임이 생성되었습니다."));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-                    ApiResponse.failure("존재하지 않는 사용자가 모임에 포함되었습니다."));
+                    ApiResponse.failure("code","존재하지 않는 사용자가 모임에 포함되었습니다."));
         }
     }
 
@@ -67,7 +67,7 @@ public class MoimController {
             return ResponseEntity.ok(ApiResponse.success(moimService.getMoimDetail(moimId),"성공"));
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).
-                    body(ApiResponse.failure("존재하지 않는 모임입니다."));
+                    body(ApiResponse.failure("code","존재하지 않는 모임입니다."));
         }
     }
 
@@ -86,7 +86,7 @@ public class MoimController {
             return ResponseEntity.ok(ApiResponse.success(moimService.getMoimList(uid), "모임 조회 성공"));
 
         }catch (EntityNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure("로그인 후 진행해주세요."));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.failure("code","로그인 후 진행해주세요."));
         }
 
     }
