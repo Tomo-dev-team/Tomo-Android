@@ -7,7 +7,7 @@ import com.example.tomo.Moim_people.MoimPeopleRepository;
 import com.example.tomo.Users.dtos.RequestUserSignDto;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.Users.dtos.getFriendResponseDto;
-import com.example.tomo.global.SelfFriendRequestException;
+import com.example.tomo.global.Exception.SelfFriendRequestException;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 
