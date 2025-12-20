@@ -50,66 +50,72 @@ public class FriendService {
 
     @Transactional
     public void removeFriend(String uid, String friendEmail) {
-        // 본인 User 조회
-        User user = userRepository.findByFirebaseId(uid)
-                .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다."));
 
-        // 친구 User 조회
-        User friend = userRepository.findByEmail(friendEmail)
-                .orElseThrow(() -> new EntityNotFoundException("친구를 찾을 수 없습니다."));
+        User me = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new FriendException(FriendErrorCode.UNAUTHORIZED_USER));
 
-        // 본인이 친구로 등록한 레코드 삭제
-        friendRepository.findByUserAndFriend(user, friend)
-                .ifPresent(friendRepository::delete);
+        User other = userRepository.findByEmail(friendEmail)
+                .orElseThrow(() -> new FriendException(FriendErrorCode.USER_NOT_FOUND));
 
-        // 친구가 본인을 친구로 등록한 레코드 삭제
-        friendRepository.findByUserAndFriend(friend, user)
+        Friend relation = friendRepository.findByUserAndFriend(me, other)
+                .orElseThrow(() -> new FriendException(FriendErrorCode.FRIEND_RELATION_NOT_FOUND));
+
+        friendRepository.delete(relation);
+
+        // 반대 방향도 있으면 같이 삭제
+        friendRepository.findByUserAndFriend(other, me)
                 .ifPresent(friendRepository::delete);
     }
+
     @Transactional(readOnly = true)
-    public ResponseFriendDetailDto getFriendDetail(String uid, String query){
+    public ResponseFriendDetailDto getFriendDetail(String uid, String query) {
+
         User user = userService.getUser(query);
-        Friend friend = this.getFriendByUidAndEmail(uid,user.getEmail());
+        Friend friend = getFriendByUidAndEmail(uid, user.getEmail());
 
         return new ResponseFriendDetailDto(
                 user.getEmail(),
                 user.getUsername(),
                 friend.getFriendship(),
-                friend.getCreated_at());
-
+                friend.getCreated_at()
+        );
     }
 
+
     @Transactional(readOnly = true)
-    public List<ResponseFriendDetailDto> getFriends(String uid){
+    public List<ResponseFriendDetailDto> getFriends(String uid) {
+
         User user = userRepository.findByFirebaseId(uid)
-                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다"));
-        List<Friend> friends = friendRepository.findAllByUserId(user.getId());
+                .orElseThrow(() -> new FriendException(FriendErrorCode.UNAUTHORIZED_USER));
 
-        return friends.stream()
-                .map((friend) -> new ResponseFriendDetailDto(
-                        userRepository.findById(friend.getFriend().getId())
-                                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다"))
-                                .getEmail(),
-                        userRepository.findById(friend.getFriend().getId())
-                                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 사용자입니다"))
-                                .getUsername(),
-                        friend.getFriendship(),
-                        friend.getCreated_at()
-                ))
-                .collect(Collectors.toList());
+        return friendRepository.findAllByUserId(user.getId()).stream()
+                .map(friend -> {
+                    User f = friend.getFriend();
+                    return new ResponseFriendDetailDto(
+                            f.getEmail(),
+                            f.getUsername(),
+                            friend.getFriendship(),
+                            friend.getCreated_at()
+                    );
+                })
+                .toList();
     }
+
 
 
     @Transactional(readOnly = true)
-    public Friend getFriendByUidAndEmail(String uid, String email){
-        User me = userRepository.findByFirebaseId(uid)
-                .orElseThrow(()->new EntityNotFoundException("존재하지 않는 사용자 입니다"));
-        User other = userRepository.findByEmail(email)
-                .orElseThrow(()->new EntityNotFoundException("존재하지 않는 사용자 입니다"));
+    public Friend getFriendByUidAndEmail(String uid, String email) {
 
-        return friendRepository.findByUserIdAndFriendId(me.getId(),other.getId())
-                .orElseThrow(()->new EntityNotFoundException("친구 관계가 아닙니다."));
+        User me = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new FriendException(FriendErrorCode.UNAUTHORIZED_USER));
+
+        User other = userRepository.findByEmail(email)
+                .orElseThrow(() -> new FriendException(FriendErrorCode.USER_NOT_FOUND));
+
+        return friendRepository.findByUserIdAndFriendId(me.getId(), other.getId())
+                .orElseThrow(() -> new FriendException(FriendErrorCode.FRIEND_RELATION_NOT_FOUND));
     }
+
 
 
 
