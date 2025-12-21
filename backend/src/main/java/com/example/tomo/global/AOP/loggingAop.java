@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class loggingAop {
 
-    @Pointcut("execution (* com.example.tomo.*Service.*(..))")
+    @Pointcut("execution (* com.example.tomo..*Service..*(..))")
     public void ServicePointcut() {}
 
     @Around("ServicePointcut()")
