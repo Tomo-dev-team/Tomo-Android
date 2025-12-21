@@ -28,7 +28,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(code.getStatus())
                 .body(ApiResponse.failure(
-                        code.name(),
                         code.getMessage()
                 ));
     }
@@ -37,21 +36,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiResponse<?>> handleIllegalArgument(IllegalArgumentException e) {
         return ResponseEntity
                 .badRequest()
-                .body(ApiResponse.failure("INVALID_ARGUMENT", e.getMessage()));
+                .body(ApiResponse.failure( e.getMessage()));
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<ApiResponse<?>> handleEntityNotFound(EntityNotFoundException e) {
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(ApiResponse.failure("ENTITY_NOT_FOUND", e.getMessage()));
+                .body(ApiResponse.failure(e.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.failure("INTERNAL_SERVER_ERROR", "서버 오류가 발생했습니다"));
+                .body(ApiResponse.failure("서버 오류가 발생했습니다"));
     }
 
     @ExceptionHandler(MoimException.class)
@@ -61,7 +60,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(code.getStatus())
                 .body(ApiResponse.failure(
-                        code.name(),
                         code.getMessage()
                 ));
     }
@@ -72,14 +70,14 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(code.getStatus())
-                .body(ApiResponse.failure(code.name(), code.getMessage()));
+                .body(ApiResponse.failure(code.getMessage()));
     }
     @ExceptionHandler(SelfFriendRequestException.class)
     public ResponseEntity<ApiResponse<Void>> handleSelfFriend(SelfFriendRequestException e) {
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.failure("SELF_FRIEND_REQUEST", e.getMessage()));
+                .body(ApiResponse.failure( e.getMessage()));
     }
 
     @ExceptionHandler(PromiseException.class)
@@ -89,7 +87,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(code.getStatus())
-                .body(ApiResponse.failure(code.name(), code.getMessage()));
+                .body(ApiResponse.failure(code.getMessage()));
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValidException(
@@ -105,7 +103,6 @@ public class GlobalExceptionHandler {
 
         // 2. ApiResponse 실패 응답 생성
         ApiResponse<Void> response = ApiResponse.failure(
-                "VALIDATION_ERROR",
                 errorMessage
         );
 
