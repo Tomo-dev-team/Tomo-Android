@@ -1,4 +1,4 @@
-package com.example.tomo.global;
+package com.example.tomo.global.Exception;
 
 public class SelfFriendRequestException extends RuntimeException {
     public SelfFriendRequestException(String message) {

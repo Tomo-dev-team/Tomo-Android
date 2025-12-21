@@ -9,6 +9,7 @@ import com.example.tomo.jwt.JwtTokenProvider;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 // Service
 @Service
@@ -20,7 +21,7 @@ public class AuthService {
     private final UserService userService;
 
 
-
+    @Transactional
     public ResponseFirebaseLoginDto loginWithFirebase(String uid) {
         String accessToken = jwtTokenProvider.createAccessToken(uid);
         String refreshToken = jwtTokenProvider.createRefreshToken(uid);
@@ -30,7 +31,7 @@ public class AuthService {
 
         return new ResponseFirebaseLoginDto(accessToken, refreshToken);
     }
-
+    @Transactional
     public ResponseFirebaseLoginDto reissueAccessToken(String refreshToken) {
         try {
             String uid = jwtTokenProvider.validateRefreshTokenAndGetUuid(refreshToken);
