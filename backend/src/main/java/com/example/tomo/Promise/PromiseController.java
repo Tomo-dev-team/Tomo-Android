@@ -2,13 +2,10 @@ package com.example.tomo.Promise;
 
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.global.ReponseType.ApiResponse;
-import com.example.tomo.global.Exception.DuplicatedException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

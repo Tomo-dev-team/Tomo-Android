@@ -10,15 +10,10 @@ import com.example.tomo.Users.dtos.RequestUserSignDto;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.Users.dtos.getFriendResponseDto;
 import com.example.tomo.global.Exception.SelfFriendRequestException;
-import jakarta.persistence.EntityExistsException;
-import jakarta.persistence.EntityNotFoundException;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
-import java.util.Optional;
 
 
 @Service
