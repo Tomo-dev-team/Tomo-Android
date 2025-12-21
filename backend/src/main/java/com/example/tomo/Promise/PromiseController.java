@@ -5,6 +5,7 @@ import com.example.tomo.global.ReponseType.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class PromiseController {
     )
     @PostMapping("/promises")
     public ResponseEntity<ResponsePostUniformDto> addPromise(
-            @RequestBody addPromiseRequestDTO dto) {
+            @Valid @RequestBody addPromiseRequestDTO dto) {
 
         return ResponseEntity.ok(promiseService.addPromise(dto));
     }

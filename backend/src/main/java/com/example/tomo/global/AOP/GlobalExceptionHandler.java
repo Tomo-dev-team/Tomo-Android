@@ -13,6 +13,8 @@ import com.example.tomo.global.ReponseType.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -88,6 +90,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(code.getStatus())
                 .body(ApiResponse.failure(code.name(), code.getMessage()));
+    }
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException e
+    ) {
+        // 1. DTO에 정의된 validation message 추출
+        String errorMessage = e.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .findFirst()
+                .map(FieldError::getDefaultMessage)
+                .orElse("잘못된 요청입니다.");
+
+        // 2. ApiResponse 실패 응답 생성
+        ApiResponse<Void> response = ApiResponse.failure(
+                "VALIDATION_ERROR",
+                errorMessage
+        );
+
+        // 3. 400 Bad Request 반환
+        return ResponseEntity
+                .badRequest()
+                .body(response);
     }
 
 

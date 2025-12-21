@@ -7,6 +7,7 @@ import com.example.tomo.Moim.dtos.getMoimResponseDto;
 import com.example.tomo.global.ReponseType.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ public class MoimController {
     @Operation(summary = "모임 생성")
     @PostMapping("/moims")
     public ResponseEntity<ApiResponse<addMoimResponseDto>> addMoim(
-            @RequestBody addMoimRequestDto dto,
+            @Valid @RequestBody addMoimRequestDto dto,
             @AuthenticationPrincipal String uid
     ) {
         return ResponseEntity

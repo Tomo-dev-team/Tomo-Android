@@ -7,6 +7,7 @@ import com.example.tomo.global.AuthService;
 import com.example.tomo.global.ReponseType.ApiResponse;
 import com.example.tomo.global.ReponseType.NoDataApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,7 +24,7 @@ public class UserController {
 
     @PostMapping("/public/signup")
     public ResponseEntity<ResponsePostUniformDto> signUser(
-            @RequestBody RequestUserSignDto dto) {
+            @Valid @RequestBody RequestUserSignDto dto) {
         return ResponseEntity.ok(userService.signUser(dto));
     }
 
