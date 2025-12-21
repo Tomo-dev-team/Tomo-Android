@@ -43,3 +43,13 @@ out/
 *.properties
 *.json
 # Compiled binaries
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# environment variables
+.env
+
+# pem / key files
+*.pem
