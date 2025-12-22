@@ -19,8 +19,6 @@ public class Moim {
     @Column(name ="moim_id")
     private Long id;
 
-    @OneToMany(mappedBy = "moim")
-    private final List<Promise> promiseList = new ArrayList<>();
 
     // 모임 사람
     @OneToMany(mappedBy = "moim", cascade = CascadeType.REMOVE, orphanRemoval = true)

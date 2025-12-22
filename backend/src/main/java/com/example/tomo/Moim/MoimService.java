@@ -9,11 +9,10 @@ import com.example.tomo.Moim_people.Moim_people;
 import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserRepository;
 import com.example.tomo.Users.dtos.userSimpleDto;
-import com.example.tomo.global.Exception.NotLeaderUserException;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,9 @@ public class MoimService {
         Moim saved = moimRepository.save(moim);
 
         List<String> emailList = dto.getEmails();
-        User leader = userRepository.findByFirebaseId(uid).orElseThrow(EntityNotFoundException::new);
+        User leader = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new MoimException(MoimErrorCode.USER_NOT_FOUND));
+
         Moim_people moimLeader = new Moim_people(moim, leader, true);
         moimPeopleRepository.save(moimLeader);
         List<String> peopleList = new ArrayList<>();
@@ -44,9 +45,10 @@ public class MoimService {
 
             Optional<User> user = userRepository.findByEmail(email);
 
-            if(user.isEmpty()){
-                throw new EntityNotFoundException("해당 이메일의 사용자가 존재하지 않습니다");
+            if (user.isEmpty()) {
+                throw new MoimException(MoimErrorCode.USER_NOT_FOUND);
             }
+
             peopleList.add(user.get().getUsername());
 
             Moim_people moim_people = new Moim_people(moim, user.get(), false);
@@ -61,10 +63,11 @@ public class MoimService {
     }
 
     // 모임 단일 조회
+    @Transactional(readOnly = true)
     public getMoimResponseDto getMoim(Long moimId, String uid) {
-         Moim moim= moimRepository.findById(moimId).orElseThrow(
-                 () -> new EntityNotFoundException("존재하지 않는 모임입니다")
-         );
+        Moim moim = moimRepository.findById(moimId)
+                .orElseThrow(() -> new MoimException(MoimErrorCode.MOIM_NOT_FOUND));
+
         Long id = userRepository.findByFirebaseId(uid).orElseThrow(EntityNotFoundException::new).getId();
         // 모임의 리더 여부 출력
         Boolean moimLeader = moimPeopleRepository.findLeaderByMoimIdAndUserId(moim.getId(),id);
@@ -80,11 +83,11 @@ public class MoimService {
     }
     // 모임 상세 조회
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<getMoimResponseDto> getMoimList(String userId){
 
         User user = userRepository.findByFirebaseId(userId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 UID를 가진 사용자가 존재하지 않습니다."));
+                .orElseThrow(() -> new MoimException(MoimErrorCode.USER_NOT_FOUND));
 
         List<Moim_people> moims = moimPeopleRepository.findByUserId(user.getId());
         List<getMoimResponseDto> moimResponseDTOList = new ArrayList<>();
@@ -96,17 +99,22 @@ public class MoimService {
         return moimResponseDTOList;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public getDetailMoimDto getMoimDetail(Long moimId){
         // 1. 모임명을 입력받아, 모임의 ID 알아내기 없다면 예외
-        Moim find = moimRepository.findById(moimId).orElseThrow(EntityNotFoundException::new);
+        Moim find = moimRepository.findById(moimId)
+                .orElseThrow(() -> new MoimException(MoimErrorCode.MOIM_NOT_FOUND));
+
         // 2. 모임 ID를 통해서 moim_people 테이블에서 모임 참가하는 사용자 ID 추출 없다면, 모임에 2명 이상 포함되어 있지 않습니다
         List<Long> userIdList = moimPeopleRepository.findUserIdsByMoimId(find.getId());
         // 3. .stream().map(entity :: toDto).collect.toList 로 반환하기
         List<userSimpleDto> userSimpleDtoList = new ArrayList<>();
 
         for (Long userId : userIdList) {
-            User user = userRepository.findById(userId).orElseThrow(EntityNotFoundException::new);
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new MoimException(MoimErrorCode.USER_NOT_FOUND));
+
+
             Boolean leader = moimPeopleRepository.findLeaderByMoimIdAndUserId(find.getId(), userId);
             userSimpleDto dto = new userSimpleDto(user.getEmail(),leader);
             userSimpleDtoList.add(dto);
@@ -126,8 +134,8 @@ public class MoimService {
         //1. 사용자가 리더일 때만 모임을 삭제할 수 있다.
         User user = userRepository.findByFirebaseId(uid).orElseThrow(EntityNotFoundException::new);
         Moim moim= moimRepository.findById(moimId).orElseThrow(EntityNotFoundException::new);
-        if(!moimPeopleRepository.findLeaderByMoimIdAndUserId(moim.getId(),user.getId())){
-            throw new NotLeaderUserException("모임을 삭제할 수 있는 권한이 없습니다");
+        if (!moimPeopleRepository.findLeaderByMoimIdAndUserId(moim.getId(), user.getId())) {
+            throw new MoimException(MoimErrorCode.NOT_MOIM_LEADER);
         }
         //2. 삭제하려는 모임 가져오기,
         moimRepository.delete(moim);

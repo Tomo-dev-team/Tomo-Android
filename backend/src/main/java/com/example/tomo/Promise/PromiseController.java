@@ -2,13 +2,11 @@ package com.example.tomo.Promise;
 
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import com.example.tomo.global.ReponseType.ApiResponse;
-import com.example.tomo.global.Exception.DuplicatedException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,16 +31,9 @@ public class PromiseController {
     )
     @PostMapping("/promises")
     public ResponseEntity<ResponsePostUniformDto> addPromise(
-            @RequestBody addPromiseRequestDTO dto) {
-        try {
-            return ResponseEntity.ok(promiseService.addPromise(dto));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ResponsePostUniformDto(false, "모임을 먼저 생성해 주세요"));
-        } catch (DuplicatedException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(new ResponsePostUniformDto(false, "이미 존재하는 약속입니다"));
-        }
+            @Valid @RequestBody addPromiseRequestDTO dto) {
+
+        return ResponseEntity.ok(promiseService.addPromise(dto));
     }
 
     @Operation(
@@ -57,12 +48,13 @@ public class PromiseController {
     public ResponseEntity<ApiResponse<ResponseGetPromiseDto>> getPromise(
             @Parameter(description = "조회할 약속 이름", required = true)
             @RequestParam String promiseName) {
-        try {
-            return ResponseEntity.ok(ApiResponse.success(promiseService.getPromise(promiseName), "약속 조회 성공"));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.failure("존재하지 않는 약속을 조회했습니다"));
-        }
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        promiseService.getPromise(promiseName),
+                        "약속 조회 성공"
+                )
+        );
     }
 
     @Operation(
@@ -77,11 +69,12 @@ public class PromiseController {
     public ResponseEntity<ApiResponse<List<ResponseGetPromiseDto>>> getAllPromises(
             @Parameter(description = "모임 이름", required = true)
             @RequestParam String moimName) {
-        try {
-            return ResponseEntity.ok(ApiResponse.success(promiseService.getAllPromise(moimName), "성공"));
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.failure("해당 모임이 존재하지 않습니다"));
-        }
+
+        return ResponseEntity.ok(
+                ApiResponse.success(
+                        promiseService.getAllPromise(moimName),
+                        "성공"
+                )
+        );
     }
 }
