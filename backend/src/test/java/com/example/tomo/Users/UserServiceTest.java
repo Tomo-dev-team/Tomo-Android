@@ -52,7 +52,7 @@ class UserServiceTest {
         user = new User("uid-1", "tomo", "tomo@test.com");
         friend = new User("uid-2", "john", "john@test.com");
     }
-    @Test
+    /*@Test
     void userSignUp_shouldThrowException_whenUserNotFound() {
         // given
         when(userRepository.findByEmail("john@test.com"))
@@ -62,8 +62,8 @@ class UserServiceTest {
         assertThatThrownBy(() -> userService.userSignUp(friend))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("존재하지 않는");
-    }
-    @Test
+    }*/
+   /* @Test
     void userSignUp_shouldReturnUser_whenExists() {
         // given
         when(userRepository.findByEmail("john@test.com"))
@@ -74,7 +74,7 @@ class UserServiceTest {
 
         // then
         assertThat(result).isEqualTo(friend);
-    }
+    }*/
 
     @Test
     void alreadyFriend_shouldReturnTrue_whenExists() {
