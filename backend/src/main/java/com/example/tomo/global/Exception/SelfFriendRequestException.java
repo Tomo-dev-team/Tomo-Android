@@ -1,7 +1,10 @@
 package com.example.tomo.global.Exception;
 
-public class SelfFriendRequestException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class SelfFriendRequestException extends BusinessException {
+
     public SelfFriendRequestException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 }

@@ -8,6 +8,7 @@ import com.example.tomo.Promise.PromiseErrorCode;
 import com.example.tomo.Promise.PromiseException;
 import com.example.tomo.Users.UserErrorCode;
 import com.example.tomo.Users.UserException;
+import com.example.tomo.global.Exception.BusinessException;
 import com.example.tomo.global.Exception.SelfFriendRequestException;
 import com.example.tomo.global.ReponseType.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
@@ -111,7 +112,14 @@ public class GlobalExceptionHandler {
                 .badRequest()
                 .body(response);
     }
-
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBusinessException(
+            BusinessException e
+    ) {
+        return ResponseEntity
+                .status(e.getStatus())
+                .body(ApiResponse.failure(e.getMessage()));
+    }
 
 
 }
