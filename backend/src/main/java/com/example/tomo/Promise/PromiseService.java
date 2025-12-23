@@ -3,14 +3,11 @@ package com.example.tomo.Promise;
 import com.example.tomo.Moim.Moim;
 import com.example.tomo.Moim.MoimRepository;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
-import com.example.tomo.global.Exception.DuplicatedException;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -68,7 +65,7 @@ public class PromiseService {
                 promise.getPromiseName(),
                 promise.getPromiseDate(),
                 promise.getPromiseTime(),
-                promise.getLocation()
+                promise.getPlace()
         );
     }
 
@@ -83,4 +80,11 @@ public class PromiseService {
 
         return promiseRepository.findByMoimId(moim.getId());
     }
+
+    // 본인의 모든 약속 조회(달력 출력용)
+
+
+    // 본인의 남은 약속 조회
+
+
 }
