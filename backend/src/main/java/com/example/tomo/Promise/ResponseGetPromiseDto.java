@@ -22,4 +22,14 @@ public class ResponseGetPromiseDto {
     private LocalTime promiseTime;
     private String place;
 
+
+    public static ResponseGetPromiseDto from(Promise promise) {
+        return new ResponseGetPromiseDto(
+                promise.getPromiseName(),
+                promise.getPromiseDate(),
+                promise.getPromiseTime(),
+                promise.getPlace()
+        );
+    }
+
 }

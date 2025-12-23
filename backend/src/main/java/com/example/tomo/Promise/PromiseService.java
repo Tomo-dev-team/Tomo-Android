@@ -2,12 +2,18 @@ package com.example.tomo.Promise;
 
 import com.example.tomo.Moim.Moim;
 import com.example.tomo.Moim.MoimRepository;
+import com.example.tomo.Promise_people.PromisePeopleRepository;
+import com.example.tomo.Users.User;
+import com.example.tomo.Users.UserErrorCode;
+import com.example.tomo.Users.UserException;
+import com.example.tomo.Users.UserRepository;
 import com.example.tomo.Users.dtos.ResponsePostUniformDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +21,8 @@ public class PromiseService {
 
     private final PromiseRepository promiseRepository;
     private final MoimRepository moimRepository;
+    private final UserRepository userRepository;
+    private final PromisePeopleRepository promisePeopleRepository;
 
     //약속 생성
     @Transactional
@@ -82,9 +90,21 @@ public class PromiseService {
     }
 
     // 본인의 모든 약속 조회(달력 출력용)
+    @Transactional(readOnly = true)
+    public List<ResponseGetPromiseDto> getAllPromiseByUserId(String uid) {
 
+        User user = userRepository.findByFirebaseId(uid)
+                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        return promisePeopleRepository.findPromisesByUserId(user.getId())
+                .stream()
+                .map(ResponseGetPromiseDto::from)
+                .collect(Collectors.toList());
+    }
 
     // 본인의 남은 약속 조회
+
+
 
 
 }
