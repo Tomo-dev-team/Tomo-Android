@@ -20,6 +20,6 @@ public class ResponseGetPromiseDto {
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss", timezone = "Asia/Seoul")
     private LocalTime promiseTime;
-    private String location;
+    private String place;
 
 }
