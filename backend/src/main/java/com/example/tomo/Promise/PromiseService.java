@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,7 +105,17 @@ public class PromiseService {
     }
 
     // 본인의 남은 약속 조회
+    @Transactional(readOnly = true)
+    public List<ResponseGetPromiseDto> getAllUpcomingPromiseByUserId(String userId) {
 
+        User user = userRepository.findByFirebaseId(userId)
+                .orElseThrow(()-> new UserException(UserErrorCode.USER_NOT_FOUND));
+
+        return promisePeopleRepository.findUpcomingPromisesByUserId(user.getId(), LocalDate.now(), LocalTime.now())
+                .stream()
+                .map(ResponseGetPromiseDto::from)
+                .collect(Collectors.toList());
+    }
 
 
 
