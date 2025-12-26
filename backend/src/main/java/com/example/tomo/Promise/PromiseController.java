@@ -79,7 +79,7 @@ public class PromiseController {
         );
     }
 
-    @GetMapping("/promises")
+    @GetMapping("/promises/all")
     public ResponseEntity<ApiResponse<List<ResponseGetPromiseDto>>> getAllPromises(
             @AuthenticationPrincipal String uid
     ) {
