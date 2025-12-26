@@ -2,7 +2,9 @@ package com.example.tomo.Promise;
 
 import com.example.tomo.Moim.Moim;
 import com.example.tomo.Moim.MoimRepository;
+import com.example.tomo.Moim_people.Moim_people;
 import com.example.tomo.Promise_people.PromisePeopleRepository;
+import com.example.tomo.Promise_people.Promise_people;
 import com.example.tomo.Users.User;
 import com.example.tomo.Users.UserErrorCode;
 import com.example.tomo.Users.UserException;
@@ -55,6 +57,15 @@ public class PromiseService {
 
         promise.setMoimBasedPromise(moim);
         promiseRepository.save(promise);
+
+        // 모임 내 약속으로 처리하기
+        List<Promise_people> moimPeopleList = moim.getMoimPeopleList()
+                .stream()
+                .map(mp -> new Promise_people(promise, mp.getUser(), false))
+                .collect(Collectors.toList());
+
+        promisePeopleRepository.saveAll(moimPeopleList);
+
 
         return new ResponsePostUniformDto(
                 true,
