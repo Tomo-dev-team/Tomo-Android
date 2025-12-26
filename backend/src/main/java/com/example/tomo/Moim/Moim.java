@@ -1,7 +1,7 @@
 package com.example.tomo.Moim;
 
 import com.example.tomo.Moim_people.Moim_people;
-import com.example.tomo.Promise.Promise;
+import com.example.tomo.global.Embedded.Location;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -25,6 +25,10 @@ public class Moim {
     private final List<Moim_people> moimPeopleList = new ArrayList<>();
 
     private String title;
+
+    private Location location;
+
+    private Boolean isPublic;
 
     @Lob
     private String description;
