@@ -36,9 +36,11 @@ public class Moim {
     public Moim() {
     }
 
-    public Moim(String title, String description) {
+    public Moim(String title, String description, Boolean isPublic, Location location) {
         this.title = title;
         this.description = description;
+        this.isPublic = isPublic;
+        this.location = location;
     }
 
     private LocalDate createdAt;

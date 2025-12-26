@@ -19,8 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toList;
-
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -34,7 +32,7 @@ public class MoimService {
     @Transactional // 이메일로 처리하기
     public addMoimResponseDto addMoim(String uid, addMoimRequestDto dto) {
 
-        Moim moim = new Moim(dto.getTitle(), dto.getDescription()); // 일단 생성자도 변경해야 해서 그대로 두기
+        Moim moim = new Moim(dto.getTitle(), dto.getDescription(), dto.getIsPublic(), dto.getLocation()); // 일단 생성자도 변경해야 해서 그대로 두기
         Moim saved = moimRepository.save(moim);
 
         List<String> emailList = dto.getEmails();
