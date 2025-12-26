@@ -33,11 +33,12 @@ public class Promise {
     public Promise() {}
 
     public Promise(String promiseName, String place,
-                   LocalTime promiseTime, LocalDate promiseDate) {
+                   LocalTime promiseTime, LocalDate promiseDate, Location location) {
         this.place = place;
         this.promiseName = promiseName;
         this.promiseDate = promiseDate;
         this.promiseTime = promiseTime;
+        this.location = location;
     }
 
     public void setMoimBasedPromise(Moim moim){

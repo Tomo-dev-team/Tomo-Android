@@ -52,7 +52,8 @@ public class PromiseService {
                 dto.getPromiseName(),
                 dto.getPlace(),
                 dto.getPromiseTime(),
-                dto.getPromiseDate()
+                dto.getPromiseDate(),
+                dto.getLocation()
         );
 
         promise.setMoimBasedPromise(moim);
