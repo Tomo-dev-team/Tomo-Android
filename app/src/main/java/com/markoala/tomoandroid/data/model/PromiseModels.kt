@@ -19,8 +19,9 @@ data class PromiseDTO(
     val title: String,
     val promiseName: String,
     val promiseDate: String,
-    val promiseTime: String,
-    val place: String
+    val promiseTime: PromiseTimeDTO,
+    val place: String,
+    val location: PromiseLocationDTO
 )
 
 data class PromiseTimeDTO(

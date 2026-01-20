@@ -7,6 +7,8 @@ import com.markoala.tomoandroid.data.api.MoimsApiService
 import com.markoala.tomoandroid.data.api.PromiseApiService
 import com.markoala.tomoandroid.data.model.MoimListDTO
 import com.markoala.tomoandroid.data.model.PromiseDTO
+import com.markoala.tomoandroid.data.model.PromiseLocationDTO
+import com.markoala.tomoandroid.data.model.PromiseTimeDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -106,6 +108,8 @@ class CreatePromiseViewModel : ViewModel() {
         val date = _promiseDate.value
         val time = _promiseTime.value
         val placeValue = _place.value?.trim()
+        val location = _selectedAddress.value?.toLocationDto()
+        val timeValue = time?.toPromiseTimeDto()
 
         if (moim == null) {
             _errorMessage.value = "약속을 만들 모임을 선택해주세요."
@@ -127,6 +131,14 @@ class CreatePromiseViewModel : ViewModel() {
             _errorMessage.value = "약속 장소를 선택해주세요."
             return
         }
+        if (location == null) {
+            _errorMessage.value = "약속 위치를 선택해주세요."
+            return
+        }
+        if (timeValue == null) {
+            _errorMessage.value = "약속 시간을 다시 선택해주세요."
+            return
+        }
 
         _isSubmitting.value = true
         _errorMessage.value = null
@@ -138,8 +150,9 @@ class CreatePromiseViewModel : ViewModel() {
                     title = moim.title,
                     promiseName = name,
                     promiseDate = date,
-                    promiseTime = time,
-                    place = placeValue
+                    promiseTime = timeValue,
+                    place = placeValue,
+                    location = location
                 )
                 val response = PromiseApiService.createPromise(dto).awaitResponse()
                 if (response.isSuccessful && response.body()?.success == true) {
@@ -174,4 +187,22 @@ private fun GeocodeAddress.displayTitle(): String {
         ?: jibunAddress?.takeIf { it.isNotBlank() }
         ?: englishAddress?.takeIf { it.isNotBlank() }
         ?: "선택한 장소"
+}
+
+private fun String.toPromiseTimeDto(): PromiseTimeDTO? {
+    val formatter = DateTimeFormatter.ofPattern("HH:mm")
+    val parsed = runCatching { LocalTime.parse(this, formatter) }.getOrNull() ?: return null
+    return PromiseTimeDTO(
+        hour = parsed.hour,
+        minute = parsed.minute,
+        second = parsed.second,
+        nano = parsed.nano
+    )
+}
+
+private fun GeocodeAddress.toLocationDto(): PromiseLocationDTO? {
+    val latitude = y?.toDoubleOrNull()
+    val longitude = x?.toDoubleOrNull()
+    if (latitude == null || longitude == null) return null
+    return PromiseLocationDTO(latitude = latitude, longitude = longitude)
 }
