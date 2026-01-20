@@ -12,7 +12,14 @@ data class MoimListDTO(
 data class CreateMoimDTO(
     val title: String,
     val description: String,
-    val emails: List<String>
+    val isPublic: Boolean,
+    val emails: List<String>,
+    val location: MoimLocationDTO
+)
+
+data class MoimLocationDTO(
+    val latitude: Double,
+    val longitude: Double
 )
 
 data class Member(

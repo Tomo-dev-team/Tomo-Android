@@ -4,10 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.markoala.tomoandroid.auth.AuthManager
+import com.markoala.tomoandroid.data.api.GeocodeAddress
 import com.markoala.tomoandroid.data.api.MoimsApiService
 import com.markoala.tomoandroid.data.api.friendsApi
-import com.markoala.tomoandroid.data.model.FriendProfile
 import com.markoala.tomoandroid.data.model.CreateMoimDTO
+import com.markoala.tomoandroid.data.model.FriendProfile
+import com.markoala.tomoandroid.data.model.MoimLocationDTO
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,10 +19,17 @@ import retrofit2.awaitResponse
 class CreateMeetingViewModel(application: Application) : AndroidViewModel(application) {
     val title = MutableStateFlow("")
     val description = MutableStateFlow("")
+    val isPublic = MutableStateFlow(true)
     private val _friends = MutableStateFlow<List<FriendProfile>>(emptyList())
     val friends: StateFlow<List<FriendProfile>> = _friends
     private val _selectedEmails = MutableStateFlow<Set<String>>(emptySet())
     val selectedEmails: StateFlow<Set<String>> = _selectedEmails
+    private val _selectedAddress = MutableStateFlow<GeocodeAddress?>(null)
+    val selectedAddress: StateFlow<GeocodeAddress?> = _selectedAddress
+    private val _selectedQuery = MutableStateFlow<String?>(null)
+    val selectedQuery: StateFlow<String?> = _selectedQuery
+    private val _locationLabel = MutableStateFlow<String?>(null)
+    val locationLabel: StateFlow<String?> = _locationLabel
     val isLoading = MutableStateFlow(false)
     val isSuccess = MutableStateFlow<Boolean?>(null)
     val errorMessage = MutableStateFlow<String?>(null)
@@ -53,9 +62,22 @@ class CreateMeetingViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
+    fun updateLocation(query: String, address: GeocodeAddress) {
+        _selectedQuery.value = query
+        _selectedAddress.value = address
+        val label = address.displayTitle().ifBlank { query }.ifBlank { "선택한 장소" }
+        _locationLabel.value = label
+        clearError()
+    }
+
     fun createMoim() {
         if (title.value.isBlank() || description.value.isBlank()) {
             errorMessage.value = "모임 이름과 설명을 입력하세요."
+            return
+        }
+        val location = selectedAddress.value?.toLocationDto()
+        if (location == null) {
+            errorMessage.value = "모임 위치를 선택해주세요."
             return
         }
         isLoading.value = true
@@ -67,7 +89,9 @@ class CreateMeetingViewModel(application: Application) : AndroidViewModel(applic
                 val dto = CreateMoimDTO(
                     title = title.value,
                     description = description.value,
-                    emails = emails
+                    isPublic = isPublic.value,
+                    emails = emails,
+                    location = location
                 )
                 val response = MoimsApiService.postMoim(dto).awaitResponse()
                 isLoading.value = false
@@ -94,9 +118,28 @@ class CreateMeetingViewModel(application: Application) : AndroidViewModel(applic
     fun resetAllData() {
         title.value = ""
         description.value = ""
+        isPublic.value = true
         _selectedEmails.value = emptySet()
+        _selectedAddress.value = null
+        _selectedQuery.value = null
+        _locationLabel.value = null
         errorMessage.value = null
         isSuccess.value = null
         isLoading.value = false
     }
+}
+
+private fun GeocodeAddress.toLocationDto(): MoimLocationDTO? {
+    val latitude = y?.toDoubleOrNull()
+    val longitude = x?.toDoubleOrNull()
+    if (latitude == null || longitude == null) return null
+    return MoimLocationDTO(latitude = latitude, longitude = longitude)
+}
+
+private fun GeocodeAddress.displayTitle(): String {
+    return name?.takeIf { it.isNotBlank() }
+        ?: roadAddress?.takeIf { it.isNotBlank() }
+        ?: jibunAddress?.takeIf { it.isNotBlank() }
+        ?: englishAddress?.takeIf { it.isNotBlank() }
+        ?: ""
 }

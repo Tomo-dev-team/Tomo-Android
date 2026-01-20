@@ -1,5 +1,6 @@
 package com.markoala.tomoandroid.ui.main.meeting.create_meeting
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import com.markoala.tomoandroid.ui.main.meeting.create_meeting.components.StepIn
 import com.markoala.tomoandroid.ui.main.meeting.create_meeting.steps.StepOneSection
 import com.markoala.tomoandroid.ui.main.meeting.create_meeting.steps.StepThreeSection
 import com.markoala.tomoandroid.ui.main.meeting.create_meeting.steps.StepTwoSection
+import com.markoala.tomoandroid.ui.main.map.map_search.MapSearchScreen
 import com.markoala.tomoandroid.ui.theme.CustomColor
 
 @Composable
@@ -50,13 +52,18 @@ fun CreateMeetingScreen(
     val viewModel: CreateMeetingViewModel = viewModel()
     val title by viewModel.title.collectAsState()
     val description by viewModel.description.collectAsState()
+    val isPublic by viewModel.isPublic.collectAsState()
     val friends by viewModel.friends.collectAsState()
     val selectedEmails by viewModel.selectedEmails.collectAsState()
+    val selectedAddress by viewModel.selectedAddress.collectAsState()
+    val selectedQuery by viewModel.selectedQuery.collectAsState()
+    val locationLabel by viewModel.locationLabel.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isSuccess by viewModel.isSuccess.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
 
     var currentStep by rememberSaveable { mutableStateOf(1) }
+    var showMapSearch by remember { mutableStateOf(false) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
@@ -78,10 +85,28 @@ fun CreateMeetingScreen(
         }
     }
 
+    BackHandler(enabled = showMapSearch) {
+        showMapSearch = false
+    }
+
+    if (showMapSearch) {
+        MapSearchScreen(
+            paddingValues = paddingValues,
+            initialQuery = selectedQuery,
+            onBackClick = { showMapSearch = false },
+            onSelect = { query, address ->
+                viewModel.updateLocation(query, address)
+                showMapSearch = false
+            }
+        )
+        return
+    }
+
     val density = LocalDensity.current
     var bottomBarHeight by remember { mutableStateOf(0.dp) }
     val scrollState = rememberScrollState()
     val bottomSpacing = 24.dp
+    val hasLocation = !locationLabel.isNullOrBlank()
 
     Box(
         modifier = Modifier
@@ -112,6 +137,9 @@ fun CreateMeetingScreen(
                             1 -> StepOneSection(
                                 title = title,
                                 description = description,
+                                isPublic = isPublic,
+                                locationLabel = locationLabel,
+                                selectedAddress = selectedAddress,
                                 onNameChange = {
                                     viewModel.title.value = it
                                     viewModel.clearError()
@@ -119,7 +147,12 @@ fun CreateMeetingScreen(
                                 onDescriptionChange = {
                                     viewModel.description.value = it
                                     viewModel.clearError()
-                                }
+                                },
+                                onPublicChange = {
+                                    viewModel.isPublic.value = it
+                                    viewModel.clearError()
+                                },
+                                onSearchLocation = { showMapSearch = true }
                             )
 
                             2 -> StepTwoSection(
@@ -134,6 +167,8 @@ fun CreateMeetingScreen(
                             3 -> StepThreeSection(
                                 title = title,
                                 description = description,
+                                isPublic = isPublic,
+                                locationLabel = locationLabel,
                                 selectedFriends = friends.filter { selectedEmails.contains(it.email) }
                             )
                         }
@@ -162,7 +197,7 @@ fun CreateMeetingScreen(
                 currentStep = currentStep,
                 isLoading = isLoading,
                 canGoNext = when (currentStep) {
-                    1 -> title.isNotBlank() && description.isNotBlank()
+                    1 -> title.isNotBlank() && description.isNotBlank() && hasLocation
                     2 -> selectedEmails.isNotEmpty()
                     else -> true
                 },

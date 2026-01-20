@@ -21,7 +21,7 @@ interface MoimsApi {
     @POST("/public/moims")
     fun postMoim(
         @Body body: CreateMoimDTO
-    ): Call<BaseResponse<Unit>>
+    ): Call<BaseResponse<CreateMoimDTO>>
 
     @DELETE("/public/moims/{moim_id}")
     fun deleteMoim(
