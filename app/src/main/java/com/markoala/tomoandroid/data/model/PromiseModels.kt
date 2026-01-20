@@ -22,3 +22,26 @@ data class PromiseDTO(
     val promiseTime: String,
     val place: String
 )
+
+data class PromiseTimeDTO(
+    val hour: Int,
+    val minute: Int,
+    val second: Int,
+    val nano: Int
+)
+
+data class PromiseLocationDTO(
+    val latitude: Double,
+    val longitude: Double
+)
+
+data class MyPromiseResponseDTO(
+    val promiseId: Int,
+    val promiseName: String,
+    val promiseDate: String,
+    val promiseTime: PromiseTimeDTO,
+    val place: String,
+    val location: PromiseLocationDTO,
+    val moimId: Int,
+    val moimTitle: String
+)
