@@ -4,9 +4,11 @@ data class MoimListDTO(
     val moimId: Int,
     val title: String,
     val description: String,
-    val peopleCount: Int,
+    val emails: List<String>,
+    val location: MoimLocationDTO,
     val leader: Boolean,
-    val createdAt: String
+    val createdAt: String,
+    val isPublic: Boolean
 )
 
 data class CreateMoimDTO(

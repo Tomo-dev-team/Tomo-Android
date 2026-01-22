@@ -85,7 +85,7 @@ class CreatePromiseViewModel : ViewModel() {
         viewModelScope.launch {
             _isFetchingMoims.value = true
             try {
-                val response = MoimsApiService.getMoimsList().awaitResponse()
+                val response = MoimsApiService.getMyMoims().awaitResponse()
                 if (response.isSuccessful) {
                     val moims = response.body()?.data.orEmpty().filter { it.leader }
                     val previous = _selectedMoim.value

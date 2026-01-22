@@ -15,8 +15,8 @@ interface MoimsApi {
         @Path("moim_id") moimId: Int
     ): Call<BaseResponse<MoimDetails>>
 
-    @GET("/public/moims/list")
-    fun getMoimsList(): Call<BaseResponse<List<MoimListDTO>>>
+    @GET("/public/moims/my")
+    fun getMyMoims(): Call<BaseResponse<List<MoimListDTO>>>
 
     @POST("/public/moims")
     fun postMoim(

@@ -25,20 +25,10 @@ class MeetingViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val response = MoimsApiService.getMoimsList().awaitResponse()
+                val response = MoimsApiService.getMyMoims().awaitResponse()
                 if (response.isSuccessful) {
                     val body: BaseResponse<List<MoimListDTO>>? = response.body()
-                    val meetings = body?.data ?: emptyList()
-                    _meetings.value = meetings.map {
-                        MoimListDTO(
-                            moimId = it.moimId, // 추가
-                            title = it.title,
-                            description = it.description,
-                            peopleCount = it.peopleCount,
-                            createdAt = it.createdAt,
-                            leader = it.leader
-                        )
-                    }
+                    _meetings.value = body?.data.orEmpty()
                 }
             } catch (e: Exception) {
                 // 에러 처리 필요시 추가
