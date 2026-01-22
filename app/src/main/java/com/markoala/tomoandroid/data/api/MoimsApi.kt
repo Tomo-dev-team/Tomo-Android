@@ -7,6 +7,7 @@ import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface MoimsApi {
 
@@ -27,6 +28,11 @@ interface MoimsApi {
     fun deleteMoim(
         @Path("moim_id") moimId: Int
     ): Call<BaseResponse<Unit>>
+
+    @GET("/public/promises/moim")
+    fun getMoimPromises(
+        @Query("moimTitle") moimTitle: String
+    ): Call<BaseResponse<List<MoimPromiseDTO>>>
 }
 
 

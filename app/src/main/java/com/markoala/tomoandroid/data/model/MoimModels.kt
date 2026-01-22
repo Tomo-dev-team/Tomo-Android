@@ -34,3 +34,14 @@ data class MoimDetails(
     val createdAt: String,
     val isPublic: Boolean
 )
+
+data class MoimPromiseDTO(
+    val promiseId: Int,
+    val promiseName: String,
+    val promiseDate: String,
+    val promiseTime: PromiseTimeDTO,
+    val place: String,
+    val location: PromiseLocationDTO,
+    val moimId: Int,
+    val moimTitle: String
+)

@@ -35,8 +35,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.R
-import com.markoala.tomoandroid.data.api.PromiseApiService
-import com.markoala.tomoandroid.data.model.PromiseResponseDTO
+import com.markoala.tomoandroid.data.api.MoimsApiService
+import com.markoala.tomoandroid.data.model.MoimPromiseDTO
+import com.markoala.tomoandroid.data.model.PromiseTimeDTO
 import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomBack
 import com.markoala.tomoandroid.ui.components.CustomButton
@@ -52,8 +53,8 @@ import kotlinx.coroutines.launch
 import retrofit2.awaitResponse
 
 class MeetingPromiseListViewModel : ViewModel() {
-    private val _promises = MutableStateFlow<List<PromiseResponseDTO>>(emptyList())
-    val promises: StateFlow<List<PromiseResponseDTO>> = _promises
+    private val _promises = MutableStateFlow<List<MoimPromiseDTO>>(emptyList())
+    val promises: StateFlow<List<MoimPromiseDTO>> = _promises
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -66,7 +67,7 @@ class MeetingPromiseListViewModel : ViewModel() {
             _isLoading.value = true
             _errorMessage.value = null
             try {
-                val response = PromiseApiService.getPromisesList(moimName).awaitResponse()
+                val response = MoimsApiService.getMoimPromises(moimName).awaitResponse()
                 if (response.isSuccessful) {
                     val body = response.body()
                     if (body?.success == true) {
@@ -237,10 +238,9 @@ fun MeetingPromiseListScreen(
 
                 else -> {
                     items(
-                        items = promises,
-                        key = { promise ->
-                            val safeLocation = promise.resolvedLocation
-                            "${promise.promiseName}-${promise.promiseDate}-${promise.promiseTime}-${safeLocation}"
+                    items = promises,
+                    key = { promise ->
+                            promise.promiseId
                         }
                     ) { promise ->
                         PromiseItemCard(promise)
@@ -267,9 +267,9 @@ fun MeetingPromiseListScreen(
 }
 
 @Composable
-private fun PromiseItemCard(promise: PromiseResponseDTO) {
+private fun PromiseItemCard(promise: MoimPromiseDTO) {
     val formattedDate = parseIsoToKoreanDate(promise.promiseDate)
-    val placeText = promise.resolvedLocation.ifBlank { "장소 미정" }
+    val placeText = promise.place.ifBlank { "장소 미정" }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -314,7 +314,7 @@ private fun PromiseItemCard(promise: PromiseResponseDTO) {
                             modifier = Modifier.size(16.dp)
                         )
                         CustomText(
-                            text = formatTimeWithoutSeconds(promise.promiseTime),
+                            text = formatPromiseTime(promise.promiseTime),
                             type = CustomTextType.bodySmall,
                             color = CustomColor.primaryDim
                         )
@@ -375,4 +375,12 @@ private fun PromiseMetaChip(
             )
         }
     }
+}
+
+private fun formatPromiseTime(time: PromiseTimeDTO?): String {
+    if (time == null) return "-"
+    val hour = time.hour
+    val minute = time.minute
+    val timeValue = String.format("%02d:%02d", hour, minute)
+    return formatTimeWithoutSeconds(timeValue)
 }
