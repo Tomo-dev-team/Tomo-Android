@@ -123,7 +123,7 @@ private fun MeetingDetailContent(
     val createdDate = parseIsoToKoreanDate(moimDetails.createdAt)
     val daysActive = getFriendshipDurationText(moimDetails.createdAt)
     val currentUserEmail = FirebaseAuth.getInstance().currentUser?.email
-    val isLeader = moimDetails.members.any { it.email == currentUserEmail && it.leader }
+    val isLeader = moimDetails.leader
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -210,7 +210,7 @@ private fun MeetingDetailContent(
                             shape = RoundedCornerShape(24.dp)
                         ),
                     label = "멤버",
-                    value = "${moimDetails.members.size}명",
+                    value = "${moimDetails.emails.size}명",
                     icon = R.drawable.ic_people
                 )
 

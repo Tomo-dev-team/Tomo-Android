@@ -54,7 +54,7 @@ class MeetingDetailViewModel : ViewModel() {
 
                         // 멤버들의 프로필 정보 가져오기
                         body.data?.let { details ->
-                            fetchMembersProfiles(details.members.map { it.email to it.leader })
+                            fetchMembersProfiles(details.emails, details.leader)
                         }
                     } else {
                         _errorMessage.value = body?.message ?: "모임 정보를 불러오지 못했습니다."
@@ -73,15 +73,16 @@ class MeetingDetailViewModel : ViewModel() {
         }
     }
 
-    private suspend fun fetchMembersProfiles(members: List<Pair<String, Boolean>>) {
+    private suspend fun fetchMembersProfiles(emails: List<String>, currentUserIsLeader: Boolean) {
         try {
             val currentUserEmail = firebaseAuth.currentUser?.email
             val currentUserName = firebaseAuth.currentUser?.displayName
 
             val profiles = withContext(Dispatchers.IO) {
-                members.map { (email, isLeader) ->
+                emails.map { email ->
                     async {
                         try {
+                            val isLeader = currentUserIsLeader && email == currentUserEmail
                             // 본인일 경우 API 호출 없이 본인 정보 사용
                             if (email == currentUserEmail) {
                                 val selfProfile = FriendProfile(
@@ -115,6 +116,7 @@ class MeetingDetailViewModel : ViewModel() {
                             }
                         } catch (e: Exception) {
                             Log.e("MeetingDetailViewModel", "프로필 로드 실패: $email", e)
+                            val isLeader = currentUserIsLeader && email == currentUserEmail
                             MemberWithProfile(email, isLeader, null)
                         }
                     }

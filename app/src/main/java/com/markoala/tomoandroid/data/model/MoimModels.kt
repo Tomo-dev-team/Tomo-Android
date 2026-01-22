@@ -24,15 +24,13 @@ data class MoimLocationDTO(
     val longitude: Double
 )
 
-data class Member(
-    val email: String,
-    val leader: Boolean
-)
-
 data class MoimDetails(
     val moimId: Int,
     val title: String,
     val description: String,
-    val members: List<Member>,
-    val createdAt: String
+    val emails: List<String>,
+    val location: MoimLocationDTO,
+    val leader: Boolean,
+    val createdAt: String,
+    val isPublic: Boolean
 )

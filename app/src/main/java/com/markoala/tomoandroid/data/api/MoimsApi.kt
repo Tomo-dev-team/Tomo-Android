@@ -10,9 +10,9 @@ import retrofit2.http.Path
 
 interface MoimsApi {
 
-    @GET("/public/moims/{moim_id}")
+    @GET("/public/moims/{moimId}")
     fun getMoimDetails(
-        @Path("moim_id") moimId: Int
+        @Path("moimId") moimId: Int
     ): Call<BaseResponse<MoimDetails>>
 
     @GET("/public/moims/my")
