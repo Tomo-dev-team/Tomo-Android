@@ -40,7 +40,7 @@ data class MyPromiseResponseDTO(
     val promiseId: Int,
     val promiseName: String,
     val promiseDate: String,
-    val promiseTime: PromiseTimeDTO,
+    val promiseTime: String,
     val place: String,
     val location: PromiseLocationDTO,
     val moimId: Int,

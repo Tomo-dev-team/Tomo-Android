@@ -23,8 +23,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.markoala.tomoandroid.R
-import com.markoala.tomoandroid.data.api.PromiseApiService
-import com.markoala.tomoandroid.data.model.MoimListDTO
 import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomButton
 import com.markoala.tomoandroid.ui.components.CustomText
@@ -36,9 +34,6 @@ import com.markoala.tomoandroid.ui.main.calendar.model.CalendarEventType
 import com.markoala.tomoandroid.ui.main.meeting.MeetingViewModel
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.utils.formatTimeWithoutSeconds
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import retrofit2.awaitResponse
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -46,6 +41,7 @@ import java.time.YearMonth
 fun CalendarScreen(
     paddingValues: PaddingValues,
     meetingViewModel: MeetingViewModel = viewModel(),
+    calendarViewModel: CalendarViewModel = viewModel(),
     onEventClick: (Int) -> Unit = {},
     onAddPromiseClick: (LocalDate) -> Unit = {}
 ) {
@@ -57,12 +53,12 @@ fun CalendarScreen(
 
     val meetings by meetingViewModel.meetings.collectAsState()
     val isLoading by meetingViewModel.isLoading.collectAsState()
+    val promiseEvents by calendarViewModel.promiseEvents.collectAsState()
+    val isPromiseLoading by calendarViewModel.isLoading.collectAsState()
     val lifecycleOwner = LocalLifecycleOwner.current
     val meetingsState = rememberUpdatedState(meetings)
+    val promiseEventsState = rememberUpdatedState(promiseEvents)
     var dailySchedules by remember { mutableStateOf<List<CalendarEvent>?>(null) }
-    var promiseEvents by remember { mutableStateOf<List<CalendarEvent>>(emptyList()) }
-    var isPromiseLoading by remember { mutableStateOf(false) }
-    var hasFetchedPromises by remember { mutableStateOf(false) }
 
     val meetingEvents = remember(meetings) {
         meetings.mapNotNull { moim ->
@@ -81,14 +77,6 @@ fun CalendarScreen(
         }
     }
 
-    LaunchedEffect(meetings, hasFetchedPromises) {
-        if (hasFetchedPromises || meetings.isEmpty()) return@LaunchedEffect
-        isPromiseLoading = true
-        promiseEvents = runCatching { fetchPromiseEvents(meetings) }.getOrDefault(emptyList())
-        hasFetchedPromises = true
-        isPromiseLoading = false
-    }
-
     val eventMap by remember(meetingEvents, promiseEvents) {
         derivedStateOf { (meetingEvents + promiseEvents).groupBy { it.date } }
     }
@@ -100,6 +88,9 @@ fun CalendarScreen(
             if (event == Lifecycle.Event.ON_RESUME) {
                 if (meetingsState.value.isEmpty()) {
                     meetingViewModel.fetchMeetings()
+                }
+                if (promiseEventsState.value.isEmpty()) {
+                    calendarViewModel.fetchPromises()
                 }
             }
         }
@@ -341,36 +332,6 @@ fun CalendarScreen(
             }
         }
     }
-}
-
-private suspend fun fetchPromiseEvents(meetings: List<MoimListDTO>): List<CalendarEvent> = withContext(Dispatchers.IO) {
-    val formatter = java.time.format.DateTimeFormatter.ISO_LOCAL_DATE
-    val collected = mutableListOf<CalendarEvent>()
-    meetings.forEach { moim ->
-        runCatching {
-            PromiseApiService.getPromisesList(moim.title).awaitResponse()
-        }.onSuccess { response ->
-            if (response.isSuccessful) {
-                response.body()?.data.orEmpty().forEach { promise ->
-                    val date = runCatching { LocalDate.parse(promise.promiseDate.take(10), formatter) }.getOrNull()
-                    if (date != null) {
-                        collected += CalendarEvent(
-                            id = "promise-${moim.moimId}-${promise.promiseName}-${promise.promiseDate}-${promise.promiseTime}",
-                            date = date,
-                            title = promise.promiseName,
-                            description = moim.title,
-                            type = CalendarEventType.PROMISE,
-                            moimId = moim.moimId,
-                            promiseTime = promise.promiseTime,
-                            place = promise.resolvedLocation,
-                            moimTitle = moim.title
-                        )
-                    }
-                }
-            }
-        }
-    }
-    collected
 }
 
 @Composable
