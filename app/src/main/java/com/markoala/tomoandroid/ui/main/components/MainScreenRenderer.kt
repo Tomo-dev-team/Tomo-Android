@@ -91,7 +91,8 @@ fun MainScreenRenderer(
                             initialQuery = query
                         )
                     )
-                }
+                },
+                showPublicMoims = true
             )
         }
 

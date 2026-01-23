@@ -147,7 +147,8 @@ fun CreatePromiseScreen(
     val isFormReady = selectedMoim != null &&
         promiseName.isNotBlank() &&
         promiseTime != null &&
-        !place.isNullOrBlank()
+        !place.isNullOrBlank() &&
+        selectedAddress != null
 
     val friendlyDate = remember(selectedDate) { "${selectedDate.monthValue}월 ${selectedDate.dayOfMonth}일" }
 

@@ -4,26 +4,44 @@ data class MoimListDTO(
     val moimId: Int,
     val title: String,
     val description: String,
-    val peopleCount: Int,
+    val emails: List<String>,
+    val location: MoimLocationDTO,
     val leader: Boolean,
-    val createdAt: String
+    val createdAt: String,
+    val isPublic: Boolean
 )
 
 data class CreateMoimDTO(
     val title: String,
     val description: String,
-    val emails: List<String>
+    val isPublic: Boolean,
+    val emails: List<String>,
+    val location: MoimLocationDTO
 )
 
-data class Member(
-    val email: String,
-    val leader: Boolean
+data class MoimLocationDTO(
+    val latitude: Double,
+    val longitude: Double
 )
 
 data class MoimDetails(
     val moimId: Int,
     val title: String,
     val description: String,
-    val members: List<Member>,
-    val createdAt: String
+    val emails: List<String>,
+    val location: MoimLocationDTO,
+    val leader: Boolean,
+    val createdAt: String,
+    val isPublic: Boolean
+)
+
+data class MoimPromiseDTO(
+    val promiseId: Int,
+    val promiseName: String,
+    val promiseDate: String,
+    val promiseTime: PromiseTimeDTO,
+    val place: String,
+    val location: PromiseLocationDTO,
+    val moimId: Int,
+    val moimTitle: String
 )

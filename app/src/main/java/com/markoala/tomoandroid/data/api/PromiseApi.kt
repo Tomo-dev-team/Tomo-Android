@@ -18,6 +18,9 @@ interface PromiseApi {
         fun getPromisesList(
             @Query("moimName")  moimName: String
         ):  Call<BaseResponse<List<PromiseResponseDTO>>>
+
+    @GET("/public/promises/my")
+        fun getMyPromises(): Call<BaseResponse<List<MyPromiseResponseDTO>>>
 }
 
 

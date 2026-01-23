@@ -40,7 +40,7 @@ fun MeetingCard(
 ) {
     val homeViewModel: MeetingViewModel = viewModel()
     val createdDate = parseIsoToKoreanDate(meeting.createdAt)
-    val friendshipDuration = getFriendshipDurationText(meeting.createdAt ?: "")
+    val friendshipDuration = getFriendshipDurationText(meeting.createdAt)
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     Surface(
@@ -95,7 +95,8 @@ fun MeetingCard(
                 MetaRow( text = "$friendshipDuration 동안 함께하고 있어요")
                 MetaRow(icon = R.drawable.ic_time,text = "최초생성일: $createdDate")
 
-                MetaRow(icon = R.drawable.ic_people, text = "${meeting.peopleCount}명 참여 중")
+                MetaRow(text = if (meeting.isPublic) "공개 모임" else "비공개 모임")
+                MetaRow(icon = R.drawable.ic_people, text = "${meeting.emails.size}명 참여 중")
             }
 
             Row(

@@ -19,6 +19,8 @@ import com.markoala.tomoandroid.ui.theme.CustomColor
 fun StepThreeSection(
     title: String,
     description: String,
+    isPublic: Boolean,
+    locationLabel: String?,
     selectedFriends: List<FriendProfile>
 ) {
     Surface(
@@ -33,6 +35,8 @@ fun StepThreeSection(
             CustomText(text = "입력한 내용을 확인하세요", type = CustomTextType.body, color = CustomColor.primaryDim)
             SummaryRow(label = "제목", value = title)
             SummaryRow(label = "설명", value = description)
+            SummaryRow(label = "공개 여부", value = if (isPublic) "공개" else "비공개")
+            SummaryRow(label = "위치", value = locationLabel ?: "선택하지 않음")
             SummaryRow(label = "인원 수", value = selectedFriends.size.toString())
             if (selectedFriends.isNotEmpty()) {
                 SummaryRow(
