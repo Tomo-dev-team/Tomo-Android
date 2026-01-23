@@ -19,6 +19,9 @@ interface MoimsApi {
     @GET("/public/moims/my")
     fun getMyMoims(): Call<BaseResponse<List<MoimListDTO>>>
 
+    @GET("/public/moims/all")
+    fun getAllPublicMoims(): Call<BaseResponse<List<MoimListDTO>>>
+
     @POST("/public/moims")
     fun postMoim(
         @Body body: CreateMoimDTO

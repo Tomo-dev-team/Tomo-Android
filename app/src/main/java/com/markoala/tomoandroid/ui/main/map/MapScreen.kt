@@ -8,22 +8,29 @@ import android.util.Log
 import android.view.MotionEvent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +39,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -43,6 +52,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
@@ -60,6 +70,8 @@ import com.kakao.vectormap.label.LabelStyle
 import com.kakao.vectormap.label.LabelTextBuilder
 import com.markoala.tomoandroid.R
 import com.markoala.tomoandroid.data.api.GeocodeAddress
+import com.markoala.tomoandroid.data.model.MoimListDTO
+import com.markoala.tomoandroid.data.model.MoimLocationDTO
 import com.markoala.tomoandroid.ui.components.ButtonStyle
 import com.markoala.tomoandroid.ui.components.CustomButton
 import com.markoala.tomoandroid.ui.components.CustomText
@@ -67,8 +79,10 @@ import com.markoala.tomoandroid.ui.components.CustomTextType
 import com.markoala.tomoandroid.ui.components.LocalToastManager
 import com.markoala.tomoandroid.ui.theme.CustomColor
 import com.markoala.tomoandroid.utils.LocationPermissionHelper
+import com.markoala.tomoandroid.utils.parseIsoToKoreanDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import java.util.Locale
 
 @Composable
 fun MapScreen(
@@ -79,7 +93,8 @@ fun MapScreen(
     onCreatePromiseWithLocation: (GeocodeAddress, String?) -> Unit = { _, _ -> },
     interactive: Boolean = true,
     isPromise: Boolean = true,
-    showSearchOverlay: Boolean = true
+    showSearchOverlay: Boolean = true,
+    showPublicMoims: Boolean = false
 ) {
     val context = LocalContext.current
     val appContext = context.applicationContext
@@ -91,6 +106,15 @@ fun MapScreen(
 
     val defaultPos = LatLng.from(37.5666102, 126.9783881)
     val selectedAddressState = rememberUpdatedState(selectedAddress)
+    val mapViewModel = if (showPublicMoims) viewModel<MapViewModel>() else null
+    val publicMoimsState = mapViewModel?.publicMoims?.collectAsState()
+    val selectedMoimState = mapViewModel?.selectedMoim?.collectAsState()
+    val isLoadingPublicMoimsState = mapViewModel?.isLoading?.collectAsState()
+    val errorMessageState = mapViewModel?.errorMessage?.collectAsState()
+    val publicMoims = publicMoimsState?.value.orEmpty()
+    val selectedMoim = selectedMoimState?.value
+    val isLoadingPublicMoims = isLoadingPublicMoimsState?.value ?: false
+    val errorMessage = errorMessageState?.value
 
     var hasLocationPermission by remember { mutableStateOf(LocationPermissionHelper.isLocationPermissionGranted(context)) }
     var currentLocation by remember { mutableStateOf<LatLng?>(null) }
@@ -115,11 +139,19 @@ fun MapScreen(
         }
     }
 
+    LaunchedEffect(errorMessage) {
+        if (!errorMessage.isNullOrBlank()) {
+            toastManager.showInfo(errorMessage)
+            mapViewModel?.clearError()
+        }
+    }
+
     val mapView = remember { MapView(appContext) }
     var kakaoMap by remember { mutableStateOf<KakaoMap?>(null) }
     var marker by remember { mutableStateOf<Label?>(null) }
     var currentLocationMarker by remember { mutableStateOf<Label?>(null) }
-    var infoCardHeight by remember { mutableStateOf(0.dp) }
+    var moimMarkers by remember { mutableStateOf<List<Label>>(emptyList()) }
+    var bottomCardHeight by remember { mutableStateOf(0.dp) }
 
     DisposableEffect(lifecycleOwner, mapView) {
         val mapLifeCycle = object : MapLifeCycleCallback() {
@@ -128,6 +160,8 @@ fun MapScreen(
                 marker = null
                 currentLocationMarker?.remove()
                 currentLocationMarker = null
+                moimMarkers.forEach { it.remove() }
+                moimMarkers = emptyList()
             }
 
             override fun onMapError(error: Exception) {
@@ -168,6 +202,20 @@ fun MapScreen(
                         context = context
                     )
                 }
+                if (showPublicMoims && interactive) {
+                    map.setOnLabelClickListener { _, _, label ->
+                        val tag = label.tag
+                        if (tag is MoimListDTO) {
+                            mapViewModel?.selectMoim(tag)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                    map.setOnMapClickListener { _, _, _, _ ->
+                        mapViewModel?.clearSelection()
+                    }
+                }
             }
         }
 
@@ -201,6 +249,7 @@ fun MapScreen(
         val map = kakaoMap ?: return@LaunchedEffect
         val target = selectedAddress?.toLatLng()
         if (target != null) {
+            mapViewModel?.clearSelection()
             map.moveCamera(CameraUpdateFactory.newCenterPosition(target, 16))
             marker = placeMarker(
                 map = map,
@@ -235,14 +284,22 @@ fun MapScreen(
         )
     }
 
-    LaunchedEffect(selectedAddress) {
-        if (selectedAddress == null) {
-            infoCardHeight = 0.dp
+    LaunchedEffect(kakaoMap, publicMoims) {
+        val map = kakaoMap ?: return@LaunchedEffect
+        moimMarkers.forEach { it.remove() }
+        moimMarkers = emptyList()
+        if (!showPublicMoims || publicMoims.isEmpty()) return@LaunchedEffect
+        moimMarkers = createMoimMarkers(map, context, publicMoims)
+    }
+
+    LaunchedEffect(selectedMoim, selectedAddress) {
+        if (selectedMoim == null && selectedAddress == null) {
+            bottomCardHeight = 0.dp
         }
     }
 
     val locationButtonBottomPadding =
-        if (infoCardHeight > 0.dp) infoCardHeight + 30.dp else 24.dp
+        if (bottomCardHeight > 0.dp) bottomCardHeight + 30.dp else 24.dp
 
     Box(
         modifier = Modifier
@@ -303,67 +360,70 @@ fun MapScreen(
             }
         }
 
-        selectedAddress?.let { address ->
-
+        if (showPublicMoims) {
             Surface(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(
+                        top = if (showSearchOverlay) 84.dp else 16.dp,
+                        end = 16.dp
+                    ),
+                shape = RoundedCornerShape(999.dp),
+                color = CustomColor.white,
+                shadowElevation = 4.dp,
+                border = BorderStroke(1.dp, CustomColor.outline)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (isLoadingPublicMoims) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(14.dp),
+                            strokeWidth = 2.dp,
+                            color = CustomColor.primary
+                        )
+                    }
+                    val labelText = if (isLoadingPublicMoims) {
+                        "공개 모임 불러오는 중"
+                    } else {
+                        "공개 모임 ${publicMoims.size}개"
+                    }
+                    CustomText(
+                        text = labelText,
+                        type = CustomTextType.bodySmall,
+                        color = CustomColor.textSecondary
+                    )
+                }
+            }
+        }
+
+        if (selectedMoim != null || selectedAddress != null) {
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
                     .padding(horizontal = 16.dp, vertical = 24.dp)
                     .onGloballyPositioned { coordinates ->
-                        infoCardHeight = with(density) { coordinates.size.height.toDp() }
+                        bottomCardHeight = with(density) { coordinates.size.height.toDp() }
                     },
-                shape = RoundedCornerShape(16.dp),
-                color = CustomColor.white,
-                shadowElevation = 4.dp
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    val title = address.displayTitle()
-                    CustomText(
-                        text = title,
-                        type = CustomTextType.body,
-                        color = CustomColor.textPrimary
+                selectedMoim?.let { moim ->
+                    MoimInfoCard(
+                        moim = moim,
+                        modifier = Modifier.fillMaxWidth()
                     )
-                    address.roadAddress
-                        ?.takeIf { it.isNotBlank() && it != title }
-                        ?.let {
-                            CustomText(
-                                text = it,
-                                type = CustomTextType.bodySmall,
-                                color = CustomColor.textSecondary
-                            )
-                        }
-                    address.jibunAddress
-                        ?.takeIf { it.isNotBlank() && it != title }
-                        ?.let {
-                            CustomText(
-                                text = it,
-                                type = CustomTextType.bodySmall,
-                                color = CustomColor.textSecondary
-                            )
-                        }
-                    address.englishAddress
-                        ?.takeIf { it.isNotBlank() }
-                        ?.let {
-                            CustomText(
-                                text = it,
-                                type = CustomTextType.bodySmall,
-                                color = CustomColor.textSecondary
-                            )
-                        }
-                    if (isPromise) {
-                        CustomButton(
-                            text = "이 장소로 약속 잡기",
-                            onClick = { onCreatePromiseWithLocation(address, selectedQuery) },
-                            style = ButtonStyle.Primary,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp)
-                        )
-                    }
+                }
+                selectedAddress?.let { address ->
+                    SelectedAddressCard(
+                        address = address,
+                        selectedQuery = selectedQuery,
+                        isPromise = isPromise,
+                        onCreatePromiseWithLocation = onCreatePromiseWithLocation,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }
@@ -432,6 +492,217 @@ fun MapScreen(
     }
 }
 
+@Composable
+private fun SelectedAddressCard(
+    address: GeocodeAddress,
+    selectedQuery: String?,
+    isPromise: Boolean,
+    onCreatePromiseWithLocation: (GeocodeAddress, String?) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(16.dp),
+        color = CustomColor.white,
+        shadowElevation = 4.dp
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            val title = address.displayTitle()
+            CustomText(
+                text = title,
+                type = CustomTextType.body,
+                color = CustomColor.textPrimary
+            )
+            address.roadAddress
+                ?.takeIf { it.isNotBlank() && it != title }
+                ?.let {
+                    CustomText(
+                        text = it,
+                        type = CustomTextType.bodySmall,
+                        color = CustomColor.textSecondary
+                    )
+                }
+            address.jibunAddress
+                ?.takeIf { it.isNotBlank() && it != title }
+                ?.let {
+                    CustomText(
+                        text = it,
+                        type = CustomTextType.bodySmall,
+                        color = CustomColor.textSecondary
+                    )
+                }
+            address.englishAddress
+                ?.takeIf { it.isNotBlank() }
+                ?.let {
+                    CustomText(
+                        text = it,
+                        type = CustomTextType.bodySmall,
+                        color = CustomColor.textSecondary
+                    )
+                }
+            if (isPromise) {
+                CustomButton(
+                    text = "이 장소로 약속 잡기",
+                    onClick = { onCreatePromiseWithLocation(address, selectedQuery) },
+                    style = ButtonStyle.Primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MoimInfoCard(
+    moim: MoimListDTO,
+    modifier: Modifier = Modifier
+) {
+    val createdAt = parseIsoToKoreanDate(moim.createdAt).ifBlank { moim.createdAt }
+    val descriptionPreview = moim.description.preview(90)
+    val locationText = formatLatLng(moim.location)
+    val visibilityLabel = if (moim.isPublic) "공개 모임" else "비공개 모임"
+
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(20.dp),
+        color = CustomColor.white,
+        shadowElevation = 6.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(CustomColor.white, CustomColor.primary50)
+                    )
+                )
+                .padding(horizontal = 16.dp, vertical = 14.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .width(36.dp)
+                    .height(4.dp)
+                    .background(CustomColor.gray200, RoundedCornerShape(999.dp))
+            )
+
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                MoimTagChip(
+                    text = visibilityLabel,
+                    background = CustomColor.primary100,
+                    contentColor = CustomColor.primaryDim
+                )
+                if (moim.leader) {
+                    MoimTagChip(
+                        text = "리더",
+                        background = CustomColor.secondaryContainer,
+                        contentColor = CustomColor.secondary
+                    )
+                }
+            }
+
+            CustomText(
+                text = moim.title,
+                type = CustomTextType.title,
+                color = CustomColor.textPrimary
+            )
+
+            if (descriptionPreview.isNotBlank()) {
+                CustomText(
+                    text = descriptionPreview,
+                    type = CustomTextType.bodySmall,
+                    color = CustomColor.textBody
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                MoimMetaChip(
+                    icon = R.drawable.ic_people,
+                    text = "참여 ${moim.emails.size}명"
+                )
+                if (createdAt.isNotBlank()) {
+                    MoimMetaChip(
+                        icon = R.drawable.ic_calendar,
+                        text = createdAt
+                    )
+                }
+                MoimMetaChip(
+                    icon = R.drawable.ic_location,
+                    text = locationText
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MoimTagChip(
+    text: String,
+    background: Color,
+    contentColor: Color,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(999.dp),
+        color = background,
+        border = BorderStroke(1.dp, CustomColor.outline)
+    ) {
+        CustomText(
+            text = text,
+            type = CustomTextType.label,
+            color = contentColor,
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+        )
+    }
+}
+
+@Composable
+private fun MoimMetaChip(
+    icon: Int,
+    text: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        color = CustomColor.white.copy(alpha = 0.9f),
+        border = BorderStroke(1.dp, CustomColor.outline)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Surface(
+                shape = CircleShape,
+                color = CustomColor.primary50,
+                border = BorderStroke(1.dp, CustomColor.outline)
+            ) {
+                Icon(
+                    painter = painterResource(id = icon),
+                    contentDescription = null,
+                    tint = CustomColor.primaryDim,
+                    modifier = Modifier.padding(6.dp).size(14.dp)
+                )
+            }
+            CustomText(
+                text = text,
+                type = CustomTextType.bodySmall,
+                color = CustomColor.textSecondary
+            )
+        }
+    }
+}
+
 private fun placeMarker(
     map: KakaoMap,
     currentLabel: Label?,
@@ -450,6 +721,38 @@ private fun placeMarker(
         .setStyles(style)
         .setTexts(LabelTextBuilder().setTexts(title.take(30)))
     return layer.addLabel(options)
+}
+
+private fun createMoimMarkers(
+    map: KakaoMap,
+    context: Context,
+    moims: List<MoimListDTO>
+): List<Label> {
+    val layer: LabelLayer = map.labelManager?.layer ?: return emptyList()
+    val iconBitmap = bitmapFromVector(context, R.drawable.ic_marker_moim) ?: return emptyList()
+    val style = LabelStyle.from(iconBitmap)
+        .setAnchorPoint(0.5f, 1f)
+    return moims.mapNotNull { moim ->
+        val position = LatLng.from(moim.location.latitude, moim.location.longitude)
+        val options = LabelOptions.from("moim_${moim.moimId}", position)
+            .setStyles(style)
+            .setClickable(true)
+            .setTag(moim)
+        layer.addLabel(options)
+    }
+}
+
+private fun String.preview(maxChars: Int): String {
+    val trimmed = trim()
+    return if (trimmed.length > maxChars) {
+        trimmed.take(maxChars).trimEnd() + "..."
+    } else {
+        trimmed
+    }
+}
+
+private fun formatLatLng(location: MoimLocationDTO): String {
+    return String.format(Locale.US, "%.5f, %.5f", location.latitude, location.longitude)
 }
 
 private fun bitmapFromVector(context: Context, drawableResId: Int): Bitmap? {
