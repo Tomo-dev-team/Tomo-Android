@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.util.Log
 import android.view.MotionEvent
+import androidx.annotation.DrawableRes
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
@@ -83,6 +84,7 @@ import com.markoala.tomoandroid.utils.parseIsoToKoreanDate
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.Locale
+import kotlin.math.roundToInt
 
 @Composable
 fun MapScreen(
@@ -152,6 +154,13 @@ fun MapScreen(
     var currentLocationMarker by remember { mutableStateOf<Label?>(null) }
     var moimMarkers by remember { mutableStateOf<List<Label>>(emptyList()) }
     var bottomCardHeight by remember { mutableStateOf(0.dp) }
+    val markerStyles = remember(appContext) {
+        MarkerStyles(
+            primary = createMarkerStyle(appContext, R.drawable.ic_marker_primary),
+            current = createMarkerStyle(appContext, R.drawable.ic_marker_current),
+            moim = createMarkerStyle(appContext, R.drawable.ic_marker_moim)
+        )
+    }
 
     DisposableEffect(lifecycleOwner, mapView) {
         val mapLifeCycle = object : MapLifeCycleCallback() {
@@ -187,8 +196,7 @@ fun MapScreen(
                         position = target,
                         title = address.displayTitle(),
                         labelId = "selected_marker",
-                        iconRes = R.drawable.ic_marker_primary,
-                        context = context
+                        style = markerStyles.primary
                     )
                 }
                 currentLocation?.let { location ->
@@ -198,8 +206,7 @@ fun MapScreen(
                         position = location,
                         title = "현재 위치",
                         labelId = "current_marker",
-                        iconRes = R.drawable.ic_marker_current,
-                        context = context
+                        style = markerStyles.current
                     )
                 }
                 if (showPublicMoims && interactive) {
@@ -257,8 +264,7 @@ fun MapScreen(
                 position = target,
                 title = selectedAddress.displayTitle(),
                 labelId = "selected_marker",
-                iconRes = R.drawable.ic_marker_primary,
-                context = context
+                style = markerStyles.primary
             )
         } else {
             marker?.remove()
@@ -279,8 +285,7 @@ fun MapScreen(
             position = location,
             title = "현재 위치",
             labelId = "current_marker",
-            iconRes = R.drawable.ic_marker_current,
-            context = context
+            style = markerStyles.current
         )
     }
 
@@ -289,7 +294,7 @@ fun MapScreen(
         moimMarkers.forEach { it.remove() }
         moimMarkers = emptyList()
         if (!showPublicMoims || publicMoims.isEmpty()) return@LaunchedEffect
-        moimMarkers = createMoimMarkers(map, context, publicMoims)
+        moimMarkers = createMoimMarkers(map, markerStyles.moim, publicMoims)
     }
 
     LaunchedEffect(selectedMoim, selectedAddress) {
@@ -709,33 +714,28 @@ private fun placeMarker(
     position: LatLng,
     title: String,
     labelId: String,
-    iconRes: Int,
-    context: Context
+    style: LabelStyle?
 ): Label? {
     currentLabel?.remove()
     val layer: LabelLayer = map.labelManager?.layer ?: return null
-    val iconBitmap = bitmapFromVector(context, iconRes) ?: return null
-    val style = LabelStyle.from(iconBitmap)
-        .setAnchorPoint(0.5f, 1f)
+    val resolvedStyle = style ?: return null
     val options = LabelOptions.from(labelId, position)
-        .setStyles(style)
+        .setStyles(resolvedStyle)
         .setTexts(LabelTextBuilder().setTexts(title.take(30)))
     return layer.addLabel(options)
 }
 
 private fun createMoimMarkers(
     map: KakaoMap,
-    context: Context,
+    style: LabelStyle?,
     moims: List<MoimListDTO>
 ): List<Label> {
     val layer: LabelLayer = map.labelManager?.layer ?: return emptyList()
-    val iconBitmap = bitmapFromVector(context, R.drawable.ic_marker_moim) ?: return emptyList()
-    val style = LabelStyle.from(iconBitmap)
-        .setAnchorPoint(0.5f, 1f)
+    val resolvedStyle = style ?: return emptyList()
     return moims.mapNotNull { moim ->
         val position = LatLng.from(moim.location.latitude, moim.location.longitude)
         val options = LabelOptions.from("moim_${moim.moimId}", position)
-            .setStyles(style)
+            .setStyles(resolvedStyle)
             .setClickable(true)
             .setTag(moim)
         layer.addLabel(options)
@@ -755,17 +755,43 @@ private fun formatLatLng(location: MoimLocationDTO): String {
     return String.format(Locale.US, "%.5f, %.5f", location.latitude, location.longitude)
 }
 
-private fun bitmapFromVector(context: Context, drawableResId: Int): Bitmap? {
+private data class MarkerStyles(
+    val primary: LabelStyle?,
+    val current: LabelStyle?,
+    val moim: LabelStyle?
+)
+
+private fun createMarkerStyle(context: Context, @DrawableRes drawableResId: Int): LabelStyle? {
+    val iconBitmap = bitmapFromVector(context, drawableResId) ?: return null
+    return LabelStyle.from(iconBitmap)
+        .setAnchorPoint(0.5f, 1f)
+        .setApplyDpScale(false)
+}
+
+private fun bitmapFromVector(context: Context, @DrawableRes drawableResId: Int): Bitmap? {
     val drawable = ContextCompat.getDrawable(context, drawableResId) ?: return null
-    val bitmap = Bitmap.createBitmap(
-        drawable.intrinsicWidth.coerceAtLeast(1),
-        drawable.intrinsicHeight.coerceAtLeast(1),
-        Bitmap.Config.ARGB_8888
-    )
+    val metrics = context.resources.displayMetrics
+    val fallbackSize = (24f * metrics.density).roundToInt().coerceAtLeast(1)
+    val width = drawable.intrinsicWidth.takeIf { it > 0 } ?: fallbackSize
+    val height = drawable.intrinsicHeight.takeIf { it > 0 } ?: fallbackSize
+    val targetWidth = nextPowerOfTwo(width)
+    val targetHeight = nextPowerOfTwo(height)
+    val bitmap = Bitmap.createBitmap(targetWidth, targetHeight, Bitmap.Config.ARGB_8888)
+    bitmap.density = metrics.densityDpi
     val canvas = Canvas(bitmap)
-    drawable.setBounds(0, 0, canvas.width, canvas.height)
+    val left = ((targetWidth - width) / 2).coerceAtLeast(0)
+    val top = (targetHeight - height).coerceAtLeast(0)
+    drawable.setBounds(left, top, left + width, top + height)
     drawable.draw(canvas)
+    bitmap.setHasAlpha(true)
+    bitmap.setPremultiplied(true)
     return bitmap
+}
+
+private fun nextPowerOfTwo(value: Int): Int {
+    if (value <= 1) return 1
+    val highest = Integer.highestOneBit(value)
+    return if (value == highest) value else highest shl 1
 }
 
 private fun GeocodeAddress.toLatLng(): LatLng? {
